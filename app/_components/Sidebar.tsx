@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 const ICON: Record<string, React.ReactNode> = {
   home: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -56,7 +58,6 @@ const NAV_MAIN = [
   { label: 'Início', href: '/', icon: 'home' },
   { label: 'Explorar', href: '/explore', icon: 'explore' },
   { label: 'Grupos', href: '/groups', icon: 'groups' },
-  { label: 'Integrações', href: '/integrations', icon: 'integrations' },
 ];
 
 const NAV_BETA = [
@@ -65,14 +66,45 @@ const NAV_BETA = [
   { label: 'Suporte', href: '/support', icon: 'support' },
 ];
 
+function NavItem({ label, href, icon, isActive }: { label: string; href: string; icon: string; isActive: boolean }) {
+  return (
+    <a
+      href={href}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '8px 12px',
+        margin: '1px 8px',
+        borderRadius: 8,
+        fontSize: 14,
+        fontWeight: isActive ? 500 : 400,
+        color: isActive ? '#f3f4f6' : '#6b7280',
+        background: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
+        textDecoration: 'none',
+        transition: 'background 0.1s, color 0.1s',
+      }}
+      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+    >
+      <span style={{ color: isActive ? '#e5e7eb' : '#4b5563', display: 'flex', flexShrink: 0 }}>
+        {ICON[icon]}
+      </span>
+      {label}
+    </a>
+  );
+}
+
 export function Sidebar({ active }: { active?: string }) {
+  const [intOpen, setIntOpen] = useState(false);
+  const isGroupsActive = active?.startsWith('/groups');
+
   return (
     <aside style={{
       width: 220,
       minHeight: '100vh',
-      background: '#0f0f0f',
-      borderRight: '1px solid #1f2937',
-      padding: '0',
+      background: '#111111',
+      borderRight: '1px solid #1a1a1a',
       flexShrink: 0,
       position: 'sticky',
       top: 0,
@@ -82,68 +114,73 @@ export function Sidebar({ active }: { active?: string }) {
       flexDirection: 'column',
     }}>
       {/* Logo */}
-      <div style={{ padding: '18px 20px 16px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #1a1a1a' }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#84cc16" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <div style={{ padding: '16px 20px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#84cc16" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 18V5l12-2v13"/>
           <circle cx="6" cy="18" r="3"/>
           <circle cx="18" cy="16" r="3"/>
         </svg>
         <span style={{ fontWeight: 800, fontSize: 14, letterSpacing: '-0.01em', color: '#fff' }}>MUSILISTA</span>
-        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, border: '1px solid rgba(132,204,22,0.4)', color: '#84cc16' }}>BETA</span>
+        <span style={{
+          fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+          background: 'rgba(132,204,22,0.15)',
+          border: '1px solid rgba(132,204,22,0.35)',
+          color: '#84cc16',
+        }}>BETA</span>
       </div>
 
       {/* Main nav */}
-      <nav style={{ padding: '8px 0', flex: 1 }}>
-        {NAV_MAIN.map((item) => {
-          const isActive = active === item.href || (active?.startsWith('/groups') && item.href === '/groups');
-          return (
-            <a
-              key={item.href}
-              href={item.href}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '8px 16px',
-                fontSize: 14,
-                fontWeight: isActive ? 500 : 400,
-                color: isActive ? '#e5e7eb' : '#6b7280',
-                background: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
-                borderLeft: isActive ? '2px solid #84cc16' : '2px solid transparent',
-                textDecoration: 'none',
-                transition: 'color 0.15s',
-              }}
-            >
-              <span style={{ color: isActive ? '#84cc16' : '#4b5563', display: 'flex', flexShrink: 0 }}>
-                {ICON[item.icon]}
-              </span>
-              {item.label}
-            </a>
-          );
-        })}
+      <nav style={{ padding: '4px 0', flex: 1 }}>
+        {NAV_MAIN.map((item) => (
+          <NavItem
+            key={item.href}
+            label={item.label}
+            href={item.href}
+            icon={item.icon}
+            isActive={item.href === '/groups' ? !!isGroupsActive : active === item.href}
+          />
+        ))}
 
-        <div style={{ padding: '16px 16px 6px', fontSize: 10, fontWeight: 700, color: '#374151', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          Beta Test
+        {/* Integrações with collapsible arrow */}
+        <button
+          onClick={() => setIntOpen((o) => !o)}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            width: 'calc(100% - 16px)',
+            padding: '8px 12px', margin: '1px 8px', borderRadius: 8,
+            fontSize: 14, color: '#6b7280', background: 'transparent',
+            border: 'none', cursor: 'pointer', textAlign: 'left',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ color: '#4b5563', display: 'flex' }}>{ICON.integrations}</span>
+            Integrações
+          </span>
+          <svg
+            width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            style={{ transform: intOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+          >
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        <div style={{ padding: '12px 8px 4px', marginTop: 4 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#374151', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0 12px' }}>
+            Beta Test
+          </span>
         </div>
 
         {NAV_BETA.map((item) => (
-          <a
+          <NavItem
             key={item.href}
+            label={item.label}
             href={item.href}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '8px 16px',
-              fontSize: 14,
-              color: '#6b7280',
-              textDecoration: 'none',
-              borderLeft: '2px solid transparent',
-            }}
-          >
-            <span style={{ color: '#4b5563', display: 'flex', flexShrink: 0 }}>{ICON[item.icon]}</span>
-            {item.label}
-          </a>
+            icon={item.icon}
+            isActive={active === item.href}
+          />
         ))}
       </nav>
     </aside>
