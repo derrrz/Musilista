@@ -1,0 +1,329 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+
+type Group = {
+  id: string;
+  name: string;
+  description: string | null;
+  inviteCode: string;
+  image: string | null;
+  role: string;
+  memberCount: number;
+};
+
+const ROLE_LABEL: Record<string, string> = { owner: 'Dono', admin: 'Admin', member: 'Membro' };
+const ROLE_COLOR: Record<string, string> = {
+  owner: '#84cc16',
+  admin: '#3b82f6',
+  member: '#6b7280',
+};
+
+function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState('');
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+    startTransition(async () => {
+      const res = await fetch('/api/groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        setError(d.error ?? 'Erro ao criar grupo');
+        return;
+      }
+      const group = await res.json();
+      onCreated(group.id);
+    });
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
+    }} onClick={onClose}>
+      <div style={{
+        background: '#111111', border: '1px solid #1f2937', borderRadius: 16,
+        padding: 32, width: '100%', maxWidth: 420,
+      }} onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ margin: '0 0 24px', fontSize: 20, fontWeight: 700, color: '#fff' }}>Novo Grupo</h2>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#9ca3af', marginBottom: 6 }}>Nome</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ex: Banda do Samba"
+              required
+              style={{
+                width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #374151',
+                background: '#1f2937', color: '#e5e7eb', fontSize: 14, boxSizing: 'border-box',
+              }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#9ca3af', marginBottom: 6 }}>Descrição <span style={{ fontWeight: 400, color: '#4b5563' }}>(opcional)</span></label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Breve descrição do grupo"
+              rows={3}
+              style={{
+                width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #374151',
+                background: '#1f2937', color: '#e5e7eb', fontSize: 14, resize: 'vertical', boxSizing: 'border-box',
+              }}
+            />
+          </div>
+          {error && <p style={{ margin: 0, fontSize: 13, color: '#f87171' }}>{error}</p>}
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+            <button type="button" onClick={onClose} style={{
+              padding: '9px 20px', borderRadius: 8, border: '1px solid #374151',
+              background: 'transparent', color: '#9ca3af', fontSize: 14, cursor: 'pointer',
+            }}>Cancelar</button>
+            <button type="submit" disabled={pending} style={{
+              padding: '9px 20px', borderRadius: 8, border: 'none',
+              background: '#84cc16', color: '#000', fontSize: 14, fontWeight: 700, cursor: pending ? 'wait' : 'pointer',
+            }}>{pending ? 'Criando...' : 'Criar Grupo'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function JoinGroupModal({ onClose, onJoined }: { onClose: () => void; onJoined: (id: string) => void }) {
+  const [code, setCode] = useState('');
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState('');
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+    startTransition(async () => {
+      const res = await fetch('/api/groups/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode: code }),
+      });
+      const d = await res.json();
+      if (!res.ok) { setError(d.error ?? 'Erro ao entrar no grupo'); return; }
+      onJoined(d.id);
+    });
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
+    }} onClick={onClose}>
+      <div style={{
+        background: '#111111', border: '1px solid #1f2937', borderRadius: 16,
+        padding: 32, width: '100%', maxWidth: 380,
+      }} onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 700, color: '#fff' }}>Entrar com código</h2>
+        <p style={{ margin: '0 0 24px', fontSize: 14, color: '#6b7280' }}>Peça o código ao dono do grupo</p>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            placeholder="GRP-XXXXXX"
+            required
+            style={{
+              width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #374151',
+              background: '#1f2937', color: '#e5e7eb', fontSize: 18, fontFamily: 'monospace',
+              letterSpacing: '0.1em', textAlign: 'center', boxSizing: 'border-box',
+            }}
+          />
+          {error && <p style={{ margin: 0, fontSize: 13, color: '#f87171' }}>{error}</p>}
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+            <button type="button" onClick={onClose} style={{
+              padding: '9px 20px', borderRadius: 8, border: '1px solid #374151',
+              background: 'transparent', color: '#9ca3af', fontSize: 14, cursor: 'pointer',
+            }}>Cancelar</button>
+            <button type="submit" disabled={pending} style={{
+              padding: '9px 20px', borderRadius: 8, border: 'none',
+              background: '#84cc16', color: '#000', fontSize: 14, fontWeight: 700, cursor: pending ? 'wait' : 'pointer',
+            }}>{pending ? 'Entrando...' : 'Entrar'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export function GroupsView({ groups, userName }: { groups: Group[]; userName: string }) {
+  const [showCreate, setShowCreate] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
+  const router = useRouter();
+
+  function handleCreated(id: string) {
+    setShowCreate(false);
+    router.push(`/groups/${id}`);
+  }
+
+  function handleJoined(id: string) {
+    setShowJoin(false);
+    router.push(`/groups/${id}`);
+  }
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a' }}>
+      {/* Sidebar */}
+      <aside style={{
+        width: 220, minHeight: '100vh', background: '#0f0f0f',
+        borderRight: '1px solid #1f2937', padding: '16px 0',
+        flexShrink: 0, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto',
+      }}>
+        <div style={{ padding: '12px 20px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ color: '#84cc16', fontSize: 20 }}>♪</span>
+          <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em', color: '#fff' }}>MUSILISTA</span>
+          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(132,204,22,0.2)', color: '#84cc16' }}>BETA</span>
+        </div>
+        <nav>
+          {[
+            { label: 'Início', href: '/' },
+            { label: 'Explorar', href: '/explore' },
+            { label: 'Grupos', href: '/groups', active: true },
+            { label: 'Integrações', href: '/integrations' },
+          ].map((item) => (
+            <a key={item.href} href={item.href} style={{
+              display: 'block', padding: '9px 20px', fontSize: 14,
+              color: item.active ? '#e5e7eb' : '#6b7280',
+              background: item.active ? 'rgba(255,255,255,0.05)' : 'transparent',
+              borderLeft: item.active ? '2px solid #84cc16' : '2px solid transparent',
+              textDecoration: 'none',
+            }}>
+              {item.label}
+            </a>
+          ))}
+          <div style={{ padding: '16px 20px 8px', fontSize: 11, fontWeight: 600, color: '#374151', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Beta Test</div>
+          {[
+            { label: 'Planos', href: '/planos' },
+            { label: 'Roadmap', href: '/roadmap' },
+            { label: 'Suporte', href: '/support' },
+          ].map((item) => (
+            <a key={item.href} href={item.href} style={{ display: 'block', padding: '9px 20px', fontSize: 14, color: '#6b7280', textDecoration: 'none' }}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      </aside>
+
+      {/* Main */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <header style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+          padding: '12px 32px', borderBottom: '1px solid #1f2937', gap: 16,
+        }}>
+          <span style={{ fontSize: 14, color: '#9ca3af' }}>{userName}</span>
+          <div style={{
+            width: 32, height: 32, borderRadius: '50%', background: '#84cc16',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 700, fontSize: 14, color: '#000',
+          }}>
+            {userName?.[0]?.toUpperCase()}
+          </div>
+        </header>
+
+        <main style={{ padding: 32, flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#fff' }}>Meus Grupos</h1>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setShowJoin(true)} style={{
+                padding: '9px 18px', borderRadius: 8, border: '1px solid #374151',
+                background: 'transparent', color: '#9ca3af', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              }}>
+                Entrar com código
+              </button>
+              <button onClick={() => setShowCreate(true)} style={{
+                padding: '9px 18px', borderRadius: 8, border: 'none',
+                background: '#84cc16', color: '#000', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+              }}>
+                + Novo Grupo
+              </button>
+            </div>
+          </div>
+
+          {groups.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '80px 0', color: '#6b7280' }}>
+              <p style={{ fontSize: 32, marginBottom: 12 }}>🎵</p>
+              <p style={{ fontSize: 16, fontWeight: 600, color: '#9ca3af', marginBottom: 8 }}>Nenhum grupo ainda</p>
+              <p style={{ fontSize: 14, marginBottom: 24 }}>Crie um grupo ou entre com um código de convite</p>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+                <button onClick={() => setShowJoin(true)} style={{
+                  padding: '10px 20px', borderRadius: 8, border: '1px solid #374151',
+                  background: 'transparent', color: '#9ca3af', fontSize: 14, cursor: 'pointer',
+                }}>
+                  Entrar com código
+                </button>
+                <button onClick={() => setShowCreate(true)} style={{
+                  padding: '10px 20px', borderRadius: 8, border: 'none',
+                  background: '#84cc16', color: '#000', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                }}>
+                  Criar Grupo
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+              {groups.map((g) => (
+                <a key={g.id} href={`/groups/${g.id}`} style={{ textDecoration: 'none' }}>
+                  <div style={{
+                    background: '#111111', border: '1px solid #1f2937', borderRadius: 12,
+                    padding: 20, cursor: 'pointer', transition: 'border-color 0.15s',
+                  }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#374151')}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#1f2937')}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 10, background: '#1f2937',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 20, flexShrink: 0,
+                      }}>
+                        {g.image ? (
+                          <img src={g.image} alt="" style={{ width: '100%', height: '100%', borderRadius: 10, objectFit: 'cover' }} />
+                        ) : '🎵'}
+                      </div>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6,
+                        background: `${ROLE_COLOR[g.role]}20`,
+                        color: ROLE_COLOR[g.role],
+                      }}>
+                        {ROLE_LABEL[g.role] ?? g.role}
+                      </span>
+                    </div>
+                    <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 700, color: '#fff' }}>{g.name}</h3>
+                    {g.description && (
+                      <p style={{ margin: '0 0 12px', fontSize: 13, color: '#6b7280', lineHeight: 1.4 }}>
+                        {g.description.length > 80 ? g.description.slice(0, 80) + '...' : g.description}
+                      </p>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: g.description ? 0 : 12 }}>
+                      <span style={{ fontSize: 12, color: '#4b5563' }}>
+                        {g.memberCount} {g.memberCount === 1 ? 'membro' : 'membros'}
+                      </span>
+                      <span style={{ fontSize: 12, color: '#374151' }}>·</span>
+                      <span style={{ fontSize: 12, color: '#374151', fontFamily: 'monospace' }}>{g.inviteCode}</span>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+
+      {showCreate && <CreateGroupModal onClose={() => setShowCreate(false)} onCreated={handleCreated} />}
+      {showJoin && <JoinGroupModal onClose={() => setShowJoin(false)} onJoined={handleJoined} />}
+    </div>
+  );
+}
