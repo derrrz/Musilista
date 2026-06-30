@@ -1,1 +1,9 @@
-{"error":{"code":"api_version_disabled","message":"v6 of this endpoint has been disabled. Please use v8 instead.","fid":"17cae7041eeccbbd5cfcafeda0bcbbbffe441827"}}
+const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+export function generateInviteCode(): string {
+  let code = 'GRP-';
+  for (let i = 0; i < 6; i++) code += CHARS[Math.floor(Math.random() * CHARS.length)];
+  return code;
+}
+export function normalizeCode(raw: string): string {
+  return raw.trim().toUpperCase().replace(/\s+/g, '');
+}

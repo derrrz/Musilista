@@ -1,1 +1,2 @@
-{"error":{"code":"api_version_disabled","message":"v6 of this endpoint has been disabled. Please use v8 instead.","fid":"9837aca3b957fb1e1809917d0cfb38bf8a2d870f"}}
+import { handlers } from '@/auth';
+export const { GET, POST } = handlers;

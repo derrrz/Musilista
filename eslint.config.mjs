@@ -1,1 +1,11 @@
-{"error":{"code":"api_version_disabled","message":"v6 of this endpoint has been disabled. Please use v8 instead.","fid":"44d5bed565a8dd284af3e17f3b16a1c752008d0e"}}
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { FlatCompat } from '@eslint/eslintrc';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const compat = new FlatCompat({ baseDirectory: __dirname });
+const eslintConfig = [
+  { ignores: ['.claude/**', '.next/**', 'mobile/**', 'node_modules/**'] },
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+];
+export default eslintConfig;

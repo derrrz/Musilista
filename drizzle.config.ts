@@ -1,1 +1,7 @@
-{"error":{"code":"api_version_disabled","message":"v6 of this endpoint has been disabled. Please use v8 instead.","fid":"1f73812c7f460091dbbe3d66b2f72b5da68c49ae"}}
+import type { Config } from 'drizzle-kit';
+export default {
+  dialect: 'postgresql',
+  dbCredentials: { url: process.env.DATABASE_URL! },
+  out: './db/migrations',
+  schema: './db/schema.ts',
+} satisfies Config;

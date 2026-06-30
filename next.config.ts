@@ -1,1 +1,16 @@
-{"error":{"code":"api_version_disabled","message":"v6 of this endpoint has been disabled. Please use v8 instead.","fid":"57ebc794a4de18b3024adaf10fc63a34b9dfff42"}}
+import type { NextConfig } from 'next';
+
+// All pages/routes not handled locally proxy to the original working deployment
+const ORIGIN = 'https://musilista-iqzjlvmzd-lopesedersouza-7157s-projects.vercel.app';
+
+const nextConfig: NextConfig = {
+  async rewrites() {
+    return {
+      fallback: [
+        { source: '/:path*', destination: `${ORIGIN}/:path*` },
+      ],
+    };
+  },
+};
+
+export default nextConfig;
