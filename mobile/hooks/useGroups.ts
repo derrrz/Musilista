@@ -36,7 +36,7 @@ export function useGroupMembers(groupId: string) {
 export function useGroupEvents(groupId: string) {
   return useQuery<GroupEvent[]>({
     queryKey: ['groups', groupId, 'events'],
-    queryFn: () => api.get<GroupEvent[]>(`/api/groups/${groupId}/events`),
+    queryFn: () => api.get<GroupEvent[]>(`/api/mobile/groups/${groupId}/events`),
     enabled: Boolean(groupId),
   });
 }
@@ -76,7 +76,7 @@ export function useCreateEvent(groupId: string) {
       date: string;
       type: 'SHOW' | 'ENSAIO' | 'OUTRO';
       description?: string;
-    }) => api.post<GroupEvent>(`/api/groups/${groupId}/events`, data),
+    }) => api.post<GroupEvent>(`/api/mobile/groups/${groupId}/events`, data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['groups', groupId, 'events'] }),
   });
@@ -86,7 +86,7 @@ export function useConfirmAttendance(groupId: string, eventId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      api.post(`/api/groups/${groupId}/events/${eventId}/attendance`),
+      api.post(`/api/mobile/groups/${groupId}/events/${eventId}/attendance`),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['groups', groupId, 'events'] }),
   });

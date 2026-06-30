@@ -43,6 +43,7 @@ export async function GET(req: NextRequest, { params }: Params) {
       eventTime: events.eventTime,
       eventType: events.eventType,
       notice: events.notice,
+      location: events.location,
       technicalRider: events.technicalRider,
       publicToken: events.publicToken,
       repertoireId: events.repertoireId,
@@ -53,26 +54,18 @@ export async function GET(req: NextRequest, { params }: Params) {
 
   const result = await Promise.all(
     eventsRows.map(async (ev) => {
-      const roles = await db
-        .select({
-          id: eventRoles.id,
-          roleName: eventRoles.roleName,
-          userName: users.name,
-        })
-        .from(eventRoles)
-        .leftJoin(users, eq(eventRoles.userId, users.id))
-        .where(eq(eventRoles.eventId, ev.id));
-
-      const [ack] = await db
-        .select({ eventId: eventAcknowledgments.eventId })
-        .from(eventAcknowledgments)
-        .where(
-          and(
-            eq(eventAcknowledgments.eventId, ev.id),
-            eq(eventAcknowledgments.userId, userId),
-          ),
-        )
-        .limit(1);
+      const [rolesRows, [ack]] = await Promise.all([
+        db
+          .select({ id: eventRoles.id, roleName: eventRoles.roleName, userName: users.name })
+          .from(eventRoles)
+          .leftJoin(users, eq(eventRoles.userId, users.id))
+          .where(eq(eventRoles.eventId, ev.id)),
+        db
+          .select({ eventId: eventAcknowledgments.eventId })
+          .from(eventAcknowledgments)
+          .where(and(eq(eventAcknowledgments.eventId, ev.id), eq(eventAcknowledgments.userId, userId)))
+          .limit(1),
+      ]);
 
       let setlistName: string | undefined;
       if (ev.repertoireId) {
@@ -91,11 +84,12 @@ export async function GET(req: NextRequest, { params }: Params) {
         time: ev.eventTime ?? undefined,
         type: TYPE_MAP[ev.eventType] ?? 'OUTRO',
         description: ev.notice ?? undefined,
+        location: ev.location ?? undefined,
         technicalRider: ev.technicalRider ?? undefined,
         publicToken: ev.publicToken ?? undefined,
         setlistId: ev.repertoireId ?? undefined,
         setlistName,
-        roles: roles.map((r) => ({
+        roles: rolesRows.map((r) => ({
           id: r.id,
           label: r.roleName,
           assigneeName: r.userName ?? undefined,
