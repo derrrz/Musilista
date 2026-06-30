@@ -12,7 +12,7 @@ export function useGroups() {
 export function useGroup(id: string) {
   return useQuery<Group>({
     queryKey: ['groups', id],
-    queryFn: () => api.get<Group>(`/api/groups/${id}`),
+    queryFn: () => api.get<Group>(`/api/mobile/groups/${id}`),
     enabled: Boolean(id),
   });
 }
