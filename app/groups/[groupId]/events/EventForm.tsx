@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Sidebar } from '@/app/_components/Sidebar';
 
 type EventFormProps = {
   groupId: string;
@@ -84,52 +85,13 @@ export function EventForm({ groupId, eventId, initial }: EventFormProps) {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a' }}>
-      {/* Sidebar */}
-      <aside style={{
-        width: 220, minHeight: '100vh', background: '#0f0f0f',
-        borderRight: '1px solid #1f2937', padding: '16px 0',
-        flexShrink: 0, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto',
-      }}>
-        <div style={{ padding: '12px 20px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ color: '#84cc16', fontSize: 20 }}>♪</span>
-          <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em', color: '#fff' }}>MUSILISTA</span>
-          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(132,204,22,0.2)', color: '#84cc16' }}>BETA</span>
-        </div>
-        <nav>
-          {[
-            { label: 'Início', href: '/' },
-            { label: 'Explorar', href: '/explore' },
-            { label: 'Grupos', href: '/groups', active: true },
-            { label: 'Integrações', href: '/integrations' },
-          ].map((item) => (
-            <a key={item.href} href={item.href} style={{
-              display: 'block', padding: '9px 20px', fontSize: 14,
-              color: item.active ? '#e5e7eb' : '#6b7280',
-              background: item.active ? 'rgba(255,255,255,0.05)' : 'transparent',
-              borderLeft: item.active ? '2px solid #84cc16' : '2px solid transparent',
-              textDecoration: 'none',
-            }}>
-              {item.label}
-            </a>
-          ))}
-          <div style={{ padding: '16px 20px 8px', fontSize: 11, fontWeight: 600, color: '#374151', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Beta Test</div>
-          {[
-            { label: 'Planos', href: '/planos' },
-            { label: 'Roadmap', href: '/roadmap' },
-            { label: 'Suporte', href: '/support' },
-          ].map((item) => (
-            <a key={item.href} href={item.href} style={{ display: 'block', padding: '9px 20px', fontSize: 14, color: '#6b7280', textDecoration: 'none' }}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
-      </aside>
+      <Sidebar active="/groups" />
 
       {/* Main */}
       <div style={{ flex: 1 }}>
         <header style={{
-          display: 'flex', alignItems: 'center', padding: '12px 32px',
-          borderBottom: '1px solid #1f2937',
+          display: 'flex', alignItems: 'center', padding: '12px 24px',
+          borderBottom: '1px solid #1f2937', height: 52,
         }}>
           <a href={`/groups/${groupId}`} style={{ fontSize: 13, color: '#6b7280', textDecoration: 'none' }}>
             ← Voltar

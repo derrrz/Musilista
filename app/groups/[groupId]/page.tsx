@@ -88,6 +88,7 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
       group={{ ...group, myRole: roleMap[membership.role] ?? 'MEMBRO', memberCount }}
       events={enrichedEvents}
       userName={session.user.name ?? ''}
+      userImage={session.user.image ?? null}
     />
   );
 }

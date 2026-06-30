@@ -33,5 +33,5 @@ export default async function GroupsPage() {
     }),
   );
 
-  return <GroupsView groups={userGroups} userName={session.user.name ?? ''} />;
+  return <GroupsView groups={userGroups} userName={session.user.name ?? ''} userImage={session.user.image ?? null} />;
 }
