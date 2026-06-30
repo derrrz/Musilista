@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
-// All pages/routes not handled locally proxy to the original working deployment
-const ORIGIN = 'https://musilista-iqzjlvmzd-lopesedersouza-7157s-projects.vercel.app';
+// Routes not yet rebuilt locally fall back to the legacy branch deployment
+const ORIGIN = 'https://musilista-q2f4pw0ky-lopesedersouza-7157s-projects.vercel.app';
 
 const nextConfig: NextConfig = {
   async rewrites() {
