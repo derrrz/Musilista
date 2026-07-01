@@ -172,21 +172,21 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
 
   const INPUT: React.CSSProperties = {
     width: '100%', padding: '9px 12px', borderRadius: 8,
-    border: '1px solid #374151', background: '#1a1a1a',
-    color: '#e5e7eb', fontSize: 14, boxSizing: 'border-box',
+    border: '1px solid var(--ml-line)', background: 'var(--ml-line)',
+    color: 'var(--ml-ink)', fontSize: 14, boxSizing: 'border-box',
   };
 
-  if (loading) return <div style={{ padding: '40px 0', color: '#6b7280', textAlign: 'center' }}>Carregando...</div>;
+  if (loading) return <div style={{ padding: '40px 0', color: 'var(--ml-muted)', textAlign: 'center' }}>Carregando...</div>;
 
   return (
     <div>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Repertórios</h2>
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--ml-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Repertórios</h2>
         {canManage && (
           <button onClick={() => setShowNew((v) => !v)} style={{
             padding: '8px 16px', borderRadius: 8, border: 'none',
-            background: '#84cc16', color: '#000', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
           }}>
             + Novo Repertório
           </button>
@@ -206,19 +206,19 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
           />
           <button type="submit" disabled={pending} style={{
             padding: '9px 18px', borderRadius: 8, border: 'none',
-            background: '#84cc16', color: '#000', fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+            background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)', fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
           }}>Criar</button>
           <button type="button" onClick={() => setShowNew(false)} style={{
-            padding: '9px 14px', borderRadius: 8, border: '1px solid #374151',
-            background: 'transparent', color: '#9ca3af', fontSize: 13, cursor: 'pointer',
+            padding: '9px 14px', borderRadius: 8, border: '1px solid var(--ml-line)',
+            background: 'transparent', color: 'var(--ml-muted)', fontSize: 13, cursor: 'pointer',
           }}>✕</button>
         </form>
       )}
 
       {repertoires.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 0', color: '#4b5563' }}>
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--ml-faint)' }}>
           <p style={{ fontSize: 32, marginBottom: 8 }}>🎵</p>
-          <p style={{ marginBottom: 4, color: '#6b7280' }}>Nenhum repertório ainda</p>
+          <p style={{ marginBottom: 4, color: 'var(--ml-muted)' }}>Nenhum repertório ainda</p>
           {canManage && <p style={{ fontSize: 13 }}>Clique em &quot;+ Novo Repertório&quot; para começar</p>}
         </div>
       ) : (
@@ -231,14 +231,14 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
                 onClick={() => setActiveId(r.id)}
                 style={{
                   padding: '10px 12px', borderRadius: 8, marginBottom: 4, cursor: 'pointer',
-                  background: activeId === r.id ? 'rgba(132,204,22,0.12)' : 'transparent',
-                  border: activeId === r.id ? '1px solid rgba(132,204,22,0.3)' : '1px solid transparent',
+                  background: activeId === r.id ? 'color-mix(in oklch, var(--ml-accent) 12%, transparent)' : 'transparent',
+                  border: activeId === r.id ? '1px solid color-mix(in oklch, var(--ml-accent) 30%, transparent)' : '1px solid transparent',
                 }}
               >
-                <div style={{ fontSize: 13, fontWeight: 600, color: activeId === r.id ? '#84cc16' : '#9ca3af', marginBottom: 2 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: activeId === r.id ? 'var(--ml-accent)' : 'var(--ml-muted)', marginBottom: 2 }}>
                   {r.name}
                 </div>
-                <div style={{ fontSize: 11, color: '#4b5563' }}>{r.songs.length} músicas</div>
+                <div style={{ fontSize: 11, color: 'var(--ml-faint)' }}>{r.songs.length} músicas</div>
               </div>
             ))}
           </div>
@@ -247,18 +247,18 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
           {active && (
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{active.name}</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--ml-ink)' }}>{active.name}</span>
                 <div style={{ display: 'flex', gap: 8 }}>
                   {canManage && (
                     <button onClick={() => setShowAddSong(true)} style={{
                       padding: '7px 14px', borderRadius: 8, border: 'none',
-                      background: '#84cc16', color: '#000', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                      background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
                     }}>+ Adicionar música</button>
                   )}
                   {canManage && (
                     <button onClick={() => handleDeleteRepertoire(active.id)} style={{
-                      padding: '7px 12px', borderRadius: 8, border: '1px solid #374151',
-                      background: 'transparent', color: '#6b7280', fontSize: 12, cursor: 'pointer',
+                      padding: '7px 12px', borderRadius: 8, border: '1px solid var(--ml-line)',
+                      background: 'transparent', color: 'var(--ml-muted)', fontSize: 12, cursor: 'pointer',
                     }}>Excluir</button>
                   )}
                 </div>
@@ -266,7 +266,7 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
 
               {/* Song list */}
               {active.songs.length === 0 ? (
-                <div style={{ padding: '32px 0', color: '#4b5563', textAlign: 'center', fontSize: 13 }}>
+                <div style={{ padding: '32px 0', color: 'var(--ml-faint)', textAlign: 'center', fontSize: 13 }}>
                   Nenhuma música. Clique em &quot;+ Adicionar música&quot; para buscar no acervo.
                 </div>
               ) : (
@@ -275,15 +275,15 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
                     <div key={s.id} style={{
                       display: 'flex', alignItems: 'center', gap: 12,
                       padding: '10px 14px', borderRadius: 8,
-                      background: '#111111', border: '1px solid #1f2937',
+                      background: 'var(--ml-raised)', border: '1px solid var(--ml-line)',
                     }}>
-                      <span style={{ fontSize: 12, color: '#4b5563', width: 20, textAlign: 'right', flexShrink: 0 }}>{i + 1}</span>
+                      <span style={{ fontSize: 12, color: 'var(--ml-faint)', width: 20, textAlign: 'right', flexShrink: 0 }}>{i + 1}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#e5e7eb', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ml-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {s.title}
                         </div>
                         {parseArtist(s.notes) && (
-                          <div style={{ fontSize: 12, color: '#6b7280' }}>{parseArtist(s.notes)}</div>
+                          <div style={{ fontSize: 12, color: 'var(--ml-muted)' }}>{parseArtist(s.notes)}</div>
                         )}
                       </div>
                       {s.songKey && (
@@ -293,11 +293,11 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
                         }}>{s.songKey}</span>
                       )}
                       {s.bpm && (
-                        <span style={{ fontSize: 11, color: '#4b5563', flexShrink: 0 }}>{s.bpm} bpm</span>
+                        <span style={{ fontSize: 11, color: 'var(--ml-faint)', flexShrink: 0 }}>{s.bpm} bpm</span>
                       )}
                       {canManage && (
                         <button onClick={() => handleRemoveSong(active.id, s.id)} style={{
-                          background: 'transparent', border: 'none', color: '#374151',
+                          background: 'transparent', border: 'none', color: 'var(--ml-line)',
                           cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: '0 4px', flexShrink: 0,
                         }}>✕</button>
                       )}
@@ -317,10 +317,10 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
         }} onClick={() => setShowAddSong(false)}>
           <div style={{
-            background: '#111111', border: '1px solid #1f2937', borderRadius: 16,
+            background: 'var(--ml-raised)', border: '1px solid var(--ml-line)', borderRadius: 16,
             padding: 28, width: '100%', maxWidth: 480,
           }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ margin: '0 0 20px', fontSize: 16, fontWeight: 700, color: '#fff' }}>Adicionar música ao repertório</h3>
+            <h3 style={{ margin: '0 0 20px', fontSize: 16, fontWeight: 700, color: 'var(--ml-ink)' }}>Adicionar música ao repertório</h3>
 
             {/* Search */}
             <div style={{ position: 'relative', marginBottom: 12 }}>
@@ -332,7 +332,7 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
                 style={{ ...INPUT }}
               />
               {searching && (
-                <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#6b7280' }}>
+                <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--ml-muted)' }}>
                   Buscando...
                 </span>
               )}
@@ -341,7 +341,7 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
             {/* Results */}
             {results.length > 0 && !selected && (
               <div style={{
-                border: '1px solid #1f2937', borderRadius: 8, overflow: 'hidden', marginBottom: 12, maxHeight: 220, overflowY: 'auto',
+                border: '1px solid var(--ml-line)', borderRadius: 8, overflow: 'hidden', marginBottom: 12, maxHeight: 220, overflowY: 'auto',
               }}>
                 {results.map((s) => (
                   <button
@@ -349,14 +349,14 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
                     onClick={() => { setSelected(s); setQuery(`${s.title} — ${s.artist}`); setResults([]); }}
                     style={{
                       display: 'block', width: '100%', padding: '10px 14px', textAlign: 'left',
-                      background: 'transparent', border: 'none', borderBottom: '1px solid #1a1a1a',
-                      cursor: 'pointer', color: '#e5e7eb',
+                      background: 'transparent', border: 'none', borderBottom: '1px solid var(--ml-line)',
+                      cursor: 'pointer', color: 'var(--ml-ink)',
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'color-mix(in oklch, var(--ml-ink) 5%, transparent)')}
                     onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                   >
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{s.title}</span>
-                    <span style={{ fontSize: 12, color: '#6b7280', marginLeft: 8 }}>{s.artist}</span>
+                    <span style={{ fontSize: 12, color: 'var(--ml-muted)', marginLeft: 8 }}>{s.artist}</span>
                   </button>
                 ))}
               </div>
@@ -364,35 +364,35 @@ function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: b
 
             {selected && (
               <form onSubmit={handleAddSong} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(132,204,22,0.08)', border: '1px solid rgba(132,204,22,0.2)', fontSize: 13, color: '#84cc16' }}>
+                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'color-mix(in oklch, var(--ml-accent) 8%, transparent)', border: '1px solid color-mix(in oklch, var(--ml-accent) 20%, transparent)', fontSize: 13, color: 'var(--ml-accent)' }}>
                   ✓ {selected.title} — {selected.artist}
-                  <button type="button" onClick={() => { setSelected(null); setQuery(''); }} style={{ marginLeft: 8, background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer' }}>✕</button>
+                  <button type="button" onClick={() => { setSelected(null); setQuery(''); }} style={{ marginLeft: 8, background: 'none', border: 'none', color: 'var(--ml-muted)', cursor: 'pointer' }}>✕</button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tom (opcional)</label>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--ml-muted)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tom (opcional)</label>
                     <input value={songKey} onChange={(e) => setSongKey(e.target.value)} placeholder="Ex: Am, G, C#m" style={INPUT} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>BPM (opcional)</label>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--ml-muted)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>BPM (opcional)</label>
                     <input value={bpm} onChange={(e) => setBpm(e.target.value)} type="number" placeholder="Ex: 120" style={INPUT} />
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 }}>
                   <button type="button" onClick={() => setShowAddSong(false)} style={{
-                    padding: '9px 16px', borderRadius: 8, border: '1px solid #374151',
-                    background: 'transparent', color: '#9ca3af', fontSize: 13, cursor: 'pointer',
+                    padding: '9px 16px', borderRadius: 8, border: '1px solid var(--ml-line)',
+                    background: 'transparent', color: 'var(--ml-muted)', fontSize: 13, cursor: 'pointer',
                   }}>Cancelar</button>
                   <button type="submit" disabled={pending} style={{
                     padding: '9px 20px', borderRadius: 8, border: 'none',
-                    background: '#84cc16', color: '#000', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
                   }}>Adicionar</button>
                 </div>
               </form>
             )}
 
             {!selected && query.length > 1 && !searching && results.length === 0 && (
-              <p style={{ fontSize: 13, color: '#4b5563', margin: '8px 0 0' }}>Nenhuma música encontrada para &quot;{query}&quot;</p>
+              <p style={{ fontSize: 13, color: 'var(--ml-faint)', margin: '8px 0 0' }}>Nenhuma música encontrada para &quot;{query}&quot;</p>
             )}
           </div>
         </div>
@@ -406,7 +406,7 @@ const TYPE_LABEL: Record<string, string> = { show: 'Show', ensaio: 'Ensaio', oth
 const TYPE_COLOR: Record<string, string> = {
   show: '#be185d',
   ensaio: '#1d4ed8',
-  other: '#374151',
+  other: 'var(--ml-line)',
 };
 
 function formatDate(dateStr: string, timeStr: string | null) {
@@ -460,9 +460,9 @@ function ShareButton({ event, groupId }: { event: Event; groupId: string }) {
         style={{
           padding: '6px 14px',
           borderRadius: 8,
-          border: token ? '1px solid #84cc16' : '1px solid #374151',
-          background: token ? 'rgba(132,204,22,0.1)' : 'transparent',
-          color: token ? '#84cc16' : '#9ca3af',
+          border: token ? '1px solid var(--ml-accent)' : '1px solid var(--ml-line)',
+          background: token ? 'color-mix(in oklch, var(--ml-accent) 10%, transparent)' : 'transparent',
+          color: token ? 'var(--ml-accent)' : 'var(--ml-muted)',
           fontSize: 13,
           fontWeight: 500,
           display: 'flex',
@@ -480,9 +480,9 @@ function ShareButton({ event, groupId }: { event: Event; groupId: string }) {
           style={{
             padding: '6px 12px',
             borderRadius: 8,
-            border: '1px solid #374151',
+            border: '1px solid var(--ml-line)',
             background: 'transparent',
-            color: '#6b7280',
+            color: 'var(--ml-muted)',
             fontSize: 12,
             cursor: pending ? 'wait' : 'pointer',
           }}
@@ -511,8 +511,8 @@ function AttendanceButton({ event, groupId }: { event: Event; groupId: string })
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid #1f2937' }}>
-      <span style={{ fontSize: 13, color: '#6b7280' }}>{count} de {event.acknowledgedCount + (event.userAcknowledged ? 0 : 0)} confirmaram</span>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--ml-line)' }}>
+      <span style={{ fontSize: 13, color: 'var(--ml-muted)' }}>{count} de {event.acknowledgedCount + (event.userAcknowledged ? 0 : 0)} confirmaram</span>
       <button
         onClick={handleConfirm}
         disabled={confirmed || pending}
@@ -520,8 +520,8 @@ function AttendanceButton({ event, groupId }: { event: Event; groupId: string })
           padding: '7px 18px',
           borderRadius: 8,
           border: 'none',
-          background: confirmed ? '#16a34a' : '#1f2937',
-          color: confirmed ? '#fff' : '#9ca3af',
+          background: confirmed ? '#16a34a' : 'var(--ml-line)',
+          color: confirmed ? 'var(--ml-ink)' : 'var(--ml-muted)',
           fontSize: 13,
           fontWeight: 600,
         }}
@@ -533,12 +533,12 @@ function AttendanceButton({ event, groupId }: { event: Event; groupId: string })
 }
 
 function EventCard({ event, groupId, canManage }: { event: Event; groupId: string; canManage: boolean }) {
-  const typeColor = TYPE_COLOR[event.eventType] ?? '#374151';
+  const typeColor = TYPE_COLOR[event.eventType] ?? 'var(--ml-line)';
 
   return (
     <div style={{
-      background: '#111111',
-      border: '1px solid #1f2937',
+      background: 'var(--ml-raised)',
+      border: '1px solid var(--ml-line)',
       borderRadius: 12,
       padding: 20,
       marginBottom: 12,
@@ -549,24 +549,24 @@ function EventCard({ event, groupId, canManage }: { event: Event; groupId: strin
             padding: '3px 10px',
             borderRadius: 20,
             background: typeColor,
-            color: '#fff',
+            color: 'var(--ml-ink)',
             fontSize: 12,
             fontWeight: 600,
           }}>
             {TYPE_LABEL[event.eventType] ?? event.eventType}
           </span>
-          <span style={{ fontSize: 13, color: '#6b7280' }}>{formatDate(event.eventDate, event.eventTime)}</span>
+          <span style={{ fontSize: 13, color: 'var(--ml-muted)' }}>{formatDate(event.eventDate, event.eventTime)}</span>
         </div>
         {canManage && (
           <div style={{ display: 'flex', gap: 16 }}>
-            <a href={`/groups/${groupId}/events/${event.id}/edit`} style={{ fontSize: 13, color: '#9ca3af' }}>Editar</a>
+            <a href={`/groups/${groupId}/events/${event.id}/edit`} style={{ fontSize: 13, color: 'var(--ml-muted)' }}>Editar</a>
             <button
               onClick={async () => {
                 if (!confirm('Excluir este evento?')) return;
                 await fetch(`/api/groups/${groupId}/events/${event.id}`, { method: 'DELETE' });
                 window.location.reload();
               }}
-              style={{ background: 'none', border: 'none', fontSize: 13, color: '#9ca3af', padding: 0 }}
+              style={{ background: 'none', border: 'none', fontSize: 13, color: 'var(--ml-muted)', padding: 0 }}
             >
               Excluir
             </button>
@@ -574,10 +574,10 @@ function EventCard({ event, groupId, canManage }: { event: Event; groupId: strin
         )}
       </div>
 
-      <h3 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: '#fff' }}>{event.title}</h3>
+      <h3 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: 'var(--ml-ink)' }}>{event.title}</h3>
 
       {event.location && (
-        <p style={{ margin: '0 0 10px', fontSize: 14, color: '#6b7280' }}>📍 {event.location}</p>
+        <p style={{ margin: '0 0 10px', fontSize: 14, color: 'var(--ml-muted)' }}>📍 {event.location}</p>
       )}
 
       {event.notice && (
@@ -588,16 +588,16 @@ function EventCard({ event, groupId, canManage }: { event: Event; groupId: strin
 
       {event.repertoireLinks.length > 0 && (
         <div style={{ marginBottom: 12 }}>
-          <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Repertórios</p>
+          <p style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 600, color: 'var(--ml-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Repertórios</p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {event.repertoireLinks.map((r) => (
               <span key={r.repertoireId} style={{
                 padding: '3px 10px',
                 borderRadius: 20,
-                background: '#1f2937',
+                background: 'var(--ml-line)',
                 fontSize: 13,
-                color: '#d1d5db',
-                border: '1px solid #374151',
+                color: 'var(--ml-ink)',
+                border: '1px solid var(--ml-line)',
               }}>
                 {r.name ?? 'Repertório'}
               </span>
@@ -608,18 +608,18 @@ function EventCard({ event, groupId, canManage }: { event: Event; groupId: strin
 
       {event.roles.length > 0 && (
         <div style={{ marginBottom: 12 }}>
-          <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 600, color: '#6b7280', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Funções</p>
+          <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 600, color: 'var(--ml-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Funções</p>
           {event.roles.map((r) => (
             <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <span style={{ minWidth: 100, fontSize: 13, color: '#d1d5db' }}>{r.roleName}</span>
+              <span style={{ minWidth: 100, fontSize: 13, color: 'var(--ml-ink)' }}>{r.roleName}</span>
               <span style={{
                 flex: 1,
                 padding: '5px 10px',
                 borderRadius: 8,
-                background: '#1f2937',
-                border: '1px solid #374151',
+                background: 'var(--ml-line)',
+                border: '1px solid var(--ml-line)',
                 fontSize: 13,
-                color: r.userName ? '#e5e7eb' : '#6b7280',
+                color: r.userName ? 'var(--ml-ink)' : 'var(--ml-muted)',
               }}>
                 {r.userName ?? '—'}
               </span>
@@ -640,18 +640,20 @@ export function GroupDetail({
   events,
   userName,
   userImage,
+  isAdmin,
 }: {
   group: Group;
   events: Event[];
   userName: string;
   userImage?: string | null;
+  isAdmin?: boolean;
 }) {
   const [tab, setTab] = useState<'repertorio' | 'agenda'>('agenda');
   const canManage = group.myRole !== 'MEMBRO';
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a' }}>
-      <Sidebar active="/groups" />
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--ml-bg)' }}>
+      <Sidebar active="/groups" isAdmin={isAdmin} />
 
       {/* Main content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -662,17 +664,17 @@ export function GroupDetail({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
             <div>
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a href="/groups" style={{ fontSize: 13, color: '#6b7280', display: 'block', marginBottom: 12 }}>← Grupos</a>
-              <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#fff' }}>{group.name}</h1>
+              <a href="/groups" style={{ fontSize: 13, color: 'var(--ml-muted)', display: 'block', marginBottom: 12 }}>← Grupos</a>
+              <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: 'var(--ml-ink)' }}>{group.name}</h1>
               {group.description && (
-                <p style={{ margin: '4px 0 0', fontSize: 14, color: '#6b7280' }}>{group.description}</p>
+                <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--ml-muted)' }}>{group.description}</p>
               )}
             </div>
             <div style={{ textAlign: 'right' }}>
-              <p style={{ margin: '0 0 4px', fontSize: 11, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Código de convite</p>
+              <p style={{ margin: '0 0 4px', fontSize: 11, color: 'var(--ml-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Código de convite</p>
               <button
                 onClick={() => navigator.clipboard?.writeText(group.inviteCode)}
-                style={{ background: 'none', border: 'none', padding: 0, fontSize: 15, fontWeight: 700, color: '#84cc16', cursor: 'pointer', fontFamily: 'monospace' }}
+                style={{ background: 'none', border: 'none', padding: 0, fontSize: 15, fontWeight: 700, color: 'var(--ml-accent)', cursor: 'pointer', fontFamily: 'monospace' }}
               >
                 {group.inviteCode}
               </button>
@@ -680,7 +682,7 @@ export function GroupDetail({
           </div>
 
           {/* Tabs */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #1f2937', marginBottom: 28, gap: 4 }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--ml-line)', marginBottom: 28, gap: 4 }}>
             {[
               { key: 'repertorio', label: 'Repertório' },
               { key: 'agenda', label: 'Agenda' },
@@ -692,8 +694,8 @@ export function GroupDetail({
                   padding: '10px 20px',
                   background: 'none',
                   border: 'none',
-                  borderBottom: tab === t.key ? '2px solid #84cc16' : '2px solid transparent',
-                  color: tab === t.key ? '#fff' : '#6b7280',
+                  borderBottom: tab === t.key ? '2px solid var(--ml-accent)' : '2px solid transparent',
+                  color: tab === t.key ? 'var(--ml-ink)' : 'var(--ml-muted)',
                   fontSize: 14,
                   fontWeight: tab === t.key ? 600 : 400,
                   cursor: 'pointer',
@@ -713,15 +715,15 @@ export function GroupDetail({
           {tab === 'agenda' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#9ca3af', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Agenda</h2>
+                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--ml-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>Agenda</h2>
                 {canManage && (
                   <a
                     href={`/groups/${group.id}/events/new`}
                     style={{
                       padding: '8px 18px',
                       borderRadius: 8,
-                      background: '#84cc16',
-                      color: '#000',
+                      background: 'var(--ml-accent)',
+                      color: 'var(--ml-accent-ink)',
                       fontWeight: 700,
                       fontSize: 13,
                     }}
@@ -732,7 +734,7 @@ export function GroupDetail({
               </div>
 
               {events.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '60px 0', color: '#6b7280' }}>
+                <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--ml-muted)' }}>
                   <p style={{ fontSize: 24, marginBottom: 8 }}>📅</p>
                   <p>Nenhum evento agendado</p>
                 </div>

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { db } from '@/db';
-import { groups, groupMembers } from '@/db/schema';
+import { groups, groupMembers, users } from '@/db/schema';
 import { eq, count } from 'drizzle-orm';
 import { GroupsView } from './GroupsView';
 
@@ -9,6 +9,8 @@ export default async function GroupsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect('/login');
   const userId = session.user.id;
+
+  const [account] = await db.select({ role: users.role }).from(users).where(eq(users.id, userId)).limit(1);
 
   const rows = await db
     .select({
@@ -33,5 +35,12 @@ export default async function GroupsPage() {
     }),
   );
 
-  return <GroupsView groups={userGroups} userName={session.user.name ?? ''} userImage={session.user.image ?? null} />;
+  return (
+    <GroupsView
+      groups={userGroups}
+      userName={session.user.name ?? ''}
+      userImage={session.user.image ?? null}
+      isAdmin={account?.role === 'admin'}
+    />
+  );
 }

@@ -28,7 +28,7 @@ export function TopBar({ userName, userImage }: TopBarProps) {
       justifyContent: 'flex-end',
       padding: '0 20px',
       height: 52,
-      borderBottom: '1px solid #1a1a1a',
+      borderBottom: '1px solid var(--ml-line)',
       gap: 8,
       flexShrink: 0,
     }}>
@@ -36,7 +36,7 @@ export function TopBar({ userName, userImage }: TopBarProps) {
       <button style={{
         width: 32, height: 32, borderRadius: 8, border: 'none',
         background: 'transparent', cursor: 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ml-muted)',
       }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="5"/>
@@ -66,15 +66,15 @@ export function TopBar({ userName, userImage }: TopBarProps) {
           ) : (
             <div style={{
               width: 28, height: 28, borderRadius: '50%',
-              background: '#84cc16',
+              background: 'var(--ml-accent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 700, fontSize: 13, color: '#000',
+              fontWeight: 700, fontSize: 13, color: 'var(--ml-accent-ink)',
             }}>
               {initial}
             </div>
           )}
-          <span style={{ fontSize: 14, color: '#d1d5db', fontWeight: 500 }}>{userName}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <span style={{ fontSize: 14, color: 'var(--ml-ink)', fontWeight: 500 }}>{userName}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ml-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
@@ -85,8 +85,8 @@ export function TopBar({ userName, userImage }: TopBarProps) {
             right: 0,
             top: '100%',
             marginTop: 4,
-            background: '#111111',
-            border: '1px solid #1f2937',
+            background: 'var(--ml-raised)',
+            border: '1px solid var(--ml-line)',
             borderRadius: 10,
             padding: '4px',
             minWidth: 160,
@@ -96,9 +96,9 @@ export function TopBar({ userName, userImage }: TopBarProps) {
             <a href="/profile" style={{
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '8px 12px', borderRadius: 6,
-              fontSize: 13, color: '#d1d5db', textDecoration: 'none',
+              fontSize: 13, color: 'var(--ml-ink)', textDecoration: 'none',
             }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#1f2937')}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'color-mix(in oklch, var(--ml-ink) 8%, transparent)')}
               onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -106,7 +106,7 @@ export function TopBar({ userName, userImage }: TopBarProps) {
               </svg>
               Perfil
             </a>
-            <div style={{ height: 1, background: '#1f2937', margin: '4px 0' }} />
+            <div style={{ height: 1, background: 'var(--ml-line)', margin: '4px 0' }} />
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
               style={{

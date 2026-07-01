@@ -56,7 +56,6 @@ const ICON: Record<string, React.ReactNode> = {
 
 const NAV_MAIN = [
   { label: 'Início', href: '/', icon: 'home' },
-  { label: 'Explorar', href: '/explore', icon: 'explore' },
   { label: 'Grupos', href: '/groups', icon: 'groups' },
 ];
 
@@ -79,15 +78,15 @@ function NavItem({ label, href, icon, isActive }: { label: string; href: string;
         borderRadius: 8,
         fontSize: 14,
         fontWeight: isActive ? 500 : 400,
-        color: isActive ? '#f3f4f6' : '#6b7280',
-        background: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
+        color: isActive ? 'var(--ml-accent)' : 'var(--ml-muted)',
+        background: isActive ? 'color-mix(in oklch, var(--ml-accent) 12%, transparent)' : 'transparent',
         textDecoration: 'none',
         transition: 'background 0.1s, color 0.1s',
       }}
-      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'color-mix(in oklch, var(--ml-ink) 6%, transparent)'; }}
       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
     >
-      <span style={{ color: isActive ? '#e5e7eb' : '#4b5563', display: 'flex', flexShrink: 0 }}>
+      <span style={{ color: isActive ? 'var(--ml-accent)' : 'var(--ml-faint)', display: 'flex', flexShrink: 0 }}>
         {ICON[icon]}
       </span>
       {label}
@@ -95,7 +94,7 @@ function NavItem({ label, href, icon, isActive }: { label: string; href: string;
   );
 }
 
-export function Sidebar({ active }: { active?: string }) {
+export function Sidebar({ active, isAdmin }: { active?: string; isAdmin?: boolean }) {
   const [intOpen, setIntOpen] = useState(false);
   const isGroupsActive = active?.startsWith('/groups');
 
@@ -103,8 +102,8 @@ export function Sidebar({ active }: { active?: string }) {
     <aside style={{
       width: 220,
       minHeight: '100vh',
-      background: '#111111',
-      borderRight: '1px solid #1a1a1a',
+      background: 'var(--ml-raised)',
+      borderRight: '1px solid var(--ml-line)',
       flexShrink: 0,
       position: 'sticky',
       top: 0,
@@ -115,17 +114,17 @@ export function Sidebar({ active }: { active?: string }) {
     }}>
       {/* Logo */}
       <div style={{ padding: '16px 20px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#84cc16" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ml-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 18V5l12-2v13"/>
           <circle cx="6" cy="18" r="3"/>
           <circle cx="18" cy="16" r="3"/>
         </svg>
-        <span style={{ fontWeight: 800, fontSize: 14, letterSpacing: '-0.01em', color: '#fff' }}>MUSILISTA</span>
+        <span style={{ fontWeight: 800, fontSize: 14, letterSpacing: '-0.01em', color: 'var(--ml-ink)' }}>MUSILISTA</span>
         <span style={{
           fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
-          background: 'rgba(132,204,22,0.15)',
-          border: '1px solid rgba(132,204,22,0.35)',
-          color: '#84cc16',
+          background: 'color-mix(in oklch, var(--ml-accent) 15%, transparent)',
+          border: '1px solid color-mix(in oklch, var(--ml-accent) 35%, transparent)',
+          color: 'var(--ml-accent)',
         }}>BETA</span>
       </div>
 
@@ -148,14 +147,14 @@ export function Sidebar({ active }: { active?: string }) {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             width: 'calc(100% - 16px)',
             padding: '8px 12px', margin: '1px 8px', borderRadius: 8,
-            fontSize: 14, color: '#6b7280', background: 'transparent',
+            fontSize: 14, color: 'var(--ml-muted)', background: 'transparent',
             border: 'none', cursor: 'pointer', textAlign: 'left',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'color-mix(in oklch, var(--ml-ink) 6%, transparent)')}
           onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
         >
           <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ color: '#4b5563', display: 'flex' }}>{ICON.integrations}</span>
+            <span style={{ color: 'var(--ml-faint)', display: 'flex' }}>{ICON.integrations}</span>
             Integrações
           </span>
           <svg
@@ -167,21 +166,25 @@ export function Sidebar({ active }: { active?: string }) {
           </svg>
         </button>
 
-        <div style={{ padding: '12px 8px 4px', marginTop: 4 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#374151', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0 12px' }}>
-            Beta Test
-          </span>
-        </div>
+        {isAdmin && (
+          <>
+            <div style={{ padding: '12px 8px 4px', marginTop: 4 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--ml-faint)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0 12px' }}>
+                Beta Test
+              </span>
+            </div>
 
-        {NAV_BETA.map((item) => (
-          <NavItem
-            key={item.href}
-            label={item.label}
-            href={item.href}
-            icon={item.icon}
-            isActive={active === item.href}
-          />
-        ))}
+            {NAV_BETA.map((item) => (
+              <NavItem
+                key={item.href}
+                label={item.label}
+                href={item.href}
+                icon={item.icon}
+                isActive={active === item.href}
+              />
+            ))}
+          </>
+        )}
       </nav>
     </aside>
   );

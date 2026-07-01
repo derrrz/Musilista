@@ -38,7 +38,7 @@ export default async function LoginPage() {
           style={{ width: '100%' }}
           action={async () => {
             'use server';
-            await signIn('google', { redirectTo: '/groups' });
+            await signIn('google', { redirectTo: '/' });
           }}
         >
           <button

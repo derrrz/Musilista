@@ -15,6 +15,8 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
   const { groupId } = await params;
   const userId = session.user.id;
 
+  const [account] = await db.select({ role: users.role }).from(users).where(eq(users.id, userId)).limit(1);
+
   const [membership] = await db
     .select({ role: groupMembers.role })
     .from(groupMembers)
@@ -89,6 +91,7 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
       events={enrichedEvents}
       userName={session.user.name ?? ''}
       userImage={session.user.image ?? null}
+      isAdmin={account?.role === 'admin'}
     />
   );
 }
