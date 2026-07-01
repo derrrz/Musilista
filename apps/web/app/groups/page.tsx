@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/db';
 import { groups, groupMembers, users } from '@/db/schema';
 import { eq, count } from 'drizzle-orm';
+import { isPrivilegedRole } from '@/app/_lib/authUser';
 import { GroupsView } from './GroupsView';
 
 export default async function GroupsPage() {
@@ -40,7 +41,7 @@ export default async function GroupsPage() {
       groups={userGroups}
       userName={session.user.name ?? ''}
       userImage={session.user.image ?? null}
-      isAdmin={account?.role === 'admin'}
+      isAdmin={isPrivilegedRole(account?.role)}
     />
   );
 }

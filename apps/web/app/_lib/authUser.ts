@@ -19,3 +19,7 @@ export async function requireAuth(): Promise<AuthUser | NextResponse> {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   return user;
 }
+
+export function isPrivilegedRole(role: string | null | undefined): boolean {
+  return role === 'admin' || role === 'ceo';
+}
