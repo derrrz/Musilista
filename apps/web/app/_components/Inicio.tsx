@@ -4,6 +4,8 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
+import { Input } from '@/components/ui/Input';
+import { cn } from '@/components/ui/cn';
 
 type SongResult = { id: string; title: string; artist: string };
 
@@ -47,23 +49,27 @@ export function Inicio({ userName, userImage, isAdmin }: { userName: string; use
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--ml-bg)' }}>
+    <div className="flex min-h-screen bg-bg">
       <Sidebar active="/" isAdmin={isAdmin} />
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="flex flex-1 flex-col">
         <TopBar userName={userName} userImage={userImage} />
 
-        <main className="max-w-2xl mx-auto w-full px-6 py-10 flex flex-col gap-6">
-          <h1 className="text-2xl font-bold tracking-tight text-ink">Buscar música</h1>
+        <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
+              Acervo · busca
+            </span>
+            <h1 className="text-2xl font-bold tracking-tight text-ink">Buscar música</h1>
+          </div>
 
-          <input
+          <Input
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             placeholder="Buscar por título ou artista…"
             autoFocus
-            className="w-full px-4 py-3 rounded-xl bg-surface border border-line text-ink text-sm outline-none focus:border-accent transition-colors"
           />
 
           {showIndex && (
@@ -73,12 +79,12 @@ export function Inicio({ userName, userImage, isAdmin }: { userName: string; use
                   key={letter}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleLetterClick(letter)}
-                  className="min-w-[32px] px-2 py-1.5 rounded-lg text-xs font-semibold border transition-colors"
-                  style={
+                  className={cn(
+                    'min-w-[32px] rounded-lg border px-2 py-1.5 font-mono text-xs font-semibold transition-colors',
                     activeLetter === letter
-                      ? { background: 'color-mix(in oklch, var(--ml-accent) 15%, transparent)', borderColor: 'var(--ml-accent)', color: 'var(--ml-accent)' }
-                      : { background: 'var(--ml-surface)', borderColor: 'var(--ml-line)', color: 'var(--ml-muted)' }
-                  }
+                      ? 'border-accent bg-[color-mix(in_oklch,var(--ml-accent)_15%,transparent)] text-accent'
+                      : 'border-line bg-surface text-muted hover:border-faint hover:text-ink',
+                  )}
                 >
                   {letter}
                 </button>
@@ -86,7 +92,7 @@ export function Inicio({ userName, userImage, isAdmin }: { userName: string; use
             </div>
           )}
 
-          {searching && <p className="text-sm text-muted">Buscando…</p>}
+          {searching && <p className="font-mono text-xs text-muted">Buscando…</p>}
 
           {!searching && (query.length > 1 || activeLetter) && results.length === 0 && (
             <p className="text-sm text-muted">Nenhuma música encontrada.</p>
@@ -97,7 +103,7 @@ export function Inicio({ userName, userImage, isAdmin }: { userName: string; use
               <Link
                 key={s.id}
                 href={`/songs/${s.id}`}
-                className="flex flex-col gap-0.5 px-4 py-3 rounded-xl bg-surface border border-line hover:border-accent transition-colors"
+                className="flex flex-col gap-0.5 rounded-xl border border-line bg-surface px-4 py-3 transition-colors hover:border-accent"
               >
                 <span className="text-sm font-semibold text-ink">{s.title}</span>
                 <span className="text-xs text-muted">{s.artist}</span>

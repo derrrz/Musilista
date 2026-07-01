@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { LogoMark, Wordmark } from '@/components/brand/Logo';
+import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/components/ui/cn';
 
 const ICON: Record<string, React.ReactNode> = {
   home: (
@@ -65,28 +68,17 @@ const NAV_BETA = [
   { label: 'Suporte', href: '/support', icon: 'support' },
 ];
 
+const itemBase =
+  'mx-2 my-px flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors';
+const itemIdle =
+  'text-muted hover:bg-[color-mix(in_oklch,var(--ml-ink)_6%,transparent)] hover:text-ink';
+const itemActive =
+  'bg-[color-mix(in_oklch,var(--ml-accent)_12%,transparent)] font-medium text-accent';
+
 function NavItem({ label, href, icon, isActive }: { label: string; href: string; icon: string; isActive: boolean }) {
   return (
-    <a
-      href={href}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        padding: '8px 12px',
-        margin: '1px 8px',
-        borderRadius: 8,
-        fontSize: 14,
-        fontWeight: isActive ? 500 : 400,
-        color: isActive ? 'var(--ml-accent)' : 'var(--ml-muted)',
-        background: isActive ? 'color-mix(in oklch, var(--ml-accent) 12%, transparent)' : 'transparent',
-        textDecoration: 'none',
-        transition: 'background 0.1s, color 0.1s',
-      }}
-      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'color-mix(in oklch, var(--ml-ink) 6%, transparent)'; }}
-      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
-    >
-      <span style={{ color: isActive ? 'var(--ml-accent)' : 'var(--ml-faint)', display: 'flex', flexShrink: 0 }}>
+    <a href={href} className={cn(itemBase, isActive ? itemActive : itemIdle)}>
+      <span className={cn('flex shrink-0', isActive ? 'text-accent' : 'text-faint')}>
         {ICON[icon]}
       </span>
       {label}
@@ -99,37 +91,16 @@ export function Sidebar({ active, isAdmin }: { active?: string; isAdmin?: boolea
   const isGroupsActive = active?.startsWith('/groups');
 
   return (
-    <aside style={{
-      width: 220,
-      minHeight: '100vh',
-      background: 'var(--ml-raised)',
-      borderRight: '1px solid var(--ml-line)',
-      flexShrink: 0,
-      position: 'sticky',
-      top: 0,
-      height: '100vh',
-      overflowY: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <aside className="sticky top-0 flex h-screen w-[220px] shrink-0 flex-col overflow-y-auto border-r border-line bg-raised">
       {/* Logo */}
-      <div style={{ padding: '16px 20px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ml-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 18V5l12-2v13"/>
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-        </svg>
-        <span style={{ fontWeight: 800, fontSize: 14, letterSpacing: '-0.01em', color: 'var(--ml-ink)' }}>MUSILISTA</span>
-        <span style={{
-          fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
-          background: 'color-mix(in oklch, var(--ml-accent) 15%, transparent)',
-          border: '1px solid color-mix(in oklch, var(--ml-accent) 35%, transparent)',
-          color: 'var(--ml-accent)',
-        }}>BETA</span>
+      <div className="flex items-center gap-2 px-4 pb-3 pt-4">
+        <LogoMark size={22} />
+        <Wordmark className="text-xs" />
+        <Badge variant="outline">Beta</Badge>
       </div>
 
       {/* Main nav */}
-      <nav style={{ padding: '4px 0', flex: 1 }}>
+      <nav className="flex-1 py-1">
         {NAV_MAIN.map((item) => (
           <NavItem
             key={item.href}
@@ -143,24 +114,16 @@ export function Sidebar({ active, isAdmin }: { active?: string; isAdmin?: boolea
         {/* Integrações with collapsible arrow */}
         <button
           onClick={() => setIntOpen((o) => !o)}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            width: 'calc(100% - 16px)',
-            padding: '8px 12px', margin: '1px 8px', borderRadius: 8,
-            fontSize: 14, color: 'var(--ml-muted)', background: 'transparent',
-            border: 'none', cursor: 'pointer', textAlign: 'left',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'color-mix(in oklch, var(--ml-ink) 6%, transparent)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          className={cn(itemBase, itemIdle, 'w-[calc(100%-16px)] justify-between text-left')}
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ color: 'var(--ml-faint)', display: 'flex' }}>{ICON.integrations}</span>
+          <span className="flex items-center gap-2.5">
+            <span className="flex text-faint">{ICON.integrations}</span>
             Integrações
           </span>
           <svg
             width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            style={{ transform: intOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+            className={cn('transition-transform duration-200', intOpen && 'rotate-180')}
           >
             <polyline points="6 9 12 15 18 9"/>
           </svg>
@@ -168,8 +131,8 @@ export function Sidebar({ active, isAdmin }: { active?: string; isAdmin?: boolea
 
         {isAdmin && (
           <>
-            <div style={{ padding: '12px 8px 4px', marginTop: 4 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--ml-faint)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0 12px' }}>
+            <div className="mt-1 px-5 pb-1 pt-3">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
                 Beta Test
               </span>
             </div>

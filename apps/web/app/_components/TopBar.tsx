@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
+import { Avatar } from '@/components/ui/Avatar';
 
 type TopBarProps = {
   userName: string;
@@ -11,7 +12,6 @@ type TopBarProps = {
 export function TopBar({ userName, userImage }: TopBarProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const initial = userName?.[0]?.toUpperCase() ?? '?';
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -22,22 +22,9 @@ export function TopBar({ userName, userImage }: TopBarProps) {
   }, []);
 
   return (
-    <header style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      padding: '0 20px',
-      height: 52,
-      borderBottom: '1px solid var(--ml-line)',
-      gap: 8,
-      flexShrink: 0,
-    }}>
+    <header className="flex h-[52px] shrink-0 items-center justify-end gap-2 border-b border-line px-5">
       {/* Theme toggle (decorative) */}
-      <button style={{
-        width: 32, height: 32, borderRadius: 8, border: 'none',
-        background: 'transparent', cursor: 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ml-muted)',
-      }}>
+      <button className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-raised hover:text-ink">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="5"/>
           <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
@@ -47,75 +34,36 @@ export function TopBar({ userName, userImage }: TopBarProps) {
         </svg>
       </button>
 
-      <div ref={ref} style={{ position: 'relative' }}>
+      <div ref={ref} className="relative">
         <button
           onClick={() => setOpen((o) => !o)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '4px 8px',
-            borderRadius: 8,
-          }}
+          className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-raised"
         >
-          {userImage ? (
-            <img src={userImage} alt={userName} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{
-              width: 28, height: 28, borderRadius: '50%',
-              background: 'var(--ml-accent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 700, fontSize: 13, color: 'var(--ml-accent-ink)',
-            }}>
-              {initial}
-            </div>
-          )}
-          <span style={{ fontSize: 14, color: 'var(--ml-ink)', fontWeight: 500 }}>{userName}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ml-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <Avatar name={userName || '?'} src={userImage} size="sm" />
+          <span className="text-sm font-medium text-ink">{userName}</span>
+          <svg
+            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted"
+          >
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
 
         {open && (
-          <div style={{
-            position: 'absolute',
-            right: 0,
-            top: '100%',
-            marginTop: 4,
-            background: 'var(--ml-raised)',
-            border: '1px solid var(--ml-line)',
-            borderRadius: 10,
-            padding: '4px',
-            minWidth: 160,
-            zIndex: 50,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-          }}>
-            <a href="/profile" style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              padding: '8px 12px', borderRadius: 6,
-              fontSize: 13, color: 'var(--ml-ink)', textDecoration: 'none',
-            }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'color-mix(in oklch, var(--ml-ink) 8%, transparent)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          <div className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-xl border border-line bg-raised p-1 shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
+            <a
+              href="/profile"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-[13px] text-ink transition-colors hover:bg-[color-mix(in_oklch,var(--ml-ink)_8%,transparent)]"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
               </svg>
               Perfil
             </a>
-            <div style={{ height: 1, background: 'var(--ml-line)', margin: '4px 0' }} />
+            <div className="my-1 h-px bg-line" />
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-                padding: '8px 12px', borderRadius: 6,
-                fontSize: 13, color: '#f87171', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(239,68,68,0.08)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[13px] text-red-400 transition-colors hover:bg-red-500/10"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
