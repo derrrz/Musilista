@@ -7,8 +7,8 @@ import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
 const FEATURES = [
   {
     index: '01',
-    title: 'Sincronização em tempo real',
-    description: 'Conecte o Spotify e veja a cifra acompanhar a música compasso a compasso, no BPM exato da faixa.',
+    title: 'Acervo pesquisável',
+    description: 'Milhares de cifras prontas, com busca por título ou artista e índice alfabético do repertório brasileiro.',
   },
   {
     index: '02',
@@ -43,37 +43,23 @@ export function Landing() {
           <Badge variant="neutral">Lançamento Beta · Acesso antecipado</Badge>
 
           <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-            Cifras em Tempo Real
+            Cifras, repertórios e agenda
             <br />
-            com a música da sua escolha.
+            para a sua banda.
           </h1>
           <p className="max-w-lg text-base leading-relaxed text-muted">
-            Crie cifras sincronizadas com o Spotify, organize shows e ensaios com outros músicos —
-            bandas, corais, grupos de qualquer tamanho. Tudo em um só lugar, em tempo real.
+            Encontre cifras no acervo, monte repertórios e organize shows e ensaios com outros
+            músicos — bandas, corais, grupos de qualquer tamanho. Tudo em um só lugar.
           </p>
 
-          <div className="flex w-full flex-col justify-center gap-3 sm:flex-row">
-            <form
-              action={async () => {
-                'use server';
-                await signIn('spotify', { redirectTo: '/' });
-              }}
-            >
-              {/* Verde oficial do Spotify (exigência de marca), demais medidas iguais ao Button lg */}
-              <button
-                type="submit"
-                className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#1DB954] px-5 text-sm font-semibold text-black transition-opacity hover:opacity-90 sm:w-auto"
-              >
-                Conectar com Spotify
-              </button>
-            </form>
+          <div className="flex w-full justify-center">
             <form
               action={async () => {
                 'use server';
                 await signIn('google', { redirectTo: '/' });
               }}
             >
-              <Button variant="outline" size="lg" type="submit" className="w-full sm:w-auto">
+              <Button size="lg" type="submit" className="w-full sm:w-auto">
                 Entrar com Google
               </Button>
             </form>
@@ -126,7 +112,7 @@ export function Landing() {
       </main>
 
       <footer className="flex items-center justify-center gap-4 border-t border-line py-6 font-mono text-[11px] text-faint">
-        <span>Musilista · Cifras em Tempo Real</span>
+        <span>Musilista · Cifras e repertórios</span>
         <span>·</span>
         <a href="/terms" className="underline underline-offset-2 transition-colors hover:text-muted">
           Termos e Privacidade

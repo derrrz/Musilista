@@ -1,6 +1,5 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
-import Spotify from 'next-auth/providers/spotify';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -9,7 +8,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   providers: [
     Google({ clientId: process.env.AUTH_GOOGLE_ID!, clientSecret: process.env.AUTH_GOOGLE_SECRET! }),
-    Spotify({ clientId: process.env.AUTH_SPOTIFY_ID!, clientSecret: process.env.AUTH_SPOTIFY_SECRET! }),
   ],
   session: { strategy: 'jwt' },
   callbacks: {
