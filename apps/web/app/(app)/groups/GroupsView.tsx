@@ -2,8 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sidebar } from '@/app/_components/Sidebar';
-import { TopBar } from '@/app/_components/TopBar';
 
 type Group = {
   id: string;
@@ -161,17 +159,7 @@ function JoinGroupModal({ onClose, onJoined }: { onClose: () => void; onJoined: 
   );
 }
 
-export function GroupsView({
-  groups,
-  userName,
-  userImage,
-  isAdmin,
-}: {
-  groups: Group[];
-  userName: string;
-  userImage?: string | null;
-  isAdmin?: boolean;
-}) {
+export function GroupsView({ groups }: { groups: Group[] }) {
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const router = useRouter();
@@ -187,14 +175,8 @@ export function GroupsView({
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--ml-bg)' }}>
-      <Sidebar active="/groups" isAdmin={isAdmin} />
-
-      {/* Main */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <TopBar userName={userName} userImage={userImage} />
-
-        <main style={{ padding: 32, flex: 1 }}>
+    <>
+      <div style={{ padding: 32 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
             <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--ml-ink)' }}>Meus Grupos</h1>
             <div style={{ display: 'flex', gap: 10 }}>
@@ -280,11 +262,10 @@ export function GroupsView({
               ))}
             </div>
           )}
-        </main>
       </div>
 
       {showCreate && <CreateGroupModal onClose={() => setShowCreate(false)} onCreated={handleCreated} />}
       {showJoin && <JoinGroupModal onClose={() => setShowJoin(false)} onJoined={handleJoined} />}
-    </div>
+    </>
   );
 }

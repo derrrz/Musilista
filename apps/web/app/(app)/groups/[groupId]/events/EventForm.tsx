@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sidebar } from '@/app/_components/Sidebar';
 
 type EventFormProps = {
   groupId: string;
@@ -84,21 +83,10 @@ export function EventForm({ groupId, eventId, initial }: EventFormProps) {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a' }}>
-      <Sidebar active="/groups" />
-
-      {/* Main */}
-      <div style={{ flex: 1 }}>
-        <header style={{
-          display: 'flex', alignItems: 'center', padding: '12px 24px',
-          borderBottom: '1px solid #1f2937', height: 52,
-        }}>
-          <a href={`/groups/${groupId}`} style={{ fontSize: 13, color: '#6b7280', textDecoration: 'none' }}>
-            ← Voltar
-          </a>
-        </header>
-
-        <main style={{ padding: 32, maxWidth: 640 }}>
+    <div style={{ padding: 32, maxWidth: 640 }}>
+      <a href={`/groups/${groupId}`} style={{ fontSize: 13, color: 'var(--ml-muted)', display: 'block', marginBottom: 16 }}>
+        ← Voltar
+      </a>
           <h1 style={{ margin: '0 0 32px', fontSize: 22, fontWeight: 800, color: '#fff' }}>
             {isEdit ? 'Editar Evento' : 'Novo Evento'}
           </h1>
@@ -205,8 +193,6 @@ export function EventForm({ groupId, eventId, initial }: EventFormProps) {
               </button>
             </div>
           </form>
-        </main>
-      </div>
     </div>
   );
 }

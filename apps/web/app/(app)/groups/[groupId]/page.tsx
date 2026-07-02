@@ -6,7 +6,6 @@ import {
   users, repertoires, eventRepertoires,
 } from '@/db/schema';
 import { eq, and, count } from 'drizzle-orm';
-import { isPrivilegedRole } from '@/app/_lib/authUser';
 import { GroupDetail } from './GroupDetail';
 
 export default async function GroupPage({ params }: { params: Promise<{ groupId: string }> }) {
@@ -15,8 +14,6 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
 
   const { groupId } = await params;
   const userId = session.user.id;
-
-  const [account] = await db.select({ role: users.role }).from(users).where(eq(users.id, userId)).limit(1);
 
   const [membership] = await db
     .select({ role: groupMembers.role })
@@ -90,9 +87,6 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
     <GroupDetail
       group={{ ...group, myRole: roleMap[membership.role] ?? 'MEMBRO', memberCount }}
       events={enrichedEvents}
-      userName={session.user.name ?? ''}
-      userImage={session.user.image ?? null}
-      isAdmin={isPrivilegedRole(account?.role)}
     />
   );
 }

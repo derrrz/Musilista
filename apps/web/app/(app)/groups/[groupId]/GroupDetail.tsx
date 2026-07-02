@@ -2,8 +2,6 @@
 
 import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sidebar } from '@/app/_components/Sidebar';
-import { TopBar } from '@/app/_components/TopBar';
 
 type Role = { id: string; roleName: string; userId: string | null; userName: string | null };
 type RepertoryLink = { repertoireId: string; name: string | null };
@@ -635,31 +633,12 @@ function EventCard({ event, groupId, canManage }: { event: Event; groupId: strin
   );
 }
 
-export function GroupDetail({
-  group,
-  events,
-  userName,
-  userImage,
-  isAdmin,
-}: {
-  group: Group;
-  events: Event[];
-  userName: string;
-  userImage?: string | null;
-  isAdmin?: boolean;
-}) {
+export function GroupDetail({ group, events }: { group: Group; events: Event[] }) {
   const [tab, setTab] = useState<'repertorio' | 'agenda'>('agenda');
   const canManage = group.myRole !== 'MEMBRO';
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--ml-bg)' }}>
-      <Sidebar active="/groups" isAdmin={isAdmin} />
-
-      {/* Main content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <TopBar userName={userName} userImage={userImage} />
-
-        <main style={{ padding: '32px', flex: 1 }}>
+    <div style={{ padding: 32 }}>
           {/* Group header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
             <div>
@@ -745,8 +724,6 @@ export function GroupDetail({
               )}
             </div>
           )}
-        </main>
-      </div>
     </div>
   );
 }

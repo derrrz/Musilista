@@ -2,8 +2,6 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { Sidebar } from './Sidebar';
-import { TopBar } from './TopBar';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/components/ui/cn';
 
@@ -11,7 +9,7 @@ type SongResult = { id: string; title: string; artist: string };
 
 const LETTERS = ['0-9', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
-export function Inicio({ userName, userImage, isAdmin }: { userName: string; userImage?: string | null; isAdmin?: boolean }) {
+export function Inicio() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SongResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -49,13 +47,7 @@ export function Inicio({ userName, userImage, isAdmin }: { userName: string; use
   }
 
   return (
-    <div className="flex min-h-screen bg-bg">
-      <Sidebar active="/" isAdmin={isAdmin} />
-
-      <div className="flex flex-1 flex-col">
-        <TopBar userName={userName} userImage={userImage} />
-
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
               Acervo · busca
@@ -110,8 +102,6 @@ export function Inicio({ userName, userImage, isAdmin }: { userName: string; use
               </Link>
             ))}
           </div>
-        </main>
-      </div>
     </div>
   );
 }

@@ -1,10 +1,9 @@
-import { getAuthUser, isPrivilegedRole } from '@/app/_lib/authUser';
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
 import { Landing } from './_components/Landing';
-import { Inicio } from './_components/Inicio';
 
 export default async function RootPage() {
-  const user = await getAuthUser();
-  if (!user) return <Landing />;
-
-  return <Inicio userName={user.name ?? ''} userImage={user.image} isAdmin={isPrivilegedRole(user.role)} />;
+  const session = await auth();
+  if (session?.user?.id) redirect('/inicio');
+  return <Landing />;
 }
