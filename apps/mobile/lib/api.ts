@@ -25,7 +25,7 @@ async function request<T>(
     'Content-Type': 'application/json',
   };
   if (token) {
-    headers['Cookie'] = `next-auth.session-token=${token}`;
+    headers['Cookie'] = `authjs.session-token=${token}`;
   }
 
   const res = await fetch(`${BASE_URL}${path}`, {

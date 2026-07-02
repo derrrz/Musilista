@@ -3,10 +3,7 @@ import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { encode } from 'next-auth/jwt';
-
-const COOKIE_NAME = process.env.NODE_ENV === 'production'
-  ? '__Secure-next-auth.session-token'
-  : 'next-auth.session-token';
+import { SESSION_COOKIE } from '@/auth';
 
 export async function POST(req: NextRequest) {
   const { idToken } = await req.json() as { idToken: string };
@@ -39,7 +36,7 @@ export async function POST(req: NextRequest) {
     token: { sub: userId, email: info.email },
     secret: process.env.AUTH_SECRET!,
     maxAge: 30 * 24 * 60 * 60,
-    salt: COOKIE_NAME,
+    salt: SESSION_COOKIE,
   });
 
   return NextResponse.json({ token });

@@ -24,8 +24,23 @@ const devProviders = devLoginEnabled
     ]
   : [];
 
+// Nome fixo (sem prefixo __Secure-) para o contrato mobile ser idêntico em dev e prod:
+// o app mobile manda `Cookie: authjs.session-token=<jwt do /api/auth/mobile-signin>`.
+export const SESSION_COOKIE = 'authjs.session-token';
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
+  cookies: {
+    sessionToken: {
+      name: SESSION_COOKIE,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
   providers: [
     ...devProviders,
     Google({ clientId: process.env.AUTH_GOOGLE_ID!, clientSecret: process.env.AUTH_GOOGLE_SECRET! }),
