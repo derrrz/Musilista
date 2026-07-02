@@ -21,6 +21,23 @@ const ICON: Record<string, React.ReactNode> = {
       <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
     </svg>
   ),
+  support: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+      <path d="M12 17h.01"/>
+    </svg>
+  ),
+  roadmap: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"/>
+      <line x1="8" y1="12" x2="21" y2="12"/>
+      <line x1="8" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="6" x2="3.01" y2="6"/>
+      <line x1="3" y1="12" x2="3.01" y2="12"/>
+      <line x1="3" y1="18" x2="3.01" y2="18"/>
+    </svg>
+  ),
 };
 
 // Novas entradas voltam aqui conforme as páginas forem reconstruídas
@@ -28,6 +45,11 @@ const ICON: Record<string, React.ReactNode> = {
 const NAV_MAIN = [
   { label: 'Início', href: '/inicio', icon: 'home', match: (p: string) => p === '/inicio' || p === '/' },
   { label: 'Grupos', href: '/groups', icon: 'groups', match: (p: string) => p.startsWith('/groups') },
+  { label: 'Suporte', href: '/support', icon: 'support', match: (p: string) => p.startsWith('/support') },
+];
+
+const NAV_BETA = [
+  { label: 'Roadmap', href: '/roadmap', icon: 'roadmap', match: (p: string) => p === '/roadmap' },
 ];
 
 const itemBase =
@@ -37,7 +59,7 @@ const itemIdle =
 const itemActive =
   'bg-[color-mix(in_oklch,var(--ml-accent)_12%,transparent)] font-medium text-accent';
 
-export function Sidebar({ isAdmin: _isAdmin }: { isAdmin?: boolean }) {
+export function Sidebar({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -62,6 +84,27 @@ export function Sidebar({ isAdmin: _isAdmin }: { isAdmin?: boolean }) {
             </Link>
           );
         })}
+
+        {isAdmin && (
+          <>
+            <div className="mt-1 px-5 pb-1 pt-3">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
+                Beta Test
+              </span>
+            </div>
+            {NAV_BETA.map((item) => {
+              const isActive = item.match(pathname);
+              return (
+                <Link key={item.href} href={item.href} className={cn(itemBase, isActive ? itemActive : itemIdle)}>
+                  <span className={cn('flex shrink-0', isActive ? 'text-accent' : 'text-faint')}>
+                    {ICON[item.icon]}
+                  </span>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </>
+        )}
       </nav>
     </aside>
   );
