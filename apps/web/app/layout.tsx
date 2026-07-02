@@ -4,12 +4,12 @@ import './globals.css';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-ui',
+  variable: '--font-ui-next',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-mono',
+  variable: '--font-mono-next',
 });
 
 export const metadata: Metadata = {

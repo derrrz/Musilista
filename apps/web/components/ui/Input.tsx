@@ -30,7 +30,7 @@ export function Input({ label, error, id, className, ...props }: InputProps) {
         className={cn(
           'h-9 w-full rounded-lg border bg-surface px-3 text-sm text-ink',
           'placeholder:text-faint',
-          'transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg',
+          'transition-colors focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg',
           'disabled:cursor-not-allowed disabled:opacity-50',
           error ? 'border-red-500 focus:ring-red-500' : 'border-line focus:border-accent focus:ring-accent',
           className,
