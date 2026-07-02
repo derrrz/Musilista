@@ -60,7 +60,7 @@ export type NormalizedSyncMeta = {
   beatValue: number
   syncLatencyMs: number
   forceSynced: boolean
-  [key: string]: unknown  // preserva campos extras (spotifyTrackId, etc.)
+  [key: string]: unknown  // preserva campos extras (extTrackId, etc.)
 }
 
 export type MigrationResult = {

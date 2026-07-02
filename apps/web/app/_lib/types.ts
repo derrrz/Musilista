@@ -50,7 +50,7 @@ export type Block = {
   tuning?: string        // afinação alterada (undefined = standard EADGBE)
 }
 
-export type SpotifyBar = { start: number; duration: number }
+export type ExtBar = { start: number; duration: number }
 
 export type SyncData = {
   bpm: number
@@ -58,14 +58,14 @@ export type SyncData = {
   beatValue?: number      // denominador: 4 para colcheia, 8 para semicolcheia (padrão 4)
   timeSigChanges?: Record<string, { num: number; den: number }> // chave: "${entryId}:${cellIndex}"
   offsetSeconds: number   // playback time when bar 0 starts
-  spotifyTrackId?: string
-  spotifyBars?: SpotifyBar[]
-  spotifySections?: SpotifyBar[]
-  spotifyBarOffset?: number  // Spotify bars to skip before cifra bar 0 (for intros)
-  spotifyProgressMs?: number   // última posição conhecida (ms)
-  spotifyProgressAt?: number   // Date.now() quando progressMs foi gravado
-  spotifyIsPlaying?: boolean
-  spotifyDurationMs?: number   // duração total da faixa no Spotify
+  extTrackId?: string
+  extBars?: ExtBar[]
+  extSections?: ExtBar[]
+  extBarOffset?: number  // compassos externos a pular antes do compasso 0 da cifra (intros)
+  extProgressMs?: number   // última posição conhecida (ms)
+  extProgressAt?: number   // Date.now() quando progressMs foi gravado
+  extIsPlaying?: boolean
+  extDurationMs?: number   // duração total da faixa
   syncLatencyMs?: number       // compensação de latência visual: shift em ms aplicado ao currentMs
   forceSynced?: boolean        // dev mode: bypassa verificação isSynced no useSyncClock
 }

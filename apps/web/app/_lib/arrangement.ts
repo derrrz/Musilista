@@ -73,18 +73,18 @@ export function mergedBarsForSection(
 
 // Converte índice de bar (na sequência global da cifra) para posição em ms no player.
 // barCumTimes[i] = segundos acumulados até o início do bar i (relativo a offsetSeconds=0).
-// Quando fornecido e sem spotifyBars, usa os tempos pré-computados por buildBarCumTimes.
+// Quando fornecido e sem extBars, usa os tempos pré-computados por buildBarCumTimes.
 export function barIndexToMs(syncData: SyncData, barIndex: number, barCumTimes?: number[] | null): number {
-  const offset = syncData.spotifyBarOffset ?? 0
-  if (syncData.spotifyBars?.length) {
+  const offset = syncData.extBarOffset ?? 0
+  if (syncData.extBars?.length) {
     const realIdx = offset + barIndex
     const lo      = Math.floor(realIdx)
     const frac    = realIdx - lo
-    const barLo   = syncData.spotifyBars[lo]
+    const barLo   = syncData.extBars[lo]
     if (frac === 0) {
       if (barLo) return Math.round((syncData.offsetSeconds + barLo.start) * 1000)
     } else {
-      const barHi = syncData.spotifyBars[lo + 1]
+      const barHi = syncData.extBars[lo + 1]
       if (barLo && barHi) {
         const t = syncData.offsetSeconds + barLo.start + frac * (barHi.start - barLo.start)
         return Math.round(t * 1000)
@@ -105,7 +105,7 @@ export function barIndexToMs(syncData: SyncData, barIndex: number, barCumTimes?:
  * Retorna null se não há timeSigChanges (usar fórmula uniforme é suficiente).
  *
  * Invariante: barCumTimes[i] = soma das durações dos bars 0..i-1.
- * Usado apenas no modo BPM (sem spotifyBars).
+ * Usado apenas no modo BPM (sem extBars).
  */
 export function buildBarCumTimes(
   sequence: DebugEntry[],
