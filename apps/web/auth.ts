@@ -1,12 +1,33 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
+// Login simulado, só para desenvolvimento local (AUTH_DEV_LOGIN=1 em .env.local).
+// Passa pelos mesmos callbacks signIn/jwt — auto-provisiona e resolve id/role do banco.
+const devLoginEnabled = process.env.AUTH_DEV_LOGIN === '1' && process.env.NODE_ENV !== 'production';
+
+const devProviders = devLoginEnabled
+  ? [
+      Credentials({
+        id: 'dev',
+        name: 'Dev Login',
+        credentials: { email: { label: 'Email', type: 'email' } },
+        async authorize(credentials) {
+          const email = String(credentials?.email ?? '').trim().toLowerCase();
+          if (!email.includes('@')) return null;
+          return { id: `dev-${email}`, email, name: email.split('@')[0], image: null };
+        },
+      }),
+    ]
+  : [];
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   providers: [
+    ...devProviders,
     Google({ clientId: process.env.AUTH_GOOGLE_ID!, clientSecret: process.env.AUTH_GOOGLE_SECRET! }),
   ],
   session: { strategy: 'jwt' },
