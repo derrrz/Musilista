@@ -4,6 +4,14 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 export { Input } from './Input';
 export type { InputProps } from './Input';
 
+export { Label } from './Label';
+
+export { Textarea } from './Textarea';
+export type { TextareaProps } from './Textarea';
+
+export { Select } from './Select';
+export type { SelectProps } from './Select';
+
 export { Card, CardTitle, CardDescription } from './Card';
 export type { CardProps } from './Card';
 
