@@ -20,3 +20,6 @@ export type { AvatarProps, AvatarSize, AvatarShape } from './Avatar';
 
 export { Badge } from './Badge';
 export type { BadgeProps, BadgeVariant } from './Badge';
+
+export { Modal } from './Modal';
+export type { ModalProps } from './Modal';

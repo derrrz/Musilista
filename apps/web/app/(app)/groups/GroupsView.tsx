@@ -2,6 +2,12 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Modal } from '@/components/ui/Modal';
+import { cn } from '@/components/ui/cn';
 
 type Group = {
   id: string;
@@ -14,10 +20,10 @@ type Group = {
 };
 
 const ROLE_LABEL: Record<string, string> = { owner: 'Dono', admin: 'Admin', member: 'Membro' };
-const ROLE_COLOR: Record<string, string> = {
-  owner: 'var(--ml-accent)',
-  admin: '#3b82f6',
-  member: 'var(--ml-muted)',
+const ROLE_BADGE: Record<string, string> = {
+  owner: 'bg-[color-mix(in_oklch,var(--ml-accent)_15%,transparent)] text-accent',
+  admin: 'bg-blue-400/15 text-blue-400',
+  member: 'bg-[color-mix(in_oklch,var(--ml-muted)_15%,transparent)] text-muted',
 };
 
 function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
@@ -46,56 +52,33 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
-    }} onClick={onClose}>
-      <div style={{
-        background: 'var(--ml-raised)', border: '1px solid var(--ml-line)', borderRadius: 16,
-        padding: 32, width: '100%', maxWidth: 420,
-      }} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ margin: '0 0 24px', fontSize: 20, fontWeight: 700, color: 'var(--ml-ink)' }}>Novo Grupo</h2>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ml-muted)', marginBottom: 6 }}>Nome</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Banda do Samba"
-              required
-              style={{
-                width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--ml-line)',
-                background: 'var(--ml-line)', color: 'var(--ml-ink)', fontSize: 14, boxSizing: 'border-box',
-              }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ml-muted)', marginBottom: 6 }}>Descrição <span style={{ fontWeight: 400, color: 'var(--ml-faint)' }}>(opcional)</span></label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Breve descrição do grupo"
-              rows={3}
-              style={{
-                width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--ml-line)',
-                background: 'var(--ml-line)', color: 'var(--ml-ink)', fontSize: 14, resize: 'vertical', boxSizing: 'border-box',
-              }}
-            />
-          </div>
-          {error && <p style={{ margin: 0, fontSize: 13, color: '#f87171' }}>{error}</p>}
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-            <button type="button" onClick={onClose} style={{
-              padding: '9px 20px', borderRadius: 8, border: '1px solid var(--ml-line)',
-              background: 'transparent', color: 'var(--ml-muted)', fontSize: 14, cursor: 'pointer',
-            }}>Cancelar</button>
-            <button type="submit" disabled={pending} style={{
-              padding: '9px 20px', borderRadius: 8, border: 'none',
-              background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)', fontSize: 14, fontWeight: 700, cursor: pending ? 'wait' : 'pointer',
-            }}>{pending ? 'Criando...' : 'Criar Grupo'}</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal onClose={onClose} title="Novo Grupo">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Input
+          label="Nome"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Ex: Banda do Samba"
+          required
+        />
+        <Textarea
+          label="Descrição (opcional)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Breve descrição do grupo"
+          rows={3}
+        />
+        {error && <p role="alert" className="text-[13px] text-red-400">{error}</p>}
+        <div className="mt-2 flex justify-end gap-3">
+          <Button variant="outline" type="button" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={pending}>
+            {pending ? 'Criando...' : 'Criar Grupo'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -120,42 +103,28 @@ function JoinGroupModal({ onClose, onJoined }: { onClose: () => void; onJoined: 
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
-    }} onClick={onClose}>
-      <div style={{
-        background: 'var(--ml-raised)', border: '1px solid var(--ml-line)', borderRadius: 16,
-        padding: 32, width: '100%', maxWidth: 380,
-      }} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 700, color: 'var(--ml-ink)' }}>Entrar com código</h2>
-        <p style={{ margin: '0 0 24px', fontSize: 14, color: 'var(--ml-muted)' }}>Peça o código ao dono do grupo</p>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder="GRP-XXXXXX"
-            required
-            style={{
-              width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid var(--ml-line)',
-              background: 'var(--ml-line)', color: 'var(--ml-ink)', fontSize: 18, fontFamily: 'monospace',
-              letterSpacing: '0.1em', textAlign: 'center', boxSizing: 'border-box',
-            }}
-          />
-          {error && <p style={{ margin: 0, fontSize: 13, color: '#f87171' }}>{error}</p>}
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} style={{
-              padding: '9px 20px', borderRadius: 8, border: '1px solid var(--ml-line)',
-              background: 'transparent', color: 'var(--ml-muted)', fontSize: 14, cursor: 'pointer',
-            }}>Cancelar</button>
-            <button type="submit" disabled={pending} style={{
-              padding: '9px 20px', borderRadius: 8, border: 'none',
-              background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)', fontSize: 14, fontWeight: 700, cursor: pending ? 'wait' : 'pointer',
-            }}>{pending ? 'Entrando...' : 'Entrar'}</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal onClose={onClose} title="Entrar com código" className="max-w-sm">
+      <p className="-mt-4 mb-6 text-sm text-muted">Peça o código ao dono do grupo</p>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Input
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          placeholder="GRP-XXXXXX"
+          required
+          className="h-11 text-center font-mono text-lg tracking-[0.1em]"
+          aria-label="Código de convite"
+        />
+        {error && <p role="alert" className="text-[13px] text-red-400">{error}</p>}
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" type="button" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={pending}>
+            {pending ? 'Entrando...' : 'Entrar'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -176,92 +145,90 @@ export function GroupsView({ groups }: { groups: Group[] }) {
 
   return (
     <>
-      <div style={{ padding: 32 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: 'var(--ml-ink)' }}>Meus Grupos</h1>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowJoin(true)} style={{
-                padding: '9px 18px', borderRadius: 8, border: '1px solid var(--ml-line)',
-                background: 'transparent', color: 'var(--ml-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              }}>
+      <div className="p-8">
+        <div className="mb-7 flex items-center justify-between">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
+              Grupos · bandas e corais
+            </span>
+            <h1 className="text-2xl font-bold tracking-tight text-ink">Meus Grupos</h1>
+          </div>
+          <div className="flex gap-2.5">
+            <Button variant="outline" size="sm" onClick={() => setShowJoin(true)}>
+              Entrar com código
+            </Button>
+            <Button size="sm" onClick={() => setShowCreate(true)}>
+              + Novo Grupo
+            </Button>
+          </div>
+        </div>
+
+        {groups.length === 0 ? (
+          <div className="py-20 text-center text-muted">
+            <svg
+              width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.5" className="mx-auto mb-3 text-faint" aria-hidden="true"
+            >
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+            <p className="mb-2 text-base font-semibold text-ink">Nenhum grupo ainda</p>
+            <p className="mb-6 text-sm">Crie um grupo ou entre com um código de convite</p>
+            <div className="flex justify-center gap-3">
+              <Button variant="outline" onClick={() => setShowJoin(true)}>
                 Entrar com código
-              </button>
-              <button onClick={() => setShowCreate(true)} style={{
-                padding: '9px 18px', borderRadius: 8, border: 'none',
-                background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
-              }}>
-                + Novo Grupo
-              </button>
+              </Button>
+              <Button onClick={() => setShowCreate(true)}>Criar Grupo</Button>
             </div>
           </div>
-
-          {groups.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--ml-muted)' }}>
-              <p style={{ fontSize: 32, marginBottom: 12 }}>🎵</p>
-              <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--ml-muted)', marginBottom: 8 }}>Nenhum grupo ainda</p>
-              <p style={{ fontSize: 14, marginBottom: 24 }}>Crie um grupo ou entre com um código de convite</p>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                <button onClick={() => setShowJoin(true)} style={{
-                  padding: '10px 20px', borderRadius: 8, border: '1px solid var(--ml-line)',
-                  background: 'transparent', color: 'var(--ml-muted)', fontSize: 14, cursor: 'pointer',
-                }}>
-                  Entrar com código
-                </button>
-                <button onClick={() => setShowCreate(true)} style={{
-                  padding: '10px 20px', borderRadius: 8, border: 'none',
-                  background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)', fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                }}>
-                  Criar Grupo
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-              {groups.map((g) => (
-                <a key={g.id} href={`/groups/${g.id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{
-                    background: 'var(--ml-raised)', border: '1px solid var(--ml-line)', borderRadius: 12,
-                    padding: 20, cursor: 'pointer', transition: 'border-color 0.15s',
-                  }}
-                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ml-line)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--ml-line)')}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                      <div style={{
-                        width: 44, height: 44, borderRadius: 10, background: 'var(--ml-line)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 20, flexShrink: 0,
-                      }}>
-                        {g.image ? (
-                          <img src={g.image} alt="" style={{ width: '100%', height: '100%', borderRadius: 10, objectFit: 'cover' }} />
-                        ) : '🎵'}
-                      </div>
-                      <span style={{
-                        fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6,
-                        background: `${ROLE_COLOR[g.role]}20`,
-                        color: ROLE_COLOR[g.role],
-                      }}>
-                        {ROLE_LABEL[g.role] ?? g.role}
-                      </span>
-                    </div>
-                    <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 700, color: 'var(--ml-ink)' }}>{g.name}</h3>
-                    {g.description && (
-                      <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--ml-muted)', lineHeight: 1.4 }}>
-                        {g.description.length > 80 ? g.description.slice(0, 80) + '...' : g.description}
-                      </p>
+        ) : (
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+            {groups.map((g) => (
+              <Link
+                key={g.id}
+                href={`/groups/${g.id}`}
+                className="rounded-xl border border-line bg-raised p-5 transition-colors hover:border-accent"
+              >
+                <div className="mb-3 flex items-start justify-between">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface text-faint">
+                    {g.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- imagem externa, dimensões fixas
+                      <img src={g.image} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                        <path d="M9 18V5l12-2v13" />
+                        <circle cx="6" cy="18" r="3" />
+                        <circle cx="18" cy="16" r="3" />
+                      </svg>
                     )}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: g.description ? 0 : 12 }}>
-                      <span style={{ fontSize: 12, color: 'var(--ml-faint)' }}>
-                        {g.memberCount} {g.memberCount === 1 ? 'membro' : 'membros'}
-                      </span>
-                      <span style={{ fontSize: 12, color: 'var(--ml-line)' }}>·</span>
-                      <span style={{ fontSize: 12, color: 'var(--ml-line)', fontFamily: 'monospace' }}>{g.inviteCode}</span>
-                    </div>
                   </div>
-                </a>
-              ))}
-            </div>
-          )}
+                  <span
+                    className={cn(
+                      'rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-[0.06em]',
+                      ROLE_BADGE[g.role] ?? ROLE_BADGE.member,
+                    )}
+                  >
+                    {ROLE_LABEL[g.role] ?? g.role}
+                  </span>
+                </div>
+                <h3 className="mb-1 text-base font-bold text-ink">{g.name}</h3>
+                {g.description && (
+                  <p className="mb-3 text-[13px] leading-snug text-muted">
+                    {g.description.length > 80 ? g.description.slice(0, 80) + '...' : g.description}
+                  </p>
+                )}
+                <div className={cn('flex items-center gap-2', !g.description && 'mt-3')}>
+                  <span className="text-xs text-faint">
+                    {g.memberCount} {g.memberCount === 1 ? 'membro' : 'membros'}
+                  </span>
+                  <span className="text-xs text-faint">·</span>
+                  <span className="font-mono text-xs text-faint">{g.inviteCode}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {showCreate && <CreateGroupModal onClose={() => setShowCreate(false)} onCreated={handleCreated} />}
