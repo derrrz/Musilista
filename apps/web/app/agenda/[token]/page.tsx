@@ -4,6 +4,9 @@ import { events, groups, eventRoles, groupMembers, users, repertoires, repertoir
 import { eq, asc } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 import type { Metadata } from 'next';
+import { LogoMark, Wordmark } from '@/components/brand/Logo';
+import { Avatar } from '@/components/ui/Avatar';
+import { cn } from '@/components/ui/cn';
 
 const TYPE_LABEL: Record<string, string> = {
   show: 'Show',
@@ -11,10 +14,11 @@ const TYPE_LABEL: Record<string, string> = {
   other: 'Evento',
 };
 
-const TYPE_COLOR: Record<string, string> = {
-  show: '#f59e0b',
-  ensaio: '#3b82f6',
-  other: '#8b5cf6',
+const TYPE_BADGE: Record<string, string> = {
+  show: 'border-amber-400/40 bg-amber-400/10 text-amber-400',
+  ensaio: 'border-blue-400/40 bg-blue-400/10 text-blue-400',
+  other:
+    'border-[color-mix(in_oklch,var(--ml-accent)_40%,transparent)] bg-[color-mix(in_oklch,var(--ml-accent)_12%,transparent)] text-accent',
 };
 
 async function getAgenda(token: string) {
@@ -108,42 +112,10 @@ export async function generateMetadata({
   };
 }
 
-function InitialAvatar({ name }: { name: string | null }) {
-  const initial = (name ?? '?').trim()[0]?.toUpperCase() ?? '?';
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 32,
-        height: 32,
-        borderRadius: '50%',
-        background: '#1e2330',
-        color: '#6c8ebf',
-        fontWeight: 700,
-        fontSize: 13,
-        flexShrink: 0,
-      }}
-    >
-      {initial}
-    </span>
-  );
-}
-
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 28 }}>
-      <h2
-        style={{
-          margin: '0 0 12px',
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: 1,
-          textTransform: 'uppercase',
-          color: '#4b5563',
-        }}
-      >
+    <div className="mb-7">
+      <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
         {title}
       </h2>
       {children}
@@ -163,7 +135,7 @@ export default async function AgendaPublicaPage({
   const { row, roles, members, setlist } = data;
 
   const typeKey = row.eventType?.toLowerCase() ?? 'other';
-  const typeColor = TYPE_COLOR[typeKey] ?? TYPE_COLOR.other;
+  const typeBadge = TYPE_BADGE[typeKey] ?? TYPE_BADGE.other;
   const typeLabel = TYPE_LABEL[typeKey] ?? row.eventType;
 
   const dateStr = new Date(row.eventDate).toLocaleDateString('pt-BR', {
@@ -173,95 +145,58 @@ export default async function AgendaPublicaPage({
     year: 'numeric',
   });
 
-  const timeStr = row.eventTime
-    ? row.eventTime.slice(0, 5)
-    : null;
+  const timeStr = row.eventTime ? row.eventTime.slice(0, 5) : null;
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: '#0d1117',
-        color: '#e2e8f0',
-        fontFamily: "'Inter', system-ui, sans-serif",
-        padding: '0 0 80px',
-      }}
-    >
+    <main className="min-h-screen bg-bg pb-20 text-ink">
       {/* Header */}
-      <div style={{ background: '#111827', borderBottom: '1px solid #1f2937', padding: '16px 20px' }}>
-        <div style={{ maxWidth: 560, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.5, color: '#fff' }}>
-            musilista
-          </span>
-          <span style={{ color: '#374151', fontSize: 18 }}>·</span>
-          <span style={{ color: '#6b7280', fontSize: 13 }}>{row.groupName}</span>
+      <div className="border-b border-line bg-surface px-5 py-4">
+        <div className="mx-auto flex max-w-xl items-center gap-2.5">
+          <LogoMark size={22} />
+          <Wordmark className="text-xs" />
+          <span className="text-line">·</span>
+          <span className="text-[13px] text-muted">{row.groupName}</span>
         </div>
       </div>
 
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '32px 20px 0' }}>
-
+      <div className="mx-auto max-w-xl px-5 pt-8">
         {/* Badge + data */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
+        <div className="mb-2.5 flex flex-wrap items-center gap-2.5">
           <span
-            style={{
-              background: `${typeColor}22`,
-              color: typeColor,
-              border: `1px solid ${typeColor}55`,
-              borderRadius: 6,
-              padding: '3px 10px',
-              fontSize: 12,
-              fontWeight: 600,
-              letterSpacing: 0.4,
-              textTransform: 'uppercase',
-            }}
+            className={cn(
+              'rounded-md border px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-[0.06em]',
+              typeBadge,
+            )}
           >
             {typeLabel}
           </span>
-          <span style={{ color: '#6b7280', fontSize: 13 }}>
-            {dateStr}{timeStr ? ` · ${timeStr}` : ''}
+          <span className="text-[13px] text-muted">
+            {dateStr}
+            {timeStr ? ` · ${timeStr}` : ''}
           </span>
         </div>
 
         {/* Título */}
-        <h1 style={{ margin: '0 0 8px', fontSize: 26, fontWeight: 700, color: '#f9fafb', lineHeight: 1.2 }}>
-          {row.title}
-        </h1>
+        <h1 className="mb-2 text-2xl font-bold leading-tight tracking-tight text-ink">{row.title}</h1>
 
         {/* Local */}
-        {row.location && (
-          <p style={{ margin: '0 0 24px', color: '#6b7280', fontSize: 14 }}>
-            📍 {row.location}
-          </p>
+        {row.location ? (
+          <p className="mb-6 text-sm text-muted">📍 {row.location}</p>
+        ) : (
+          <div className="h-6" />
         )}
-
-        {!row.location && <div style={{ height: 24 }} />}
 
         {/* Descrição / Notice */}
         {row.notice && (
           <Section title="Descrição">
-            <p style={{ margin: 0, color: '#9ca3af', fontSize: 15, lineHeight: 1.6 }}>
-              {row.notice}
-            </p>
+            <p className="text-[15px] leading-relaxed text-muted">{row.notice}</p>
           </Section>
         )}
 
         {/* Rider técnico */}
         {row.technicalRider && (
           <Section title="Rider Técnico">
-            <pre
-              style={{
-                margin: 0,
-                whiteSpace: 'pre-wrap',
-                color: '#9ca3af',
-                fontSize: 14,
-                lineHeight: 1.7,
-                fontFamily: 'inherit',
-                background: '#111827',
-                border: '1px solid #1f2937',
-                borderRadius: 8,
-                padding: '12px 14px',
-              }}
-            >
+            <pre className="whitespace-pre-wrap rounded-lg border border-line bg-surface px-3.5 py-3 font-mono text-[13px] leading-relaxed text-muted">
               {row.technicalRider}
             </pre>
           </Section>
@@ -270,24 +205,14 @@ export default async function AgendaPublicaPage({
         {/* Funções / Instrumentos */}
         {roles.length > 0 && (
           <Section title="Funções & Instrumentos">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div className="flex flex-col gap-1.5">
               {roles.map((r, i) => (
                 <div
                   key={i}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '8px 12px',
-                    background: '#111827',
-                    borderRadius: 8,
-                    border: '1px solid #1f2937',
-                  }}
+                  className="flex items-center justify-between rounded-lg border border-line bg-surface px-3 py-2"
                 >
-                  <span style={{ color: '#d1d5db', fontSize: 14, fontWeight: 500 }}>{r.label}</span>
-                  {r.assigneeName && (
-                    <span style={{ color: '#6b7280', fontSize: 13 }}>{r.assigneeName}</span>
-                  )}
+                  <span className="text-sm font-medium text-ink">{r.label}</span>
+                  {r.assigneeName && <span className="text-[13px] text-muted">{r.assigneeName}</span>}
                 </div>
               ))}
             </div>
@@ -297,22 +222,14 @@ export default async function AgendaPublicaPage({
         {/* Membros */}
         {members.length > 0 && (
           <Section title={`Membros (${members.length})`}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div className="flex flex-wrap gap-2">
               {members.map((m, i) => (
                 <div
                   key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '6px 10px',
-                    background: '#111827',
-                    borderRadius: 8,
-                    border: '1px solid #1f2937',
-                  }}
+                  className="flex items-center gap-2 rounded-lg border border-line bg-surface py-1.5 pl-1.5 pr-3"
                 >
-                  <InitialAvatar name={m.name} />
-                  <span style={{ color: '#d1d5db', fontSize: 13 }}>{m.name ?? '—'}</span>
+                  <Avatar name={m.name ?? '?'} size="sm" />
+                  <span className="text-[13px] text-ink">{m.name ?? '—'}</span>
                 </div>
               ))}
             </div>
@@ -322,42 +239,18 @@ export default async function AgendaPublicaPage({
         {/* Setlist */}
         {setlist && (
           <Section title={`Setlist · ${setlist.name}`}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div className="flex flex-col gap-1">
               {setlist.songs.map((s, i) => (
                 <div
                   key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '8px 12px',
-                    background: '#111827',
-                    borderRadius: 8,
-                    border: '1px solid #1f2937',
-                  }}
+                  className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2"
                 >
-                  <span
-                    style={{
-                      minWidth: 32,
-                      height: 28,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: '#1e2330',
-                      borderRadius: 6,
-                      color: '#6c8ebf',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      fontFamily: 'monospace',
-                    }}
-                  >
+                  <span className="flex h-7 min-w-8 items-center justify-center rounded-md bg-raised font-mono text-[11px] font-bold text-accent">
                     {s.key ?? '—'}
                   </span>
                   <div>
-                    <div style={{ color: '#f3f4f6', fontSize: 14, fontWeight: 500 }}>{s.title}</div>
-                    {s.artist && (
-                      <div style={{ color: '#6b7280', fontSize: 12 }}>{s.artist}</div>
-                    )}
+                    <div className="text-sm font-medium text-ink">{s.title}</div>
+                    {s.artist && <div className="text-xs text-muted">{s.artist}</div>}
                   </div>
                 </div>
               ))}
@@ -367,19 +260,9 @@ export default async function AgendaPublicaPage({
       </div>
 
       {/* Footer */}
-      <div
-        style={{
-          maxWidth: 560,
-          margin: '48px auto 0',
-          padding: '20px 20px 0',
-          borderTop: '1px solid #1f2937',
-          textAlign: 'center',
-          color: '#374151',
-          fontSize: 12,
-        }}
-      >
+      <div className="mx-auto mt-12 max-w-xl border-t border-line px-5 pt-5 text-center font-mono text-[11px] text-faint">
         Criado com{' '}
-        <a href="https://musilista.vercel.app" style={{ color: '#6c8ebf', textDecoration: 'none' }}>
+        <a href="/" className="text-accent">
           Musilista
         </a>
       </div>
