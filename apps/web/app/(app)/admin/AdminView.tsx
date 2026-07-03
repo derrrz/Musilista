@@ -1,0 +1,361 @@
+'use client';
+
+import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { cn } from '@/components/ui/cn';
+
+type Tab = 'users' | 'proposals' | 'tickets' | 'analytics';
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'users', label: 'Usuários' },
+  { id: 'proposals', label: 'Propostas' },
+  { id: 'tickets', label: 'Tickets' },
+  { id: 'analytics', label: 'Analytics' },
+];
+
+const ROLE_LABEL: Record<string, string> = {
+  user: 'Usuário', moderator: 'Moderador', admin: 'Admin', ceo: 'CEO', cto: 'CTO',
+};
+
+export function AdminView({ myRole }: { myRole: string }) {
+  const [tab, setTab] = useState<Tab>('users');
+
+  return (
+    <div className="flex max-w-3xl flex-col gap-5">
+      <div className="flex flex-wrap gap-1 rounded-lg border border-line bg-raised p-1">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={cn(
+              'rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors',
+              tab === t.id ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink',
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'users' && <UsersTab myRole={myRole} />}
+      {tab === 'proposals' && <ProposalsTab />}
+      {tab === 'tickets' && <TicketsTab />}
+      {tab === 'analytics' && <AnalyticsTab />}
+    </div>
+  );
+}
+
+// ── Usuários ──────────────────────────────────────────────────────────────────
+
+type AdminUser = {
+  id: string; name: string | null; email: string;
+  image: string | null; role: string; createdAt: string;
+};
+
+function UsersTab({ myRole }: { myRole: string }) {
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [saving, setSaving] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async (q: string) => {
+    setLoading(true);
+    const url = q ? `/api/admin/users?q=${encodeURIComponent(q)}` : '/api/admin/users';
+    const res = await fetch(url);
+    const data = await res.json();
+    if (Array.isArray(data)) setUsers(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const id = setTimeout(() => load(query), 300);
+    return () => clearTimeout(id);
+  }, [query, load]);
+
+  async function changeRole(userId: string, role: string) {
+    setSaving(userId);
+    setError(null);
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role }),
+    });
+    if (res.ok) {
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role } : u)));
+    } else {
+      const data = await res.json().catch(() => null);
+      setError(data?.error ?? 'Erro ao alterar o role.');
+    }
+    setSaving(null);
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Buscar por nome ou e-mail…"
+      />
+
+      {error && <p className="text-sm text-red-400">{error}</p>}
+      {loading && <p className="font-mono text-xs text-muted">Buscando…</p>}
+
+      {!loading && users.map((u) => {
+        const locked = u.role === 'ceo' || (u.role === 'cto' && myRole !== 'ceo') || (u.role === 'admin' && myRole !== 'ceo');
+        return (
+          <Card key={u.id} className="flex items-center gap-3 p-3.5">
+            <Avatar name={u.name ?? u.email} src={u.image} size="md" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-ink">{u.name ?? '—'}</p>
+              <p className="truncate text-xs text-muted">{u.email}</p>
+            </div>
+            <Badge variant={u.role === 'user' ? 'neutral' : 'outline'}>
+              {ROLE_LABEL[u.role] ?? u.role}
+            </Badge>
+            {!locked && (
+              <Select
+                value={u.role}
+                disabled={saving === u.id}
+                onChange={(e) => changeRole(u.id, e.target.value)}
+                className="h-8 w-32 text-xs"
+              >
+                <option value="user">Usuário</option>
+                <option value="moderator">Moderador</option>
+                <option value="admin">Admin</option>
+                {myRole === 'ceo' && <option value="cto">CTO</option>}
+              </Select>
+            )}
+          </Card>
+        );
+      })}
+
+      {!loading && users.length === 0 && (
+        <p className="text-sm text-muted">Nenhum usuário encontrado.</p>
+      )}
+    </div>
+  );
+}
+
+// ── Propostas ─────────────────────────────────────────────────────────────────
+
+type Proposal = {
+  id: string; status: string; proposedAt: string; notes: string | null;
+  songId: string; title: string; artist: string;
+  proposerName: string | null; proposerEmail: string;
+};
+
+function ProposalsTab() {
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [acting, setActing] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/proposals')
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setProposals(d); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function act(proposalId: string, action: 'approve' | 'reject') {
+    setActing(proposalId);
+    const res = await fetch(`/api/admin/proposals/${proposalId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    });
+    if (res.ok) setProposals((prev) => prev.filter((p) => p.id !== proposalId));
+    setActing(null);
+  }
+
+  if (loading) return <p className="font-mono text-xs text-muted">Carregando…</p>;
+  if (proposals.length === 0) return <p className="text-sm text-muted">Nenhuma proposta pendente.</p>;
+
+  return (
+    <div className="flex flex-col gap-3">
+      {proposals.map((p) => (
+        <Card key={p.id} className="flex flex-col gap-3 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-ink">{p.title}</p>
+              <p className="truncate text-xs text-muted">{p.artist}</p>
+            </div>
+            <span className="shrink-0 font-mono text-[11px] text-faint">
+              {new Date(p.proposedAt).toLocaleDateString('pt-BR')}
+            </span>
+          </div>
+          <p className="text-xs text-muted">
+            Proposta de {p.proposerName ?? p.proposerEmail}
+          </p>
+          <div className="flex gap-2">
+            <Button size="sm" disabled={acting === p.id} onClick={() => act(p.id, 'approve')}>
+              Aprovar
+            </Button>
+            <Button size="sm" variant="outline" disabled={acting === p.id} onClick={() => act(p.id, 'reject')}>
+              Rejeitar
+            </Button>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+// ── Tickets ───────────────────────────────────────────────────────────────────
+
+type AdminTicket = {
+  id: string; title: string; status: string;
+  updatedAt: string | null; userName: string | null; userEmail?: string;
+};
+
+const TICKET_STATUS_LABEL: Record<string, string> = {
+  open: 'Aberto', in_progress: 'Em andamento', closed: 'Fechado',
+};
+
+function TicketsTab() {
+  const [tickets, setTickets] = useState<AdminTicket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'closed'>('open');
+
+  useEffect(() => {
+    fetch('/api/tickets')
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d?.all)) setTickets(d.all); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const visible = filter === 'all' ? tickets : tickets.filter((t) => t.status === filter);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-1.5">
+        {(['open', 'in_progress', 'closed', 'all'] as const).map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setFilter(f)}
+            className={cn(
+              'rounded-lg border px-3 py-1 text-xs font-medium transition-colors',
+              filter === f
+                ? 'border-accent bg-[color-mix(in_oklch,var(--ml-accent)_15%,transparent)] text-accent'
+                : 'border-line bg-raised text-muted hover:text-ink',
+            )}
+          >
+            {f === 'all' ? 'Todos' : TICKET_STATUS_LABEL[f]}
+          </button>
+        ))}
+      </div>
+
+      {loading && <p className="font-mono text-xs text-muted">Carregando…</p>}
+      {!loading && visible.length === 0 && <p className="text-sm text-muted">Nenhum ticket aqui.</p>}
+
+      {visible.map((t) => (
+        <Link key={t.id} href={`/support/${t.id}`}>
+          <Card className="flex items-center gap-3 p-3.5 transition-colors hover:border-accent">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-ink">{t.title}</p>
+              <p className="truncate text-xs text-muted">{t.userName ?? '—'}</p>
+            </div>
+            <Badge variant={t.status === 'open' ? 'outline' : 'neutral'}>
+              {TICKET_STATUS_LABEL[t.status] ?? t.status}
+            </Badge>
+          </Card>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+// ── Analytics ─────────────────────────────────────────────────────────────────
+
+type Overview = { configured: boolean; pageviews?: number; events?: number; users?: number };
+type DailyRow = { day: string; pv: number; users: number };
+type PageRow = { path: string; count: number };
+
+function AnalyticsTab() {
+  const [overview, setOverview] = useState<Overview | null>(null);
+  const [daily, setDaily] = useState<DailyRow[]>([]);
+  const [pages, setPages] = useState<PageRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/admin/analytics?metric=overview').then((r) => r.json()),
+      fetch('/api/admin/analytics?metric=daily').then((r) => r.json()),
+      fetch('/api/admin/analytics?metric=top_pages').then((r) => r.json()),
+    ])
+      .then(([ov, dl, tp]) => {
+        setOverview(ov);
+        if (Array.isArray(dl)) setDaily(dl);
+        if (Array.isArray(tp)) setPages(tp);
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p className="font-mono text-xs text-muted">Carregando…</p>;
+  if (error || !overview || overview.configured === false) {
+    return <p className="text-sm text-muted">Analytics não configurado ou indisponível.</p>;
+  }
+
+  const maxPv = Math.max(1, ...daily.map((d) => Number(d.pv)));
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'Pageviews · 7d', value: overview.pageviews },
+          { label: 'Eventos · 7d', value: overview.events },
+          { label: 'Usuários · 7d', value: overview.users },
+        ].map((m) => (
+          <Card key={m.label} className="flex flex-col gap-1 p-4">
+            <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+              {m.label}
+            </span>
+            <span className="font-mono text-2xl font-bold text-ink">{String(m.value ?? 0)}</span>
+          </Card>
+        ))}
+      </div>
+
+      {daily.length > 0 && (
+        <Card className="flex flex-col gap-3">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Pageviews · últimos 14 dias
+          </span>
+          <div className="flex h-24 items-end gap-1">
+            {daily.map((d) => (
+              <div
+                key={d.day}
+                title={`${d.day}: ${d.pv} pageviews, ${d.users} usuários`}
+                className="min-w-0 flex-1 rounded-t bg-accent/70"
+                style={{ height: `${Math.max(4, (Number(d.pv) / maxPv) * 100)}%` }}
+              />
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {pages.length > 0 && (
+        <Card className="flex flex-col gap-2.5">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Páginas mais vistas · 7d
+          </span>
+          {pages.map((p) => (
+            <div key={p.path} className="flex items-center justify-between gap-3">
+              <span className="truncate font-mono text-xs text-ink">{p.path}</span>
+              <span className="shrink-0 font-mono text-xs text-muted">{String(p.count)}</span>
+            </div>
+          ))}
+        </Card>
+      )}
+    </div>
+  );
+}

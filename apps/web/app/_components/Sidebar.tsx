@@ -40,6 +40,11 @@ const ICON: Record<string, React.ReactNode> = {
       <circle cx="12" cy="7" r="4"/>
     </svg>
   ),
+  admin: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  ),
   roadmap: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="8" y1="6" x2="21" y2="6"/>
@@ -64,6 +69,7 @@ const NAV_MAIN = [
 
 const NAV_BETA = [
   { label: 'Roadmap', href: '/roadmap', icon: 'roadmap', match: (p: string) => p === '/roadmap' },
+  { label: 'Admin', href: '/admin', icon: 'admin', match: (p: string) => p.startsWith('/admin') },
 ];
 
 const itemBase =
