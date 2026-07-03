@@ -117,6 +117,10 @@ export function Landing() {
         <a href="/terms" className="underline underline-offset-2 transition-colors hover:text-muted">
           Termos e Privacidade
         </a>
+        <span>·</span>
+        <a href="/planos" className="underline underline-offset-2 transition-colors hover:text-muted">
+          Planos
+        </a>
       </footer>
     </div>
   );

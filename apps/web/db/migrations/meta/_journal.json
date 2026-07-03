@@ -8,6 +8,20 @@
       "when": 1782963777871,
       "tag": "0000_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783039083384,
+      "tag": "0001_user_profiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783043524302,
+      "tag": "0002_user_imported_songs",
+      "breakpoints": true
     }
   ]
 }

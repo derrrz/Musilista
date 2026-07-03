@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/components/ui/cn';
@@ -9,15 +9,55 @@ type SongResult = { id: string; title: string; artist: string };
 
 const LETTERS = ['0-9', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
+function SongLink({ song }: { song: SongResult }) {
+  return (
+    <Link
+      href={`/songs/${song.id}`}
+      className="flex flex-col gap-0.5 rounded-xl border border-line bg-surface px-4 py-3 transition-colors hover:border-accent"
+    >
+      <span className="text-sm font-semibold text-ink">{song.title}</span>
+      <span className="text-xs text-muted">{song.artist}</span>
+    </Link>
+  );
+}
+
+function SongSection({ label, songs }: { label: string; songs: SongResult[] }) {
+  if (songs.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+        {label}
+      </span>
+      {songs.map((s) => (
+        <SongLink key={s.id} song={s} />
+      ))}
+    </div>
+  );
+}
+
 export function Inicio() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SongResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [focused, setFocused] = useState(false);
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<SongResult[]>([]);
+  const [recents, setRecents] = useState<SongResult[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showIndex = focused && query.trim() === '';
+  const idle = query.trim() === '' && !activeLetter;
+
+  useEffect(() => {
+    fetch('/api/me/favorites')
+      .then((r) => (r.ok ? r.json() : { songs: [] }))
+      .then((d) => setFavorites((d.songs ?? []).slice(0, 5)))
+      .catch(() => {});
+    fetch('/api/me/recents')
+      .then((r) => (r.ok ? r.json() : { songs: [] }))
+      .then((d) => setRecents(d.songs ?? []))
+      .catch(() => {});
+  }, []);
 
   function handleSearch(q: string) {
     setQuery(q);
@@ -92,16 +132,16 @@ export function Inicio() {
 
           <div className="flex flex-col gap-2">
             {results.map((s) => (
-              <Link
-                key={s.id}
-                href={`/songs/${s.id}`}
-                className="flex flex-col gap-0.5 rounded-xl border border-line bg-surface px-4 py-3 transition-colors hover:border-accent"
-              >
-                <span className="text-sm font-semibold text-ink">{s.title}</span>
-                <span className="text-xs text-muted">{s.artist}</span>
-              </Link>
+              <SongLink key={s.id} song={s} />
             ))}
           </div>
+
+          {idle && !searching && (
+            <>
+              <SongSection label="Favoritas" songs={favorites} />
+              <SongSection label="Vistas recentemente" songs={recents} />
+            </>
+          )}
     </div>
   );
 }

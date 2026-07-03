@@ -74,6 +74,43 @@ export const users = pgTable("users", {
 	unique("users_email_unique").on(table.email),
 ]);
 
+export const userProfiles = pgTable("user_profiles", {
+	userId: uuid("user_id").primaryKey().notNull(),
+	bio: text(),
+	location: text(),
+	availability: text().default('available').notNull(),
+	functions: text().array().default([]).notNull(),
+	instruments: text().array().default([]).notNull(),
+	competencies: text().array().default([]).notNull(),
+	rider: text(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_profiles_user_id_users_id_fk"
+		}).onDelete("cascade"),
+]);
+
+export const userImportedSongs = pgTable("user_imported_songs", {
+	userId: uuid("user_id").notNull(),
+	importedSongId: uuid("imported_song_id").notNull(),
+	favorite: boolean().default(false).notNull(),
+	lastSeen: timestamp("last_seen", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "user_imported_songs_user_id_users_id_fk"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.importedSongId],
+			foreignColumns: [importedSongs.id],
+			name: "user_imported_songs_imported_song_id_imported_songs_id_fk"
+		}).onDelete("cascade"),
+	primaryKey({ columns: [table.userId, table.importedSongId], name: "user_imported_songs_user_id_imported_song_id_pk"}),
+]);
+
 export const songVersions = pgTable("song_versions", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	songId: uuid("song_id").notNull(),
