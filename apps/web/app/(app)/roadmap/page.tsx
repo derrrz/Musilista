@@ -11,14 +11,12 @@ const BOARD: { label: string; items: Initiative[] }[] = [
   {
     label: 'Agora',
     items: [
-      { title: 'Reconstrução do web app', note: 'Design system Console em todas as telas, Next 16, Tailwind v4 e remoção do app legado.' },
-      { title: 'Editor de cifras', note: 'Editor técnico com parser de texto, transposição e diagramas de acorde.' },
+      { title: 'Cifra animada em tempo real', note: 'Destacar o acorde ativo na cifra (letra + acordes) em sincronia com o BPM.' },
     ],
   },
   {
     label: 'Em breve',
     items: [
-      { title: 'Cifra animada em tempo real', note: 'Destacar o acorde ativo na cifra (letra + acordes) em sincronia com o BPM.' },
       { title: 'Exportação de PDF', note: 'Gerar PDF da cifra em formato A4 com layout, fontes e margens configuráveis.' },
       { title: 'Modo ao vivo', note: 'Apresentar cifras em tela cheia para ensaios e shows, com controle remoto pelo celular.' },
     ],
@@ -33,6 +31,8 @@ const BOARD: { label: string; items: Initiative[] }[] = [
   {
     label: 'Concluído',
     items: [
+      { title: 'Reconstrução do web app', note: 'Design system Console em todas as telas, Next 16, Tailwind v4 e remoção do app legado.' },
+      { title: 'Editor de cifras', note: 'Editor técnico com parser de texto, transposição e diagramas de acorde.' },
       { title: 'Grupos, agenda e repertórios', note: 'Bandas e corais com eventos, funções, confirmação de presença e link público de agenda.' },
       { title: 'Busca no acervo', note: 'Busca por título/artista e índice alfabético sobre o acervo importado.' },
     ],

@@ -1445,13 +1445,6 @@ export function EditorProvider({ children }: { children: ReactNode }) {
       extProgressMs: positionMs,
       extProgressAt: Date.now(),
     })
-    try {
-      await fetch('/api/spotify/control', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'seek', positionMs }),
-      })
-    } catch { /* silencioso */ }
   }, [tabs, activeTabId, setSyncData])
 
   const loadTabFromFile = useCallback((file: File): Promise<void> => {

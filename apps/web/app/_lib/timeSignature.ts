@@ -1,5 +1,5 @@
 // Normalizes BPM to 60–150 range by halving/doubling to correct tempo-octave errors
-// (e.g. Deezer/Spotify often return 176 when the true tempo is 88).
+// (e.g. metadata providers often return 176 when the true tempo is 88).
 export function normalizeBpm(bpm: number): number {
   let b = bpm
   while (b > 150) b = Math.round(b / 2)

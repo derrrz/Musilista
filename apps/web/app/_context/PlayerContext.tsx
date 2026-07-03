@@ -57,7 +57,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  // Player externo removido (era Spotify): o botão de play controla apenas
+  // Player externo removido: o botão de play controla apenas
   // o clock local (animação da cifra + metrônomo).
   const onPlayPause = useCallback((action: 'play' | 'pause') => {
     onExtPlayingChange(action === 'play')

@@ -189,7 +189,7 @@ export type SequenceSection = {
  * Itera seção → repetição → célula; o array sai em ordem cronológica sem sort.
  * Apenas compassos presentes em filledBarIndex (com acordes) são incluídos nas
  * entradas do array, mas TODOS os compassos (incluindo vazios) avançam o contador
- * `bar` para preservar o posicionamento correto na linha do tempo do Spotify.
+ * `bar` para preservar o posicionamento correto na linha do tempo da faixa.
  * Isso evita que acordes subsequentes apareçam cedo demais após um compasso vazio.
  */
 export function buildPulsadorSequence(
