@@ -1,13 +1,28 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/components/ui/cn';
+import { IconHeart } from '@/components/ui/icons';
 
-export function FavoriteButton({ songId, initialFavorite }: { songId: string; initialFavorite: boolean }) {
+export function FavoriteButton({
+  songId,
+  initialFavorite,
+  hasSession,
+}: {
+  songId: string;
+  initialFavorite: boolean;
+  hasSession: boolean;
+}) {
+  const router = useRouter();
   const [favorite, setFavorite] = useState(initialFavorite);
   const [pending, setPending] = useState(false);
 
   async function toggle() {
+    if (!hasSession) {
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/songs/${songId}`)}`);
+      return;
+    }
     if (pending) return;
     const next = !favorite;
     setFavorite(next);
@@ -31,7 +46,7 @@ export function FavoriteButton({ songId, initialFavorite }: { songId: string; in
       type="button"
       onClick={toggle}
       aria-pressed={favorite}
-      title={favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+      title={hasSession ? (favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos') : 'Entre para favoritar'}
       className={cn(
         'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors',
         favorite
@@ -39,13 +54,7 @@ export function FavoriteButton({ songId, initialFavorite }: { songId: string; in
           : 'border-line bg-raised text-muted hover:text-ink',
       )}
     >
-      <svg
-        width="14" height="14" viewBox="0 0 24 24"
-        fill={favorite ? 'currentColor' : 'none'}
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      >
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-      </svg>
+      <IconHeart size={14} fill={favorite ? 'currentColor' : 'none'} />
       {favorite ? 'Favorita' : 'Favoritar'}
     </button>
   );

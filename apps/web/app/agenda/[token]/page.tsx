@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import { LogoMark, Wordmark } from '@/components/brand/Logo';
 import { Avatar } from '@/components/ui/Avatar';
 import { cn } from '@/components/ui/cn';
+import { IconPin } from '@/components/ui/icons';
 
 const TYPE_LABEL: Record<string, string> = {
   show: 'Show',
@@ -181,7 +182,9 @@ export default async function AgendaPublicaPage({
 
         {/* Local */}
         {row.location ? (
-          <p className="mb-6 text-sm text-muted">📍 {row.location}</p>
+          <p className="mb-6 flex items-center gap-1 text-sm text-muted">
+            <IconPin size={13} /> {row.location}
+          </p>
         ) : (
           <div className="h-6" />
         )}

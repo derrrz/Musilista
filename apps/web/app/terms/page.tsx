@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Logo } from '@/components/brand/Logo';
+import { MobileGate } from '@/app/_components/MobileGate';
 
 export const metadata: Metadata = {
   title: 'Termos de Uso · Musilista',
@@ -132,53 +133,55 @@ Respondemos todas as solicitações em até 5 dias úteis.`,
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-bg text-ink">
-      <nav className="flex items-center justify-between border-b border-line px-6 py-4 sm:px-8">
-        <Link href="/">
-          <Logo />
-        </Link>
-      </nav>
+    <MobileGate featureName="A página de termos de uso">
+      <div className="min-h-screen bg-bg text-ink">
+        <nav className="flex items-center justify-between border-b border-line px-6 py-4 sm:px-8">
+          <Link href="/">
+            <Logo />
+          </Link>
+        </nav>
 
-      <main className="mx-auto max-w-2xl px-6 py-12">
-        <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
-          Legal
-        </span>
-        <h1 className="mb-2 mt-1.5 text-3xl font-bold tracking-tight">Termos de Uso e Privacidade</h1>
-        <p className="mb-10 font-mono text-xs text-faint">Última atualização: {LAST_UPDATED}</p>
+        <main className="mx-auto max-w-2xl px-6 py-12">
+          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
+            Legal
+          </span>
+          <h1 className="mb-2 mt-1.5 text-3xl font-bold tracking-tight">Termos de Uso e Privacidade</h1>
+          <p className="mb-10 font-mono text-xs text-faint">Última atualização: {LAST_UPDATED}</p>
 
-        {/* Índice */}
-        <div className="mb-10 rounded-xl border border-line bg-surface p-5">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">Índice</p>
-          <ol className="flex flex-col gap-1.5">
-            {sections.map((s) => (
-              <li key={s.id}>
-                <a href={`#${s.id}`} className="text-sm text-muted transition-colors hover:text-accent">
-                  {s.title}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </div>
+          {/* Índice */}
+          <div className="mb-10 rounded-xl border border-line bg-surface p-5">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">Índice</p>
+            <ol className="flex flex-col gap-1.5">
+              {sections.map((s) => (
+                <li key={s.id}>
+                  <a href={`#${s.id}`} className="text-sm text-muted transition-colors hover:text-accent">
+                    {s.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
 
-        {sections.map((s) => (
-          <section key={s.id} id={s.id} className="mb-8 scroll-mt-6">
-            <h2 className="mb-3 text-lg font-semibold text-ink">{s.title}</h2>
-            {s.content.split('\n\n').map((p, i) => (
-              <p key={i} className="mb-3 whitespace-pre-line text-sm leading-relaxed text-muted">
-                {p}
-              </p>
-            ))}
-          </section>
-        ))}
-      </main>
+          {sections.map((s) => (
+            <section key={s.id} id={s.id} className="mb-8 scroll-mt-6">
+              <h2 className="mb-3 text-lg font-semibold text-ink">{s.title}</h2>
+              {s.content.split('\n\n').map((p, i) => (
+                <p key={i} className="mb-3 whitespace-pre-line text-sm leading-relaxed text-muted">
+                  {p}
+                </p>
+              ))}
+            </section>
+          ))}
+        </main>
 
-      <footer className="flex items-center justify-center gap-4 border-t border-line py-6 font-mono text-[11px] text-faint">
-        <span>Musilista · Cifras e repertórios</span>
-        <span>·</span>
-        <Link href="/" className="underline underline-offset-2 transition-colors hover:text-muted">
-          Voltar ao início
-        </Link>
-      </footer>
-    </div>
+        <footer className="flex items-center justify-center gap-4 border-t border-line py-6 font-mono text-[11px] text-faint">
+          <span>Musilista · Cifras e repertórios</span>
+          <span>·</span>
+          <Link href="/" className="underline underline-offset-2 transition-colors hover:text-muted">
+            Voltar ao início
+          </Link>
+        </footer>
+      </div>
+    </MobileGate>
   );
 }
