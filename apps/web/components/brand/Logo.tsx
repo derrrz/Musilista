@@ -11,7 +11,7 @@ export function LogoMark({ size = 32, className }: { size?: number; className?: 
       aria-hidden="true"
       className={className}
     >
-      <rect x="2" y="2" width="36" height="36" rx="6" className="fill-ink" />
+      <rect x="2" y="2" width="36" height="36" rx="6" className="fill-bg" />
       <rect x="20" y="8" width="4" height="20" rx="1" className="fill-accent" />
       <rect x="24" y="8" width="6" height="4" rx="1" className="fill-accent" />
       <rect x="26" y="12" width="6" height="4" rx="1" className="fill-accent opacity-75" />

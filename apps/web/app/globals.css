@@ -1,16 +1,20 @@
 @import 'tailwindcss';
 
-/* Tokens da marca (direção Console) — fonte da verdade das cores */
+/* Tokens da marca (direção Console, brand kit DS/Musilista) — fonte da verdade das cores */
 :root {
-  --ml-bg: #0e0e11;
-  --ml-surface: #16161a;
-  --ml-raised: #1d1d22;
-  --ml-line: #2a2a31;
-  --ml-ink: #f2f1ee;
-  --ml-muted: #9a97a3;
-  --ml-faint: #5f5c68;
-  --ml-accent: #c084fc;
-  --ml-accent-ink: #1a0e24;
+  --ml-bg: #0f1214;
+  --ml-surface: #161a1d;
+  --ml-raised: #1c2024;
+  --ml-line: #23282c;
+  --ml-ink: #e5e7ea;
+  --ml-muted: #8b9296;
+  --ml-faint: #4a5054;
+  --ml-accent: #a1e645;
+  --ml-accent-ink: #0f1214;
+  --ml-verse: oklch(0.72 0.10 200);
+  --ml-chorus: oklch(0.70 0.11 295);
+  --ml-bridge: oklch(0.78 0.10 70);
+  --ml-solo: oklch(0.72 0.13 25);
 }
 
 /* Mapeia os tokens para as utilities do Tailwind (bg-surface, text-ink, border-line…) */
@@ -24,6 +28,10 @@
   --color-faint: var(--ml-faint);
   --color-accent: var(--ml-accent);
   --color-accent-ink: var(--ml-accent-ink);
+  --color-verse: var(--ml-verse);
+  --color-chorus: var(--ml-chorus);
+  --color-bridge: var(--ml-bridge);
+  --color-solo: var(--ml-solo);
   --font-ui: var(--font-ui-next), 'Space Grotesk', system-ui, sans-serif;
   --font-mono: var(--font-mono-next), 'JetBrains Mono', ui-monospace, monospace;
 }

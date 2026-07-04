@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { HTMLAttributes } from 'react';
 import { cn } from './cn';
 
@@ -10,6 +11,8 @@ export interface AvatarProps extends HTMLAttributes<HTMLSpanElement> {
   src?: string | null;
   size?: AvatarSize;
   shape?: AvatarShape;
+  /** Chamado quando `src` falha ao carregar — permite ao chamador tentar outra URL antes de cair na inicial. */
+  onError?: () => void;
 }
 
 const sizes: Record<AvatarSize, string> = {
@@ -29,9 +32,14 @@ export function Avatar({
   size = 'md',
   shape = 'circle',
   className,
+  onError,
   ...props
 }: AvatarProps) {
   const initial = name.trim().charAt(0).toUpperCase() || '?';
+  // Guarda qual `src` já falhou (não um booleano) — se o chamador trocar pra
+  // uma URL nova depois do erro (cadeia de fallback), tenta carregar de novo.
+  const [erroredSrc, setErroredSrc] = useState<string | null>(null);
+  const showImage = !!src && src !== erroredSrc;
 
   return (
     <span
@@ -44,9 +52,14 @@ export function Avatar({
       )}
       {...props}
     >
-      {src ? (
+      {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element -- avatar externo, dimensões fixas
-        <img src={src} alt={name} className="h-full w-full object-cover" />
+        <img
+          src={src}
+          alt={name}
+          className="h-full w-full object-cover"
+          onError={() => { setErroredSrc(src); onError?.(); }}
+        />
       ) : (
         <span aria-hidden="true">{initial}</span>
       )}
