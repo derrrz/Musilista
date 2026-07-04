@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
+import { MobileGate } from '@/app/_components/MobileGate';
 
 export const metadata: Metadata = { title: 'Roadmap · Musilista' };
 
@@ -41,32 +42,34 @@ const BOARD: { label: string; items: Initiative[] }[] = [
 
 export default function RoadmapPage() {
   return (
-    <div className="p-8">
-      <div className="mb-7 flex flex-col gap-1.5">
-        <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
-          Beta · planejamento
-        </span>
-        <h1 className="text-2xl font-bold tracking-tight text-ink">Roadmap</h1>
-      </div>
+    <MobileGate featureName="O roadmap">
+      <div className="p-8">
+        <div className="mb-7 flex flex-col gap-1.5">
+          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
+            Beta · planejamento
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-ink">Roadmap</h1>
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {BOARD.map((phase) => (
-          <div key={phase.label} className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
-                {phase.label}
-              </span>
-              <span className="font-mono text-[11px] text-faint">{phase.items.length}</span>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {BOARD.map((phase) => (
+            <div key={phase.label} className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                  {phase.label}
+                </span>
+                <span className="font-mono text-[11px] text-faint">{phase.items.length}</span>
+              </div>
+              {phase.items.map((item) => (
+                <Card key={item.title} className="flex flex-col gap-1.5 p-4">
+                  <CardTitle>{item.title}</CardTitle>
+                  <CardDescription className="leading-relaxed">{item.note}</CardDescription>
+                </Card>
+              ))}
             </div>
-            {phase.items.map((item) => (
-              <Card key={item.title} className="flex flex-col gap-1.5 p-4">
-                <CardTitle>{item.title}</CardTitle>
-                <CardDescription className="leading-relaxed">{item.note}</CardDescription>
-              </Card>
-            ))}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </MobileGate>
   );
 }

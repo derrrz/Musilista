@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { cn } from '@/components/ui/cn';
+import { IconClose, IconCheck } from '@/components/ui/icons';
 
 type RepertoireSong = {
   id: string;
@@ -169,7 +170,7 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
             aria-label="Nome do repertório"
           />
           <Button type="submit" disabled={pending}>Criar</Button>
-          <Button variant="outline" type="button" onClick={() => setShowNew(false)}>✕</Button>
+          <Button variant="outline" type="button" onClick={() => setShowNew(false)}><IconClose size={13} /></Button>
         </form>
       )}
 
@@ -244,10 +245,10 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
                       {canManage && (
                         <button
                           onClick={() => handleRemoveSong(active.id, s.id)}
-                          className="shrink-0 px-1 text-base leading-none text-faint transition-colors hover:text-red-400"
+                          className="shrink-0 flex items-center px-1 text-faint transition-colors hover:text-red-400"
                           aria-label={`Remover ${s.title}`}
                         >
-                          ✕
+                          <IconClose size={12} />
                         </button>
                       )}
                     </div>
@@ -294,15 +295,15 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
 
           {selected && (
             <form onSubmit={handleAddSong} className="flex flex-col gap-3">
-              <div className="rounded-lg border border-[color-mix(in_oklch,var(--ml-accent)_20%,transparent)] bg-[color-mix(in_oklch,var(--ml-accent)_8%,transparent)] px-3 py-2 text-[13px] text-accent">
-                ✓ {selected.title} — {selected.artist}
+              <div className="flex items-center gap-1.5 rounded-lg border border-[color-mix(in_oklch,var(--ml-accent)_20%,transparent)] bg-[color-mix(in_oklch,var(--ml-accent)_8%,transparent)] px-3 py-2 text-[13px] text-accent">
+                <IconCheck size={13} /> {selected.title} — {selected.artist}
                 <button
                   type="button"
                   onClick={() => { setSelected(null); setQuery(''); }}
-                  className="ml-2 text-muted transition-colors hover:text-ink"
+                  className="ml-2 flex items-center text-muted transition-colors hover:text-ink"
                   aria-label="Remover seleção"
                 >
-                  ✕
+                  <IconClose size={12} />
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-2.5">

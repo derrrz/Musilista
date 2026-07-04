@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal } from '@/components/ui/Modal';
 import { cn } from '@/components/ui/cn';
+import { Eyebrow, PageTitle } from '@/components/ui/Typography';
 
 type Group = {
   id: string;
@@ -148,10 +149,8 @@ export function GroupsView({ groups }: { groups: Group[] }) {
       <div className="p-8">
         <div className="mb-7 flex items-center justify-between">
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
-              Grupos · bandas e corais
-            </span>
-            <h1 className="text-2xl font-bold tracking-tight text-ink">Meus Grupos</h1>
+            <Eyebrow>Grupos · bandas e corais</Eyebrow>
+            <PageTitle>Meus Grupos</PageTitle>
           </div>
           <div className="flex gap-2.5">
             <Button variant="outline" size="sm" onClick={() => setShowJoin(true)}>

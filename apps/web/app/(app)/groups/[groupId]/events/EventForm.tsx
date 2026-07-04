@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { IconBack } from '@/components/ui/icons';
 
 type EventFormProps = {
   groupId: string;
@@ -63,8 +64,8 @@ export function EventForm({ groupId, eventId, initial }: EventFormProps) {
 
   return (
     <div className="max-w-2xl p-8">
-      <Link href={`/groups/${groupId}`} className="mb-4 block text-[13px] text-muted transition-colors hover:text-ink">
-        ← Voltar
+      <Link href={`/groups/${groupId}`} className="mb-4 flex items-center gap-1 text-[13px] text-muted transition-colors hover:text-ink">
+        <IconBack size={12} /> Voltar
       </Link>
       <h1 className="mb-8 text-2xl font-bold tracking-tight text-ink">
         {isEdit ? 'Editar Evento' : 'Novo Evento'}

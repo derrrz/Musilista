@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { getAuthUser } from '@/app/_lib/authUser';
 import type { UserProfile } from '@/app/_lib/profileOptions';
 import { ProfileForm } from './ProfileForm';
+import { Eyebrow, PageTitle } from '@/components/ui/Typography';
 
 export const metadata: Metadata = { title: 'Meu Perfil · Musilista' };
 
@@ -28,10 +29,8 @@ export default async function ProfilePage() {
   return (
     <div className="p-8">
       <div className="mb-7 flex flex-col gap-1.5">
-        <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
-          Seu cartão de visita profissional
-        </span>
-        <h1 className="text-2xl font-bold tracking-tight text-ink">Meu Perfil</h1>
+        <Eyebrow>Seu cartão de visita profissional</Eyebrow>
+        <PageTitle>Meu Perfil</PageTitle>
       </div>
       <ProfileForm
         initialData={profile}

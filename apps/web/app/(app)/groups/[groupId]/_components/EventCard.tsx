@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/components/ui/cn';
 import type { GroupEvent } from './types';
+import { IconCheck, IconPin, IconWarning } from '@/components/ui/icons';
 
 const TYPE_LABEL: Record<string, string> = { show: 'Show', ensaio: 'Ensaio', other: 'Outro' };
 const TYPE_BADGE: Record<string, string> = {
@@ -103,9 +104,9 @@ function AttendanceButton({ event, groupId }: { event: GroupEvent; groupId: stri
         variant={confirmed ? 'outline' : 'primary'}
         onClick={handleConfirm}
         disabled={confirmed || pending}
-        className={cn(confirmed && 'border-green-600 text-green-500 disabled:opacity-100')}
+        className={cn('gap-1.5', confirmed && 'border-green-600 text-green-500 disabled:opacity-100')}
       >
-        {confirmed ? '✓ Confirmado' : 'Confirmar'}
+        {confirmed ? <><IconCheck size={13} /> Confirmado</> : 'Confirmar'}
       </Button>
     </div>
   );
@@ -150,11 +151,15 @@ export function EventCard({ event, groupId, canManage }: { event: GroupEvent; gr
 
       <h3 className="mb-1.5 text-xl font-bold text-ink">{event.title}</h3>
 
-      {event.location && <p className="mb-2.5 text-sm text-muted">📍 {event.location}</p>}
+      {event.location && (
+        <p className="mb-2.5 flex items-center gap-1 text-sm text-muted">
+          <IconPin size={13} /> {event.location}
+        </p>
+      )}
 
       {event.notice && (
-        <div className="mb-3 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3.5 py-2.5 text-[13px] text-amber-400">
-          ⚠️ {event.notice}
+        <div className="mb-3 flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3.5 py-2.5 text-[13px] text-amber-400">
+          <IconWarning size={13} /> {event.notice}
         </div>
       )}
 

@@ -155,7 +155,6 @@ type Proposal = {
 function ProposalsTab() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
-  const [acting, setActing] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/proposals')
@@ -163,17 +162,6 @@ function ProposalsTab() {
       .then((d) => { if (Array.isArray(d)) setProposals(d); })
       .finally(() => setLoading(false));
   }, []);
-
-  async function act(proposalId: string, action: 'approve' | 'reject') {
-    setActing(proposalId);
-    const res = await fetch(`/api/admin/proposals/${proposalId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action }),
-    });
-    if (res.ok) setProposals((prev) => prev.filter((p) => p.id !== proposalId));
-    setActing(null);
-  }
 
   if (loading) return <p className="font-mono text-xs text-muted">Carregando…</p>;
   if (proposals.length === 0) return <p className="text-sm text-muted">Nenhuma proposta pendente.</p>;
@@ -194,14 +182,9 @@ function ProposalsTab() {
           <p className="text-xs text-muted">
             Proposta de {p.proposerName ?? p.proposerEmail}
           </p>
-          <div className="flex gap-2">
-            <Button size="sm" disabled={acting === p.id} onClick={() => act(p.id, 'approve')}>
-              Aprovar
-            </Button>
-            <Button size="sm" variant="outline" disabled={acting === p.id} onClick={() => act(p.id, 'reject')}>
-              Rejeitar
-            </Button>
-          </div>
+          <Link href={`/admin/proposals/${p.id}`}>
+            <Button size="sm">Revisar</Button>
+          </Link>
         </Card>
       ))}
     </div>

@@ -36,6 +36,13 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
     .from(groupMembers)
     .where(eq(groupMembers.groupId, groupId));
 
+  const members = await db
+    .select({ userId: groupMembers.userId, name: users.name, email: users.email, image: users.image, role: groupMembers.role })
+    .from(groupMembers)
+    .innerJoin(users, eq(groupMembers.userId, users.id))
+    .where(eq(groupMembers.groupId, groupId))
+    .orderBy(groupMembers.joinedAt);
+
   const eventsRows = await db
     .select({
       id: events.id,
@@ -87,6 +94,7 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
     <GroupDetail
       group={{ ...group, myRole: roleMap[membership.role] ?? 'MEMBRO', memberCount }}
       events={enrichedEvents}
+      members={members}
     />
   );
 }

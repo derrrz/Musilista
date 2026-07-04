@@ -25,3 +25,11 @@ export type Group = {
   myRole: string;
   memberCount: number;
 };
+
+export type Member = {
+  userId: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  role: string;
+};

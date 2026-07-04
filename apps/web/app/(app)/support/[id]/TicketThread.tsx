@@ -7,6 +7,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/components/ui/cn';
+import { IconBack } from '@/components/ui/icons';
 
 type Message = {
   id: string;
@@ -62,8 +63,8 @@ export function TicketThread({ ticket, messages, isStaff }: { ticket: Ticket; me
 
   return (
     <div className="mx-auto w-full max-w-3xl p-8">
-      <Link href="/support" className="mb-4 block text-[13px] text-muted transition-colors hover:text-ink">
-        ← Suporte
+      <Link href="/support" className="mb-4 flex items-center gap-1 text-[13px] text-muted transition-colors hover:text-ink">
+        <IconBack size={12} /> Suporte
       </Link>
 
       <div className="mb-6 flex items-start justify-between gap-4">

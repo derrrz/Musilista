@@ -5,10 +5,13 @@ import Link from 'next/link';
 import { cn } from '@/components/ui/cn';
 import { RepertoirePanel } from './_components/RepertoirePanel';
 import { EventCard } from './_components/EventCard';
-import type { Group, GroupEvent } from './_components/types';
+import { MembersPanel } from './_components/MembersPanel';
+import type { Group, GroupEvent, Member } from './_components/types';
+import { IconBack, IconCheck } from '@/components/ui/icons';
+import { Eyebrow, PageTitle } from '@/components/ui/Typography';
 
-export function GroupDetail({ group, events }: { group: Group; events: GroupEvent[] }) {
-  const [tab, setTab] = useState<'repertorio' | 'agenda'>('agenda');
+export function GroupDetail({ group, events, members }: { group: Group; events: GroupEvent[]; members: Member[] }) {
+  const [tab, setTab] = useState<'repertorio' | 'membros' | 'agenda'>('agenda');
   const [copied, setCopied] = useState(false);
   const canManage = group.myRole !== 'MEMBRO';
 
@@ -23,22 +26,22 @@ export function GroupDetail({ group, events }: { group: Group; events: GroupEven
       {/* Group header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <Link href="/groups" className="mb-3 block text-[13px] text-muted transition-colors hover:text-ink">
-            ← Grupos
+          <Link href="/groups" className="mb-3 flex items-center gap-1 text-[13px] text-muted transition-colors hover:text-ink">
+            <IconBack size={12} /> Grupos
           </Link>
-          <h1 className="text-[28px] font-bold tracking-tight text-ink">{group.name}</h1>
+          <PageTitle>{group.name}</PageTitle>
           {group.description && <p className="mt-1 text-sm text-muted">{group.description}</p>}
         </div>
         <div className="text-right">
-          <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
+          <Eyebrow className="mb-1 block">
             Código de convite
-          </p>
+          </Eyebrow>
           <button
             onClick={copyInvite}
-            className="font-mono text-[15px] font-bold text-accent transition-opacity hover:opacity-80"
+            className="flex items-center gap-1 font-mono text-[15px] font-bold text-accent transition-opacity hover:opacity-80"
             title="Copiar código"
           >
-            {copied ? 'copiado ✓' : group.inviteCode}
+            {copied ? <>copiado <IconCheck size={13} /></> : group.inviteCode}
           </button>
         </div>
       </div>
@@ -47,11 +50,12 @@ export function GroupDetail({ group, events }: { group: Group; events: GroupEven
       <div className="mb-7 flex gap-1 border-b border-line">
         {[
           { key: 'repertorio', label: 'Repertório' },
+          { key: 'membros', label: 'Membros' },
           { key: 'agenda', label: 'Agenda' },
         ].map((t) => (
           <button
             key={t.key}
-            onClick={() => setTab(t.key as 'repertorio' | 'agenda')}
+            onClick={() => setTab(t.key as 'repertorio' | 'membros' | 'agenda')}
             className={cn(
               '-mb-px border-b-2 px-5 py-2.5 text-sm transition-colors',
               tab === t.key
@@ -66,6 +70,8 @@ export function GroupDetail({ group, events }: { group: Group; events: GroupEven
 
       {/* Tab content */}
       {tab === 'repertorio' && <RepertoirePanel groupId={group.id} canManage={canManage} />}
+
+      {tab === 'membros' && <MembersPanel members={members} />}
 
       {tab === 'agenda' && (
         <div>

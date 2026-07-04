@@ -7,6 +7,8 @@ import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/components/ui/cn';
+import { IconPin, IconCheck } from '@/components/ui/icons';
+import { useIsMobileViewport } from '@/app/_lib/useIsMobileViewport';
 import {
   FUNCTION_OPTIONS,
   INSTRUMENT_OPTIONS,
@@ -75,6 +77,7 @@ function ProfileView({ profile, userName, userEmail, userImage, onEdit }: {
   userImage: string | null;
   onEdit: () => void;
 }) {
+  const isMobile = useIsMobileViewport();
   const availability = profile.availability ?? 'available';
   const availLabel = AVAILABILITY_OPTIONS.find((o) => o.value === availability)?.label ?? '';
   const hasContent = profile.functions.length > 0 || profile.bio || profile.location;
@@ -101,7 +104,11 @@ function ProfileView({ profile, userName, userEmail, userImage, onEdit }: {
         </div>
 
         {profile.bio && <p className="text-sm leading-relaxed text-muted">{profile.bio}</p>}
-        {profile.location && <p className="text-sm text-faint">📍 {profile.location}</p>}
+        {!isMobile && profile.location && (
+          <p className="flex items-center gap-1 text-sm text-faint">
+            <IconPin size={13} /> {profile.location}
+          </p>
+        )}
       </Card>
 
       {!hasContent && (
@@ -114,25 +121,27 @@ function ProfileView({ profile, userName, userEmail, userImage, onEdit }: {
         </Card>
       )}
 
-      {profile.functions.length > 0 && (
+      {/* Funções/instrumentos/competências/rider — igual o app mobile, que
+          só expõe bio e disponibilidade no perfil. */}
+      {!isMobile && profile.functions.length > 0 && (
         <ViewSection label="Funções">
           <ChipList items={profile.functions} accent />
         </ViewSection>
       )}
 
-      {profile.instruments.length > 0 && (
+      {!isMobile && profile.instruments.length > 0 && (
         <ViewSection label="Instrumentos">
           <ChipList items={profile.instruments} />
         </ViewSection>
       )}
 
-      {profile.competencies.length > 0 && (
+      {!isMobile && profile.competencies.length > 0 && (
         <ViewSection label="Competências">
           <ChipList items={profile.competencies} />
         </ViewSection>
       )}
 
-      {hasArtistic && profile.rider && (
+      {!isMobile && hasArtistic && profile.rider && (
         <ViewSection label="Rider de Camarim">
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted">{profile.rider}</p>
         </ViewSection>
@@ -198,6 +207,7 @@ function ProfileEdit({ initialData, userName, userEmail, userImage, onSaved }: {
     ),
   );
   const compRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobileViewport();
 
   const hasArtistic = functions.some((f) => ARTISTIC_FUNCTIONS.includes(f));
 
@@ -276,6 +286,9 @@ function ProfileEdit({ initialData, userName, userEmail, userImage, onSaved }: {
         </div>
       </Card>
 
+      {/* Funções/instrumentos/competências/rider — igual o app mobile, que
+          só edita bio e disponibilidade no perfil. */}
+      {!isMobile && (
       <EditSection label="O que você é" description="Selecione suas identidades profissionais">
         <div className="flex flex-wrap gap-2">
           {Object.keys(FUNCTION_OPTIONS).map((cat) => {
@@ -321,7 +334,9 @@ function ProfileEdit({ initialData, userName, userEmail, userImage, onSaved }: {
             </div>
           ))}
       </EditSection>
+      )}
 
+      {!isMobile && (
       <EditSection label="Instrumentos" description="Instrumentos que você toca ou opera">
         <div className="flex flex-wrap gap-2">
           {INSTRUMENT_OPTIONS.map((inst) => (
@@ -331,7 +346,9 @@ function ProfileEdit({ initialData, userName, userEmail, userImage, onSaved }: {
           ))}
         </div>
       </EditSection>
+      )}
 
+      {!isMobile && (
       <EditSection label="Competências" description="Ferramentas e técnicas que você domina">
         {competencies.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -388,8 +405,9 @@ function ProfileEdit({ initialData, userName, userEmail, userImage, onSaved }: {
           )}
         </div>
       </EditSection>
+      )}
 
-      {hasArtistic && (
+      {!isMobile && hasArtistic && (
         <EditSection label="Rider de Camarim" description="O que você precisa no backstage para sua performance">
           <div className="relative">
             <Textarea
@@ -406,7 +424,7 @@ function ProfileEdit({ initialData, userName, userEmail, userImage, onSaved }: {
         </EditSection>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className={cn('grid grid-cols-1 gap-3', !isMobile && 'sm:grid-cols-2')}>
         <EditSection label="Bio" description="Sua apresentação em até 280 caracteres">
           <div className="relative">
             <Textarea
@@ -421,6 +439,7 @@ function ProfileEdit({ initialData, userName, userEmail, userImage, onSaved }: {
             </span>
           </div>
         </EditSection>
+        {!isMobile && (
         <EditSection label="Localização" description="Cidade e estado onde você está baseado">
           <Input
             type="text"
@@ -429,11 +448,12 @@ function ProfileEdit({ initialData, userName, userEmail, userImage, onSaved }: {
             placeholder="Ex: São Paulo, SP"
           />
         </EditSection>
+        )}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center gap-4 border-t border-line bg-[color-mix(in_oklch,var(--ml-bg)_90%,transparent)] px-6 py-4 backdrop-blur-md">
-        <Button onClick={save} disabled={saveState === 'saving'}>
-          {saveState === 'saving' ? 'Salvando…' : saveState === 'saved' ? 'Salvo ✓' : 'Salvar'}
+        <Button onClick={save} disabled={saveState === 'saving'} className="gap-1.5">
+          {saveState === 'saving' ? 'Salvando…' : saveState === 'saved' ? <><IconCheck size={13} /> Salvo</> : 'Salvar'}
         </Button>
         {saveState === 'error' && <p className="text-sm text-red-400">Erro ao salvar. Tente novamente.</p>}
         {functions.length > 0 && saveState === 'idle' && (
