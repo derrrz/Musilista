@@ -439,3 +439,41 @@ export const importSourceCounts = pgTable("import_source_counts", {
 }, (table) => [
 	primaryKey({ columns: [table.origin, table.letter, table.artist], name: "import_source_counts_origin_letter_artist_pk"}),
 ]);
+
+// Cache permanente da foto do artista (coletada uma vez de uma fonte pública e
+// guardada aqui — não busca de novo a cada visita). Os bytes ficam no Vercel
+// Blob (blobUrl), não no Postgres — guardar base64 aqui já encheu o banco
+// (plano free do Neon, 512 MB) rapidinho. imageData/width/height ficam
+// nullable só durante a migração (task de remoção derruba as colunas depois).
+export const artistPhotos = pgTable("artist_photos", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	normalizedName: text("normalized_name").notNull(),
+	artistName: text("artist_name").notNull(),
+	blobUrl: text("blob_url"),
+	imageData: text("image_data"),
+	contentType: text("content_type").notNull(),
+	width: integer(),
+	height: integer(),
+	sourceUrl: text("source_url"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	unique("artist_photos_normalized_name_unique").on(table.normalizedName),
+]);
+
+// Mesma ideia do artist_photos, mas por música (capa do álbum) — chave é
+// título+artista normalizados, já que não temos tabela de álbum própria.
+export const songCovers = pgTable("song_covers", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	normalizedKey: text("normalized_key").notNull(),
+	title: text().notNull(),
+	artist: text().notNull(),
+	blobUrl: text("blob_url"),
+	imageData: text("image_data"),
+	contentType: text("content_type").notNull(),
+	width: integer(),
+	height: integer(),
+	sourceUrl: text("source_url"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	unique("song_covers_normalized_key_unique").on(table.normalizedKey),
+]);

@@ -22,6 +22,20 @@
       "when": 1783043524302,
       "tag": "0002_user_imported_songs",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783092059634,
+      "tag": "0003_vengeful_cerise",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783094667731,
+      "tag": "0004_worthless_radioactive_man",
+      "breakpoints": true
     }
   ]
 }
