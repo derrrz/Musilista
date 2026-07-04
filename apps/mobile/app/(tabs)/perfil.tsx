@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -12,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonSongRow } from '@/components/ui/Skeleton';
 import { useSession } from '@/context/SessionContext';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
@@ -19,14 +21,21 @@ import { colors } from '@/constants/colors';
 import { fonts, fontSize } from '@/constants/typography';
 
 export default function PerfilScreen() {
+  const router = useRouter();
   const { session, signOut } = useSession();
-  const { data: profile, isLoading } = useProfile();
+  const { data: profile, isLoading } = useProfile(Boolean(session));
   const { mutate: updateProfile, isPending } = useUpdateProfile();
 
-  const [description, setDescription] = useState(profile?.description ?? '');
-  const [available, setAvailable] = useState(profile?.available ?? false);
+  const [description, setDescription] = useState('');
+  const [available, setAvailable] = useState(false);
 
-  const user = profile ?? session?.user;
+  useEffect(() => {
+    if (!profile) return;
+    setDescription(profile.bio ?? '');
+    setAvailable(profile.availability === 'available');
+  }, [profile]);
+
+  const user = session?.user;
 
   function handleSave() {
     updateProfile(
@@ -43,6 +52,23 @@ export default function PerfilScreen() {
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Sair', style: 'destructive', onPress: signOut },
     ]);
+  }
+
+  if (!session) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.content}>
+          <Text style={styles.heading}>Perfil</Text>
+        </View>
+        <EmptyState
+          icon="👤"
+          title="Entre para editar seu perfil"
+          description="Sua descrição e disponibilidade aparecem para os membros dos seus grupos"
+          actionLabel="Entrar"
+          onAction={() => router.push('/(auth)/login')}
+        />
+      </SafeAreaView>
+    );
   }
 
   if (isLoading) {

@@ -35,15 +35,16 @@ export default function NovoEventoModal() {
       Alert.alert('Título obrigatório');
       return;
     }
-    if (!date.trim()) {
+    const match = date.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) {
       Alert.alert('Data obrigatória', 'Use o formato DD/MM/AAAA');
       return;
     }
-    const [day, month, year] = date.split('/');
-    const isoDate = `${year}-${month}-${day}T00:00:00.000Z`;
+    const [, day, month, year] = match;
+    const eventDate = `${year}-${month}-${day}`;
 
     createEvent(
-      { title: title.trim(), date: isoDate, type, description: description.trim() || undefined },
+      { title: title.trim(), date: eventDate, type, description: description.trim() || undefined },
       {
         onSuccess: () => router.back(),
         onError: (e) => Alert.alert('Erro', e.message),

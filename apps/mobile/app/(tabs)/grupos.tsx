@@ -5,6 +5,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { RoleBadge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonSongRow } from '@/components/ui/Skeleton';
+import { useSession } from '@/context/SessionContext';
 import { useGroups } from '@/hooks/useGroups';
 import { colors } from '@/constants/colors';
 import { fonts, fontSize, fontWeight } from '@/constants/typography';
@@ -29,7 +30,25 @@ function GroupRow({ group, onPress }: { group: Group; onPress: () => void }) {
 
 export default function GruposScreen() {
   const router = useRouter();
-  const { data: groups, isLoading, refetch, isRefetching } = useGroups();
+  const { session } = useSession();
+  const { data: groups, isLoading, refetch, isRefetching } = useGroups(Boolean(session));
+
+  if (!session) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <Text style={styles.heading}>Grupos</Text>
+        </View>
+        <EmptyState
+          icon="👥"
+          title="Entre para ver seus grupos"
+          description="Grupos, repertórios e agenda ficam salvos na sua conta"
+          actionLabel="Entrar"
+          onAction={() => router.push('/(auth)/login')}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

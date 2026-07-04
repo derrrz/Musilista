@@ -11,6 +11,25 @@ interface SessionContextValue {
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
+interface ApiMe {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  role: string;
+}
+
+async function fetchUser(): Promise<User> {
+  const me = await api.get<ApiMe>('/api/me');
+  return {
+    id: me.id,
+    name: me.name ?? '',
+    email: me.email,
+    avatarUrl: me.image ?? undefined,
+    role: me.role,
+  };
+}
+
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +42,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     try {
       const token = await getToken();
       if (!token) return;
-      const user = await api.get<User>('/api/me');
+      const user = await fetchUser();
       setSession({ token, user });
     } catch {
       await removeToken();
@@ -34,7 +53,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   async function signIn(token: string) {
     await setToken(token);
-    const user = await api.get<User>('/api/me');
+    const user = await fetchUser();
     setSession({ token, user });
   }
 

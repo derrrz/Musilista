@@ -6,6 +6,7 @@ import {
   FlatList,
   RefreshControl,
   ScrollView,
+  SectionList,
   Share,
   StyleSheet,
   Text,
@@ -23,14 +24,14 @@ import {
   useGroup,
   useGroupEvents,
   useGroupMembers,
-  useGroupSongs,
+  useGroupRepertoires,
   useConfirmAttendance,
   useShareEvent,
   useRevokeShare,
 } from '@/hooks/useGroups';
 import { colors } from '@/constants/colors';
 import { fonts, fontSize } from '@/constants/typography';
-import type { GroupEvent, Member, Song } from '@/types';
+import type { GroupEvent, Member, RepertoireSong } from '@/types';
 
 const TABS = [
   { key: 'repertorio', label: 'Repertório' },
@@ -38,17 +39,19 @@ const TABS = [
   { key: 'agenda', label: 'Agenda' },
 ];
 
-function SongItem({ song, onPress }: { song: Song; onPress: () => void }) {
+function SongItem({ song }: { song: RepertoireSong }) {
   return (
-    <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7}>
+    <View style={styles.row}>
       <View style={styles.keyBadge}>
         <Text style={styles.keyText}>{song.key ?? '?'}</Text>
       </View>
       <View style={styles.rowText}>
         <Text style={styles.rowTitle} numberOfLines={1}>{song.title}</Text>
-        <Text style={styles.rowSub} numberOfLines={1}>{song.artist}</Text>
+        {song.artist ? (
+          <Text style={styles.rowSub} numberOfLines={1}>{song.artist}</Text>
+        ) : null}
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -63,9 +66,7 @@ function MemberItem({ member }: { member: Member }) {
         </View>
         <Text style={styles.rowSub}>{member.email}</Text>
       </View>
-      {member.available && (
-        <View style={styles.availableDot} />
-      )}
+      {member.available && <View style={styles.availableDot} />}
     </View>
   );
 }
@@ -123,7 +124,10 @@ function EventItem({
     );
   }
 
-  const date = new Date(event.date);
+  // event.date vem como "YYYY-MM-DD"; new Date(string) trataria como UTC
+  // e exibiria o dia anterior em fusos negativos
+  const [y, m, d] = event.date.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
   const dateStr = date.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
@@ -191,9 +195,18 @@ export default function GroupScreen() {
   const [activeTab, setActiveTab] = useState('repertorio');
 
   const { data: group, isLoading: loadingGroup } = useGroup(id);
-  const { data: songs, isLoading: loadingSongs, refetch: refetchSongs } = useGroupSongs(id);
+  const {
+    data: repertoires,
+    isLoading: loadingSongs,
+    refetch: refetchSongs,
+  } = useGroupRepertoires(id);
   const { data: members, isLoading: loadingMembers, refetch: refetchMembers } = useGroupMembers(id);
   const { data: events, isLoading: loadingEvents, refetch: refetchEvents } = useGroupEvents(id);
+
+  const repertoireSections = (repertoires ?? []).map((r) => ({
+    title: r.name,
+    data: r.songs,
+  }));
 
   async function copyCode() {
     if (!group?.inviteCode) return;
@@ -237,14 +250,16 @@ export default function GroupScreen() {
 
       {/* Content */}
       {activeTab === 'repertorio' && (
-        <FlatList
-          data={songs}
+        <SectionList
+          sections={repertoireSections}
           keyExtractor={(s) => s.id}
-          renderItem={({ item }) => (
-            <SongItem song={item} onPress={() => router.push(`/songs/${item.id}`)} />
+          renderItem={({ item }) => <SongItem song={item} />}
+          renderSectionHeader={({ section }) => (
+            <Text style={styles.repertoireHeader}>{section.title}</Text>
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           contentContainerStyle={styles.list}
+          stickySectionHeadersEnabled={false}
           ListHeaderComponent={
             group?.myRole !== 'MEMBRO' ? (
               <TouchableOpacity
@@ -261,7 +276,11 @@ export default function GroupScreen() {
             loadingSongs ? (
               <SkeletonSongRow />
             ) : (
-              <EmptyState icon="🎵" title="Sem músicas" description="Adicione músicas ao repertório" />
+              <EmptyState
+                icon="🎵"
+                title="Sem repertórios"
+                description="Adicione uma música para criar o primeiro repertório"
+              />
             )
           }
           refreshControl={
@@ -350,6 +369,21 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   rowHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
   rowText: { flex: 1 },
+  availableDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.success,
+  },
+  repertoireHeader: {
+    color: colors.muted,
+    fontFamily: fonts.sansSemiBold,
+    fontSize: fontSize.xs,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    paddingTop: 16,
+    paddingBottom: 6,
+  },
   rowTitle: { color: colors.ink, fontFamily: fonts.sansMedium, fontSize: 15 },
   rowSub: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm, marginTop: 2 },
   keyBadge: {
@@ -361,12 +395,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   keyText: { color: colors.accent, fontFamily: fonts.monoBold, fontSize: fontSize.sm },
-  availableDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.success,
-  },
   addBtn: {
     backgroundColor: colors.surface,
     borderRadius: 12,

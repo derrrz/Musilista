@@ -11,8 +11,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonSongRow } from '@/components/ui/Skeleton';
-import { useAddSongToGroup } from '@/hooks/useGroups';
-import { useGroupSongs } from '@/hooks/useGroups';
+import {
+  useAddSongToRepertoire,
+  useCreateRepertoire,
+  useGroupRepertoires,
+} from '@/hooks/useGroups';
 import { useSearchSongs } from '@/hooks/useSongs';
 import { colors } from '@/constants/colors';
 import { fonts, fontSize } from '@/constants/typography';
@@ -22,21 +25,37 @@ export default function BuscarMusicaModal() {
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const [targetId, setTargetId] = useState<string | null>(null);
 
   const { data: results, isLoading } = useSearchSongs(query);
-  const { data: groupSongs } = useGroupSongs(groupId);
-  const { mutate: addSong, isPending } = useAddSongToGroup(groupId);
+  const { data: repertoires } = useGroupRepertoires(groupId);
+  const { mutateAsync: createRepertoire, isPending: creating } = useCreateRepertoire(groupId);
+  const { mutateAsync: addSong, isPending: adding } = useAddSongToRepertoire(groupId);
 
-  const groupSongIds = new Set((groupSongs ?? []).map((s) => s.id));
+  const isPending = creating || adding;
+  const target =
+    (repertoires ?? []).find((r) => r.id === targetId) ?? (repertoires ?? [])[0];
 
-  function handleAdd(song: Song) {
-    if (groupSongIds.has(song.id)) return;
-    addSong(song.id, {
-      onSuccess: () => {
-        Alert.alert('Adicionado!', `${song.title} adicionada ao repertório.`);
-      },
-      onError: (e) => Alert.alert('Erro', e.message),
-    });
+  const targetSongKeys = new Set(
+    (target?.songs ?? []).map((s) => `${s.title}::${s.artist ?? ''}`.toLowerCase()),
+  );
+
+  function isAdded(song: Song) {
+    return targetSongKeys.has(`${song.title}::${song.artist}`.toLowerCase());
+  }
+
+  async function handleAdd(song: Song) {
+    if (isAdded(song)) return;
+    try {
+      let repertoireId = target?.id;
+      if (!repertoireId) {
+        repertoireId = (await createRepertoire('Repertório')).id;
+      }
+      await addSong({ repertoireId, title: song.title, artist: song.artist });
+      Alert.alert('Adicionado!', `${song.title} adicionada ao repertório.`);
+    } catch (e) {
+      Alert.alert('Erro', (e as Error).message);
+    }
   }
 
   return (
@@ -61,6 +80,25 @@ export default function BuscarMusicaModal() {
         />
       </View>
 
+      {(repertoires ?? []).length > 1 && (
+        <View style={styles.repertoireChips}>
+          {(repertoires ?? []).map((r) => {
+            const selected = r.id === target?.id;
+            return (
+              <TouchableOpacity
+                key={r.id}
+                style={[styles.chip, selected && styles.chipActive]}
+                onPress={() => setTargetId(r.id)}
+              >
+                <Text style={[styles.chipText, selected && styles.chipTextActive]}>
+                  {r.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
+
       {isLoading ? (
         <>
           <SkeletonSongRow />
@@ -71,7 +109,7 @@ export default function BuscarMusicaModal() {
           data={results ?? []}
           keyExtractor={(s) => s.id}
           renderItem={({ item }) => {
-            const added = groupSongIds.has(item.id);
+            const added = isAdded(item);
             return (
               <TouchableOpacity
                 style={styles.row}
@@ -134,6 +172,24 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
   },
   list: { paddingHorizontal: 16 },
+  repertoireChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+  },
+  chipActive: { borderColor: colors.accent, backgroundColor: colors.avatarBg },
+  chipText: { color: colors.muted, fontFamily: fonts.sansMedium, fontSize: fontSize.sm },
+  chipTextActive: { color: colors.accent },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   keyBadge: {
     width: 36,

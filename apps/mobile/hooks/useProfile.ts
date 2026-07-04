@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { User } from '@/types';
+import type { Profile } from '@/types';
 
-export function useProfile() {
-  return useQuery<User>({
+export function useProfile(enabled = true) {
+  return useQuery<Profile>({
     queryKey: ['profile'],
-    queryFn: () => api.get<User>('/api/me/profile'),
+    enabled,
+    queryFn: () => api.get<Profile>('/api/me/profile'),
   });
 }
 
@@ -13,9 +14,12 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: { description?: string; available?: boolean }) =>
-      api.patch<User>('/api/me/profile', data),
-    onSuccess: (updated) => {
-      qc.setQueryData(['profile'], updated);
-    },
+      api.patch('/api/me/profile', {
+        ...(data.description !== undefined && { bio: data.description }),
+        ...(data.available !== undefined && {
+          availability: data.available ? 'available' : 'busy',
+        }),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['profile'] }),
   });
 }

@@ -3,6 +3,7 @@ import {
   isErrorWithCode,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -25,8 +26,14 @@ GoogleSignin.configure({
 });
 
 export default function LoginScreen() {
+  const router = useRouter();
   const { signIn } = useSession();
   const [loading, setLoading] = useState(false);
+
+  function skipLogin() {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)/biblioteca');
+  }
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -90,6 +97,10 @@ export default function LoginScreen() {
               <Text style={styles.googleBtnText}>Continuar com Google</Text>
             </>
           )}
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.skipBtn} onPress={skipLogin} disabled={loading}>
+          <Text style={styles.skipText}>Agora não</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -165,5 +176,11 @@ const styles = StyleSheet.create({
     color: colors.accentInk,
     fontFamily: fonts.sansBold,
     fontSize: fontSize.base,
+  },
+  skipBtn: { alignItems: 'center', paddingVertical: 12 },
+  skipText: {
+    color: colors.muted,
+    fontFamily: fonts.sansMedium,
+    fontSize: fontSize.sm,
   },
 });

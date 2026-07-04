@@ -10,7 +10,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AutoScrollView, type AutoScrollViewRef } from '@/components/AutoScrollView';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { useSong, useToggleFavorite, useRegisterRecent } from '@/hooks/useSongs';
+import { useSession } from '@/context/SessionContext';
+import { useSong, useToggleFavorite } from '@/hooks/useSongs';
 import { colors } from '@/constants/colors';
 import { fonts, fontSize, fontWeight } from '@/constants/typography';
 import type { Section } from '@/types';
@@ -56,21 +57,14 @@ function SectionView({ section, transpose }: { section: Section; transpose: numb
 export default function SongScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { session } = useSession();
   const { data: song, isLoading } = useSong(id);
-  const { mutate: toggleFavorite } = useToggleFavorite();
-  const { mutate: registerRecent } = useRegisterRecent();
+  const { mutate: toggleFavorite, isPending: togglingFavorite } = useToggleFavorite(id);
 
   const scrollRef = useRef<AutoScrollViewRef>(null);
   const [transpose, setTranspose] = useState(0);
   const [scrolling, setScrolling] = useState(false);
   const [speed, setSpeed] = useState(30);
-
-  // Register as recent when loaded
-  const registered = useRef(false);
-  if (song && !registered.current) {
-    registered.current = true;
-    registerRecent(id);
-  }
 
   function toggleScroll() {
     if (scrolling) {
@@ -109,10 +103,17 @@ export default function SongScreen() {
           <Text style={styles.artist} numberOfLines={1}>{song.artist}</Text>
         </View>
         <TouchableOpacity
-          onPress={() => toggleFavorite(id)}
+          onPress={() => {
+            if (!session) {
+              router.push('/(auth)/login');
+              return;
+            }
+            toggleFavorite(!song.favorite);
+          }}
+          disabled={togglingFavorite}
           style={styles.favBtn}
         >
-          <Text style={styles.favIcon}>{song.isFavorite ? '★' : '☆'}</Text>
+          <Text style={styles.favIcon}>{song.favorite ? '★' : '☆'}</Text>
         </TouchableOpacity>
       </View>
 

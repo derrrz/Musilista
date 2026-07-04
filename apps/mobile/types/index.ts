@@ -3,9 +3,17 @@ export interface User {
   name: string;
   email: string;
   avatarUrl?: string;
-  available: boolean;
-  description?: string;
-  hasProfile: boolean;
+  role?: string;
+}
+
+export interface Profile {
+  bio: string | null;
+  location: string | null;
+  availability: 'available' | 'busy' | 'not_looking';
+  functions: string[];
+  instruments: string[];
+  competencies: string[];
+  rider: string | null;
 }
 
 export interface Session {
@@ -18,9 +26,8 @@ export interface Song {
   title: string;
   artist: string;
   key?: string;
-  coverUrl?: string;
   sections?: Section[];
-  isFavorite?: boolean;
+  favorite?: boolean;
 }
 
 export interface Section {
@@ -76,6 +83,19 @@ export interface GroupEvent {
   attendanceConfirmed: boolean;
   totalMembers: number;
   publicToken?: string;
+}
+
+export interface RepertoireSong {
+  id: string;
+  title: string;
+  artist?: string;
+  key?: string;
+}
+
+export interface Repertoire {
+  id: string;
+  name: string;
+  songs: RepertoireSong[];
 }
 
 export interface Playlist {

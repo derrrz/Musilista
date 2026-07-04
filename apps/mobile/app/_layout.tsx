@@ -16,6 +16,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SessionProvider, useSession } from '@/context/SessionContext';
 import { queryClient } from '@/lib/queryClient';
 
+// Navegação pública por padrão (busca e cifras não exigem login, como na web);
+// as abas Grupos/Perfil fazem o próprio gate. Aqui só resolvemos a rota inicial
+// e tiramos o usuário da tela de login depois que a sessão existe.
 function NavigationGuard() {
   const { session, isLoading } = useSession();
   const segments = useSegments();
@@ -23,10 +26,10 @@ function NavigationGuard() {
 
   useEffect(() => {
     if (isLoading) return;
-    const inAuth = segments[0] === '(auth)';
-    if (!session && !inAuth) {
-      router.replace('/(auth)/login');
-    } else if (session && inAuth) {
+    const first = segments[0] as string | undefined;
+    if (session && first === '(auth)') {
+      router.replace('/(tabs)/biblioteca');
+    } else if (!first || first === 'index') {
       router.replace('/(tabs)/biblioteca');
     }
   }, [session, isLoading, segments, router]);
