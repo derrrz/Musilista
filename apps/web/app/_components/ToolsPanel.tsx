@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useEditor } from '../_context/EditorContext'
+import { IconSettings, IconChevronUp, IconChevronDown } from '@/components/ui/icons'
 
 const DEFAULTS = {
   textSize: 14,
@@ -29,11 +30,11 @@ function SizeControl({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-xs text-zinc-300 w-20 shrink-0">{label}</span>
+      <span className="text-xs text-muted w-20 shrink-0">{label}</span>
       <div className="flex items-center gap-1.5">
         <button
           onClick={() => onChange(Math.max(MIN, value - STEP))}
-          className="w-6 h-6 flex items-center justify-center rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-sm font-bold leading-none transition-colors"
+          className="w-6 h-6 flex items-center justify-center rounded bg-surface hover:bg-line text-ink text-sm font-bold leading-none transition-colors"
         >
           −
         </button>
@@ -42,7 +43,7 @@ function SizeControl({
         </span>
         <button
           onClick={() => onChange(Math.min(MAX, value + STEP))}
-          className="w-6 h-6 flex items-center justify-center rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-sm font-bold leading-none transition-colors"
+          className="w-6 h-6 flex items-center justify-center rounded bg-surface hover:bg-line text-ink text-sm font-bold leading-none transition-colors"
         >
           +
         </button>
@@ -104,18 +105,18 @@ export default function ToolsPanel() {
           w-9 h-9 flex items-center justify-center rounded-full shadow-lg
           border transition-colors text-base
           ${open
-            ? 'bg-zinc-900 border-zinc-600 text-white'
-            : 'bg-white border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-900'
+            ? 'bg-raised border-faint text-ink'
+            : 'bg-surface border-line text-muted hover:border-faint hover:text-ink'
           }
         `}
       >
-        ⚙
+        <IconSettings size={15} />
       </button>
 
       {/* Painel suspenso */}
       {open && (
-        <div className="absolute top-[60px] right-0 bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl p-3 w-52 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+        <div className="absolute top-[60px] right-0 bg-raised border border-line rounded-xl shadow-2xl p-3 w-52 flex flex-col gap-3">
+          <p className="text-xs font-semibold text-muted uppercase tracking-wide">
             Ferramentas
           </p>
 
@@ -138,24 +139,24 @@ export default function ToolsPanel() {
               onChange={e => setHideTabBlocks(e.target.checked)}
               className="w-3.5 h-3.5 accent-indigo-500 cursor-pointer"
             />
-            <span className="text-xs text-zinc-300 leading-tight">Ocultar tablaturas</span>
+            <span className="text-xs text-muted leading-tight">Ocultar tablaturas</span>
           </label>
 
           {/* ── Transposição ── */}
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs text-zinc-300 w-20 shrink-0">Tom</span>
+            <span className="text-xs text-muted w-20 shrink-0">Tom</span>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => activeTabId && transposeTab(activeTabId, -1)}
-                className="w-7 h-6 text-xs rounded font-mono bg-zinc-700 text-zinc-300 hover:bg-zinc-600 transition-colors"
+                className="w-7 h-6 text-xs rounded font-mono bg-surface text-muted hover:bg-line transition-colors"
                 title="Meio tom abaixo"
               >−½</button>
-              <span className="text-xs text-zinc-200 min-w-[2.5rem] text-center font-mono font-semibold">
+              <span className="text-xs text-ink min-w-[2.5rem] text-center font-mono font-semibold">
                 {activeSongKey || '—'}
               </span>
               <button
                 onClick={() => activeTabId && transposeTab(activeTabId, +1)}
-                className="w-7 h-6 text-xs rounded font-mono bg-zinc-700 text-zinc-300 hover:bg-zinc-600 transition-colors"
+                className="w-7 h-6 text-xs rounded font-mono bg-surface text-muted hover:bg-line transition-colors"
                 title="Meio tom acima"
               >+½</button>
             </div>
@@ -169,14 +170,14 @@ export default function ToolsPanel() {
               disabled={!activeSongKey}
               className="w-3.5 h-3.5 accent-amber-500 cursor-pointer"
             />
-            <span className="text-xs text-zinc-300 leading-tight">
+            <span className="text-xs text-muted leading-tight">
               Destacar fora do campo harmônico
-              {activeSongKey && <span className="ml-1 text-zinc-500">({activeSongKey})</span>}
+              {activeSongKey && <span className="ml-1 text-faint">({activeSongKey})</span>}
             </span>
           </label>
 
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs text-zinc-300 w-20 shrink-0">Colunas</span>
+            <span className="text-xs text-muted w-20 shrink-0">Colunas</span>
             <div className="flex gap-1">
               {[1, 2].map(n => (
                 <button
@@ -185,7 +186,7 @@ export default function ToolsPanel() {
                   className={`px-3 py-1 text-xs rounded font-mono transition-colors ${
                     (n === 2) === twoColumns
                       ? 'bg-indigo-600 text-white'
-                      : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                      : 'bg-surface text-muted hover:bg-line'
                   }`}
                 >
                   {n}
@@ -197,7 +198,7 @@ export default function ToolsPanel() {
           {twoColumns && (
             <>
               <div className="flex items-center justify-between gap-3">
-                <span className="text-xs text-zinc-300 w-20 shrink-0">Leitura</span>
+                <span className="text-xs text-muted w-20 shrink-0">Leitura</span>
                 <div className="flex gap-1">
                   {(['vertical', 'horizontal'] as const).map(flow => (
                     <button
@@ -207,7 +208,7 @@ export default function ToolsPanel() {
                       className={`px-2 py-1 text-xs rounded transition-colors ${
                         columnFlow === flow
                           ? 'bg-indigo-600 text-white'
-                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                          : 'bg-surface text-muted hover:bg-line'
                       }`}
                     >
                       {flow === 'horizontal' ? '↔' : '↕'}
@@ -221,11 +222,11 @@ export default function ToolsPanel() {
                 onMouseEnter={() => setIsAdjustingColumnGap(true)}
                 onMouseLeave={() => setIsAdjustingColumnGap(false)}
               >
-                <span className="text-xs text-zinc-300 w-20 shrink-0">Entre colunas</span>
+                <span className="text-xs text-muted w-20 shrink-0">Entre colunas</span>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => setColumnGap(Math.max(GAP_MIN, columnGap - GAP_STEP))}
-                    className="w-6 h-6 flex items-center justify-center rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-sm font-bold leading-none transition-colors"
+                    className="w-6 h-6 flex items-center justify-center rounded bg-surface hover:bg-line text-ink text-sm font-bold leading-none transition-colors"
                   >
                     −
                   </button>
@@ -234,7 +235,7 @@ export default function ToolsPanel() {
                   </span>
                   <button
                     onClick={() => setColumnGap(Math.min(GAP_MAX, columnGap + GAP_STEP))}
-                    className="w-6 h-6 flex items-center justify-center rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-sm font-bold leading-none transition-colors"
+                    className="w-6 h-6 flex items-center justify-center rounded bg-surface hover:bg-line text-ink text-sm font-bold leading-none transition-colors"
                   >
                     +
                   </button>
@@ -248,11 +249,11 @@ export default function ToolsPanel() {
             onMouseEnter={() => setIsAdjustingMargin(true)}
             onMouseLeave={() => setIsAdjustingMargin(false)}
           >
-            <span className="text-xs text-zinc-300 w-20 shrink-0">Margem</span>
+            <span className="text-xs text-muted w-20 shrink-0">Margem</span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setPageMargin(Math.max(MARGIN_MIN, pageMargin - MARGIN_STEP))}
-                className="w-6 h-6 flex items-center justify-center rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-sm font-bold leading-none transition-colors"
+                className="w-6 h-6 flex items-center justify-center rounded bg-surface hover:bg-line text-ink text-sm font-bold leading-none transition-colors"
               >
                 −
               </button>
@@ -261,7 +262,7 @@ export default function ToolsPanel() {
               </span>
               <button
                 onClick={() => setPageMargin(Math.min(MARGIN_MAX, pageMargin + MARGIN_STEP))}
-                className="w-6 h-6 flex items-center justify-center rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-sm font-bold leading-none transition-colors"
+                className="w-6 h-6 flex items-center justify-center rounded bg-surface hover:bg-line text-ink text-sm font-bold leading-none transition-colors"
               >
                 +
               </button>
@@ -269,24 +270,24 @@ export default function ToolsPanel() {
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs text-zinc-300 w-20 shrink-0">Entre blocos</span>
+            <span className="text-xs text-muted w-20 shrink-0">Entre blocos</span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setBlockGap(Math.max(0, blockGap - 2))}
-                className="w-6 h-6 flex items-center justify-center rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-sm font-bold leading-none transition-colors"
+                className="w-6 h-6 flex items-center justify-center rounded bg-surface hover:bg-line text-ink text-sm font-bold leading-none transition-colors"
               >−</button>
               <span className="w-10 text-center text-xs font-mono text-white tabular-nums">
                 {blockGap === 0 ? 'off' : `${blockGap}px`}
               </span>
               <button
                 onClick={() => setBlockGap(Math.min(64, blockGap + 2))}
-                className="w-6 h-6 flex items-center justify-center rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 text-sm font-bold leading-none transition-colors"
+                className="w-6 h-6 flex items-center justify-center rounded bg-surface hover:bg-line text-ink text-sm font-bold leading-none transition-colors"
               >+</button>
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs text-zinc-400 uppercase tracking-wide">Cor do acorde</span>
+            <span className="text-xs text-muted uppercase tracking-wide">Cor do acorde</span>
             <div className="flex items-center gap-1.5 flex-wrap">
               {PRESET_COLORS.map(color => (
                 <button
@@ -294,12 +295,12 @@ export default function ToolsPanel() {
                   onClick={() => setChordColor(color)}
                   title={color}
                   style={{ backgroundColor: color }}
-                  className={`w-5 h-5 rounded-full transition-transform hover:scale-110 ${chordColor === color ? 'ring-2 ring-white ring-offset-1 ring-offset-zinc-900' : ''}`}
+                  className={`w-5 h-5 rounded-full transition-transform hover:scale-110 ${chordColor === color ? 'ring-2 ring-ink ring-offset-1 ring-offset-raised' : ''}`}
                 />
               ))}
               <label
                 title="Cor personalizada"
-                className="w-5 h-5 rounded-full border border-dashed border-zinc-500 flex items-center justify-center cursor-pointer hover:border-zinc-300 overflow-hidden"
+                className="w-5 h-5 rounded-full border border-dashed border-faint flex items-center justify-center cursor-pointer hover:border-muted overflow-hidden"
               >
                 <input
                   type="color"
@@ -307,7 +308,7 @@ export default function ToolsPanel() {
                   onChange={e => setChordColor(e.target.value)}
                   className="opacity-0 absolute w-0 h-0"
                 />
-                <span className="text-zinc-400 text-xs leading-none">+</span>
+                <span className="text-muted text-xs leading-none">+</span>
               </label>
             </div>
           </div>
@@ -319,7 +320,7 @@ export default function ToolsPanel() {
               onChange={e => setHideUnnamedBlocks(e.target.checked)}
               className="w-3.5 h-3.5 accent-indigo-500 cursor-pointer"
             />
-            <span className="text-xs text-zinc-300 leading-tight">Ignorar blocos sem nome</span>
+            <span className="text-xs text-muted leading-tight">Ignorar blocos sem nome</span>
           </label>
 
           <label className="flex items-center gap-2.5 cursor-pointer select-none">
@@ -329,12 +330,12 @@ export default function ToolsPanel() {
               onChange={e => setShowBeatDot(e.target.checked)}
               className="w-3.5 h-3.5 accent-indigo-500 cursor-pointer"
             />
-            <span className="text-xs text-zinc-300 leading-tight">Mostrar bolinha de pulso</span>
+            <span className="text-xs text-muted leading-tight">Mostrar bolinha de pulso</span>
           </label>
 
           {/* ── Animações do pulsador ── */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs text-zinc-400 uppercase tracking-wide">Animação do pulsador</span>
+            <span className="text-xs text-muted uppercase tracking-wide">Animação do pulsador</span>
             <div className="flex flex-col gap-1">
               {([
                 { key: 'barra',    label: 'Barra de progresso' },
@@ -348,23 +349,23 @@ export default function ToolsPanel() {
                     onChange={e => setAnimPrefs({ ...animPrefs, [key]: e.target.checked })}
                     className="w-3.5 h-3.5 accent-indigo-500 cursor-pointer"
                   />
-                  <span className="text-xs text-zinc-300 leading-tight">{label}</span>
+                  <span className="text-xs text-muted leading-tight">{label}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="border-t border-zinc-700 pt-3 flex flex-col gap-2">
+          <div className="border-t border-line pt-3 flex flex-col gap-2">
             {!confirmReset ? (
               <button
                 onClick={() => setConfirmReset(true)}
-                className="w-full py-1.5 text-xs rounded bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white transition-colors"
+                className="w-full py-1.5 text-xs rounded bg-surface text-muted hover:bg-line hover:text-ink transition-colors"
               >
                 Restaurar padrões
               </button>
             ) : (
               <>
-                <p className="text-xs text-zinc-400 text-center">Restaurar régua da folha também?</p>
+                <p className="text-xs text-muted text-center">Restaurar régua da folha também?</p>
                 <div className="flex gap-1.5">
                   <button
                     onClick={() => {
@@ -396,14 +397,14 @@ export default function ToolsPanel() {
                       setColumnGap(DEFAULTS.columnGap)
                       setConfirmReset(false)
                     }}
-                    className="flex-1 py-1.5 text-xs rounded bg-zinc-700 text-zinc-300 hover:bg-zinc-600 transition-colors"
+                    className="flex-1 py-1.5 text-xs rounded bg-surface text-muted hover:bg-line transition-colors"
                   >
                     Não
                   </button>
                 </div>
                 <button
                   onClick={() => setConfirmReset(false)}
-                  className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors text-center"
+                  className="text-xs text-faint hover:text-muted transition-colors text-center"
                 >
                   Cancelar
                 </button>
@@ -599,9 +600,9 @@ export function MetronomeWidget() {
             onMouseDown={e => e.stopPropagation()}
             onClick={() => setMinimized(v => !v)}
             title={minimized ? 'Expandir' : 'Minimizar'}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#71717a', padding: '2px 4px', borderRadius: 4, fontSize: 13, lineHeight: 1 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#71717a', padding: '2px 4px', borderRadius: 4, display: 'flex' }}
           >
-            {minimized ? '▲' : '▼'}
+            {minimized ? <IconChevronUp size={12} /> : <IconChevronDown size={12} />}
           </button>
         </div>
       </div>

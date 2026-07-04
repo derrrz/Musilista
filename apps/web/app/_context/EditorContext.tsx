@@ -168,7 +168,12 @@ function createEmptyTab(name: string): EditorTab {
   return { id: generateId(), name, blocks: [] }
 }
 
-export function EditorProvider({ children }: { children: ReactNode }) {
+// skipPersistence: usado pela revisão de propostas do admin — abre o editor
+// num contexto isolado que não lê nem grava no localStorage compartilhado
+// (mesma chave usada pelo editor "de verdade"), evitando que a proposta em
+// revisão apareça misturada nas abas reais do admin ou sobrescreva o estado
+// salvo dele.
+export function EditorProvider({ children, skipPersistence = false }: { children: ReactNode; skipPersistence?: boolean }) {
   // ── Initial state — server-safe defaults (no localStorage reads here) ─────
   const { data: session } = useSession()
   const [tabs, setTabs] = useState<EditorTab[]>([])
@@ -245,6 +250,7 @@ export function EditorProvider({ children }: { children: ReactNode }) {
 
   // ── Load from localStorage after mount ───────────────────────────────────
   useEffect(() => {
+    if (skipPersistence) { setLoaded(true); return }
     const p = loadPersistedState()
     if (Array.isArray(p.tabs)) {
       // Deduplicate tab IDs (guard against any previously saved bad state)
@@ -277,7 +283,7 @@ export function EditorProvider({ children }: { children: ReactNode }) {
 
   // ── Autosave localStorage — debounced 1 s ───────────────────────────────────
   useEffect(() => {
-    if (!loaded) return
+    if (!loaded || skipPersistence) return
     const timer = setTimeout(() => {
       try {
         const state: PersistedState = {
@@ -503,7 +509,7 @@ export function EditorProvider({ children }: { children: ReactNode }) {
       const idx  = prev.findIndex(t => t.id === tabId)
       const next = prev.filter(t => t.id !== tabId)
 
-      if (tab) {
+      if (tab && !skipPersistence) {
         try {
           const entry = { ...stripVolatileSync(tab), closedAt: Date.now() }
           const raw   = localStorage.getItem(RECENT_CLOSED_KEY)

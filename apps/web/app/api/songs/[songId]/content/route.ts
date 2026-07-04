@@ -10,7 +10,6 @@ export async function GET(
   { params }: { params: Promise<{ songId: string }> },
 ) {
   const user = await getAuthUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { songId } = await params;
   const canonical = req.nextUrl.searchParams.get('canonical') === '1';
@@ -18,8 +17,9 @@ export async function GET(
   const song = await db.query.songs.findFirst({ where: eq(songs.id, songId) });
   if (!song) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  // ?canonical=1 ignora o rascunho pessoal e retorna apenas a versão publicada
-  const userSong = canonical ? null : await db.query.userSongs.findFirst({
+  // ?canonical=1 ignora o rascunho pessoal e retorna apenas a versão publicada;
+  // sem sessão, também vai direto para a versão canônica (não há rascunho pessoal)
+  const userSong = canonical || !user ? null : await db.query.userSongs.findFirst({
     where: and(eq(userSongs.userId, user.id), eq(userSongs.songId, songId)),
   });
 
@@ -51,7 +51,7 @@ export async function GET(
       .where(eq(songVersions.id, song.canonicalVersionId));
     if (version) {
       try { parseSongContent(version.content); } catch { /* ignore */ }
-      isMineCanonical = version.createdBy === user.id;
+      isMineCanonical = !!user && version.createdBy === user.id;
     }
   } else if (contentJson) {
     try { parseSongContent(contentJson); } catch { /* ignore */ }

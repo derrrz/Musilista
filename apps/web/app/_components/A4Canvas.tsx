@@ -6,6 +6,7 @@ import { Block, EditorTab, Line } from '../_lib/types'
 import BlockView from './BlockView'
 import ToolsPanel, { MetronomeWidget } from './ToolsPanel'
 import ChordChartView from './ChordChartView'
+import { IconClipboard, IconImport, IconEdit, IconPlus, IconChevronDown } from '@/components/ui/icons'
 
 // ─── Tela inicial — exibida quando não há abas abertas ───────────────────────
 
@@ -48,27 +49,25 @@ function PasteCifraCard({ onImport }: { onImport: (blocks: unknown[], title: str
   }
 
   return (
-    <div className="flex flex-col gap-3 p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm">
+    <div className="flex flex-col gap-3 p-5 rounded-2xl bg-raised border border-line">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-zinc-100">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
-            <rect x="9" y="2" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-          </svg>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-surface text-muted">
+          <IconClipboard size={15} />
         </div>
         <div>
-          <p className="text-sm font-bold text-zinc-800">Colar Cifra</p>
-          <p className="text-[10px] text-zinc-400">Formato texto (CifraClub, BananaCifras…)</p>
+          <p className="text-sm font-bold text-ink">Colar Cifra</p>
+          <p className="text-[10px] text-muted">Formato texto (CifraClub, BananaCifras…)</p>
         </div>
         <button
           onClick={() => setOpen(v => !v)}
-          className="ml-auto text-xs text-zinc-400 hover:text-zinc-600 transition-colors px-2 py-1 rounded hover:bg-zinc-100"
+          className="ml-auto text-xs text-muted hover:text-ink transition-colors px-2 py-1 rounded hover:bg-surface"
         >
-          {open ? 'Fechar ↑' : 'Colar ↓'}
+          {open ? 'Fechar' : 'Colar'}
         </button>
       </div>
 
       {!open && (
-        <p className="text-xs text-zinc-500 leading-relaxed">
+        <p className="text-xs text-muted leading-relaxed">
           Tem uma cifra salva em formato texto? Cole aqui e o app converte automaticamente —
           blocos, acordes, letras e tablaturas são reconhecidos.
         </p>
@@ -83,12 +82,12 @@ function PasteCifraCard({ onImport }: { onImport: (blocks: unknown[], title: str
             rows={10}
             className="w-full rounded-xl px-3 py-2.5 text-xs font-mono resize-y outline-none transition-colors"
             style={{
-              background: '#f9f9f9',
-              border: '1.5px solid #e4e4e7',
-              color: '#3f3f46',
+              background: 'var(--ml-surface)',
+              border: '1.5px solid var(--ml-line)',
+              color: 'var(--ml-ink)',
             }}
             onFocus={e => (e.currentTarget.style.borderColor = 'var(--ml-accent)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = '#e4e4e7')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--ml-line)')}
           />
           {error && (
             <p className="text-xs text-red-500 px-1">{error}</p>
@@ -103,9 +102,7 @@ function PasteCifraCard({ onImport }: { onImport: (blocks: unknown[], title: str
               <span className="animate-pulse">Importando…</span>
             ) : (
               <>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-                </svg>
+                <IconImport size={13} />
                 Importar Cifra
               </>
             )}
@@ -225,31 +222,27 @@ function EditorStartScreen() {
 
         {/* Header */}
         <div className="text-center">
-          <p className="text-2xl font-bold text-zinc-700 tracking-tight">Editor</p>
-          <p className="text-sm text-zinc-400 mt-1">Como você quer criar sua cifra?</p>
+          <p className="text-2xl font-bold text-ink tracking-tight">Editor</p>
+          <p className="text-sm text-muted mt-1">Como você quer criar sua cifra?</p>
         </div>
 
         {/* ── Nova cifra ── */}
         <div className="grid grid-cols-1 gap-4">
 
           {/* Cifra Manual */}
-          <div className="flex flex-col gap-4 p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm">
+          <div className="flex flex-col gap-4 p-5 rounded-2xl bg-raised border border-line">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: 'color-mix(in oklch, var(--ml-accent) 15%, white)' }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                  style={{ color: 'var(--ml-accent)' }}>
-                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-accent"
+                style={{ background: 'color-mix(in oklch, var(--ml-accent) 15%, var(--ml-surface))' }}>
+                <IconEdit size={15} />
               </div>
               <div>
-                <p className="text-sm font-bold text-zinc-800">Cifra Manual</p>
-                <p className="text-[10px] text-zinc-400">Composição própria ou inédita</p>
+                <p className="text-sm font-bold text-ink">Cifra Manual</p>
+                <p className="text-[10px] text-muted">Composição própria ou inédita</p>
               </div>
             </div>
 
-            <p className="text-xs text-zinc-500 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               Para músicas que ainda não existem em streaming —
               composições próprias, ensaios, arranjos originais ou qualquer música inédita.
               Você escreve a cifra do zero no editor.
@@ -263,9 +256,7 @@ function EditorStartScreen() {
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M12 5v14M5 12h14"/>
-                </svg>
+                <IconPlus size={13} />
                 Nova Cifra em branco
               </button>
             </div>
@@ -279,14 +270,14 @@ function EditorStartScreen() {
         {/* Recentes */}
         {hasItems && (
           <div className="flex flex-col gap-2">
-            <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest px-1">
+            <p className="text-[10px] font-semibold text-muted uppercase tracking-[0.14em] px-1">
               Últimas abertas
             </p>
 
             {isLoading && (
               <div className="flex flex-col gap-1">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="h-12 rounded-lg bg-zinc-100 animate-pulse" />
+                  <div key={i} className="h-12 rounded-lg bg-surface animate-pulse" />
                 ))}
               </div>
             )}
@@ -302,30 +293,30 @@ function EditorStartScreen() {
                     key={tab.id}
                     onClick={() => openLocal(tab)}
                     disabled={!!openingId}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 transition-all text-left group disabled:opacity-50 shadow-sm"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg bg-raised border border-line hover:border-faint transition-all text-left group disabled:opacity-50"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-zinc-800 truncate group-hover:text-zinc-900">
+                      <p className="text-sm font-medium text-ink truncate">
                         {tab.name || 'Sem título'}
                       </p>
                       {artist && artist !== tab.name && (
-                        <p className="text-xs text-zinc-400 truncate">{artist}</p>
+                        <p className="text-xs text-muted truncate">{artist}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {!tab.dbSongId && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 font-medium border border-zinc-200">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface text-muted font-medium border border-line">
                           local
                         </span>
                       )}
                       {tab.readOnly && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium border border-emerald-100">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[color-mix(in_oklch,var(--color-verse)_16%,transparent)] text-verse font-medium border border-[color-mix(in_oklch,var(--color-verse)_35%,transparent)]">
                           publicada
                         </span>
                       )}
                       {isOpening
-                        ? <span className="text-xs text-zinc-400">...</span>
-                        : <span className="text-zinc-300 group-hover:text-zinc-500 text-sm transition-colors">→</span>
+                        ? <span className="text-xs text-muted">...</span>
+                        : <IconChevronDown size={12} className="-rotate-90 text-faint group-hover:text-muted transition-colors" />
                       }
                     </div>
                   </button>
@@ -339,30 +330,30 @@ function EditorStartScreen() {
                   key={song.songId}
                   onClick={() => openDbSong(song)}
                   disabled={!!openingId}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 transition-all text-left group disabled:opacity-50 shadow-sm"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg bg-raised border border-line hover:border-faint transition-all text-left group disabled:opacity-50"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-zinc-800 truncate group-hover:text-zinc-900">
+                    <p className="text-sm font-medium text-ink truncate">
                       {song.title}
                     </p>
                     {song.artist && (
-                      <p className="text-xs text-zinc-400 truncate">{song.artist}</p>
+                      <p className="text-xs text-muted truncate">{song.artist}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {song.isPublished && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-medium border border-emerald-100">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[color-mix(in_oklch,var(--color-verse)_16%,transparent)] text-verse font-medium border border-[color-mix(in_oklch,var(--color-verse)_35%,transparent)]">
                         publicada
                       </span>
                     )}
                     {song.hasDraft && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 font-medium border border-amber-100">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[color-mix(in_oklch,var(--color-bridge)_16%,transparent)] text-bridge font-medium border border-[color-mix(in_oklch,var(--color-bridge)_35%,transparent)]">
                         rascunho
                       </span>
                     )}
                     {isOpening
-                      ? <span className="text-xs text-zinc-400">...</span>
-                      : <span className="text-zinc-300 group-hover:text-zinc-500 text-sm transition-colors">→</span>
+                      ? <span className="text-xs text-muted">...</span>
+                      : <IconChevronDown size={12} className="-rotate-90 text-faint group-hover:text-muted transition-colors" />
                     }
                   </div>
                 </button>
@@ -1360,17 +1351,17 @@ export default function A4Canvas() {
         <div className="absolute top-2 left-3 z-20 flex gap-1 select-none">
           {([
             { mode: 'dev',    label: 'Progressões',           icon: (
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="4" height="14" rx="1"/><rect x="10" y="7" width="4" height="10" rx="1"/><rect x="17" y="5" width="4" height="12" rx="1"/>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter">
+                <rect x="3" y="3" width="4" height="14"/><rect x="10" y="7" width="4" height="10"/><rect x="17" y="5" width="4" height="12"/>
               </svg>
             )},
             { mode: 'chart',  label: 'Progressões de Acordes', icon: (
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M9 9v12"/>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter">
+                <rect x="2" y="3" width="20" height="18"/><path d="M2 9h20M9 9v12"/>
               </svg>
             )},
             { mode: 'editor', label: 'Cifra',                 icon: (
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter">
                 <path d="M4 6h16M4 10h12M4 14h8M4 18h6"/>
               </svg>
             )},
@@ -1501,9 +1492,7 @@ export default function A4Canvas() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
               style={{ background: 'var(--ml-accent)', color: 'var(--ml-accent-ink)' }}
             >
-              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 2l3 3-8 8H3v-3L11 2z"/>
-              </svg>
+              <IconEdit size={11} />
               Editar
             </button>
           </div>

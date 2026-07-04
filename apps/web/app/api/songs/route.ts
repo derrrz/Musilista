@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { songs } from '@/db/schema';
 import { isNotNull, ilike, or, and, desc } from 'drizzle-orm';
-import { getAuthUser } from '@/app/_lib/authUser';
 
 export async function GET(req: NextRequest) {
-  const user = await getAuthUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? '';
 
   const rows = await db

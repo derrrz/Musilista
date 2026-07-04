@@ -7,6 +7,7 @@ import { usePlayer } from '../_context/PlayerContext'
 import { BLOCK_TYPE_LABELS, generateId, createSection } from '../_lib/utils'
 import LineRenderer from './LineRenderer'
 import TabEditor from './TabEditor'
+import { IconGuitar, IconDuplicate, IconClose, IconCheck } from '@/components/ui/icons'
 
 const BLOCK_TYPES: BlockType[] = ['intro', 'verse', 'chorus', 'bridge', 'solo', 'unknown']
 
@@ -15,7 +16,8 @@ const TYPE_SWATCH: Record<BlockType, { badge: string; hex: string }> = {
   header:  { badge: 'bg-zinc-100 text-zinc-500 border-zinc-200',         hex: '#4d7fa8' },
   unknown: { badge: 'bg-zinc-100 text-zinc-500 border-zinc-200',         hex: '#4d7fa8' },
   intro:   { badge: 'bg-sky-50 text-sky-600 border-sky-200',             hex: '#38bdf8' },
-  verse:   { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', hex: '#10b981' },
+  // Alinhado à família de matiz dos tokens do brand kit (verse=teal, chorus=roxo, bridge=âmbar, solo=vermelho)
+  verse:   { badge: 'bg-teal-50 text-teal-700 border-teal-200',          hex: '#0d9488' },
   bridge:  { badge: 'bg-amber-100 text-amber-700 border-amber-300',      hex: '#f59e0b' },
   solo:    { badge: 'bg-rose-100 text-rose-700 border-rose-200',         hex: '#f43f5e' },
   chorus:  { badge: 'bg-violet-200 text-violet-800 border-violet-400',   hex: '#7c3aed' },
@@ -670,7 +672,7 @@ export function SongHeader({ block, tabId }: { block: Block; tabId: string }) {
                   ? 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100'
                   : 'text-zinc-300 border-zinc-200 hover:text-zinc-500 hover:border-zinc-300'}`}
             >
-              <span aria-hidden style={{ fontSize: 9, lineHeight: 1 }}>🎸</span>
+              <IconGuitar size={9} />
               {tuning ? (getTuningName(tuning) ?? tuning) : 'Afinação'}
             </button>
 
@@ -794,7 +796,7 @@ export function SongHeader({ block, tabId }: { block: Block; tabId: string }) {
             {songKey || 'Tom'}
           </span>
           <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden style={{ opacity: 0.5 }}>
-            <path d="M1.5 3l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M1.5 3l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="square" strokeLinejoin="miter" />
           </svg>
         </button>
 
@@ -1004,7 +1006,7 @@ function SectionView({
               >
                 {section.instrument === 'bass' ? 'Baixo' : 'Guitarra'}
                 <svg width="7" height="7" viewBox="0 0 7 7" fill="none" aria-hidden style={{ opacity: 0.5 }}>
-                  <path d="M1 2.5l2.5 2 2.5-2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M1 2.5l2.5 2 2.5-2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square" strokeLinejoin="miter" />
                 </svg>
               </button>
               {instMenuOpen && (
@@ -1034,7 +1036,7 @@ function SectionView({
                       ${section.annotations !== undefined ? 'text-indigo-600 bg-indigo-50 font-semibold' : 'text-zinc-600 hover:bg-zinc-50'}`}
                     style={{ fontFamily: 'var(--font-mono)' }}
                   >
-                    {section.annotations !== undefined ? '✓ Anotação ativa' : 'Incluir anotação'}
+                    {section.annotations !== undefined ? <><IconCheck size={11} /> Anotação ativa</> : 'Incluir anotação'}
                   </button>
                 </div>
               )}
@@ -1086,7 +1088,7 @@ function SectionView({
                 ? 'text-indigo-600 bg-indigo-50 border-indigo-200'
                 : 'text-zinc-300 border-zinc-200 hover:text-zinc-500 hover:border-zinc-300'}`}
           >
-            {section.annotations !== undefined ? '✓ Anotação' : 'Anotação'}
+            {section.annotations !== undefined ? <><IconCheck size={9} /> Anotação</> : 'Anotação'}
           </button>
         }
       />
@@ -1231,7 +1233,8 @@ export default function BlockView({ tabId, block, previewPos, colWidthChars = 0,
 
   const isCustom = !PREDEFINED_NAMES.has(block.name) && !DEFAULT_NAME_PATTERN.test(block.name)
   const DEFAULT_BLOCK_COLOR = '#f45dd8'
-  const badgeHex = block.color ?? DEFAULT_BLOCK_COLOR
+  // Cor de um bloco predefinido reflete o tipo por padrão; bloco custom sem cor cai no rosa padrão.
+  const badgeHex = block.color ?? (isCustom ? DEFAULT_BLOCK_COLOR : TYPE_SWATCH[block.type].hex)
 
   function fallbackName(): string {
     const contentBlocks = (activeTab?.blocks ?? [])
@@ -1346,7 +1349,7 @@ export default function BlockView({ tabId, block, previewPos, colWidthChars = 0,
                             className="shrink-0 ml-1 transition-colors"
                             style={{ color: isFav ? '#f59e0b' : '#d1d5db', lineHeight: 1 }}
                           >
-                            <svg width="12" height="12" viewBox="0 0 13 13" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" aria-hidden>
+                            <svg width="12" height="12" viewBox="0 0 13 13" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" strokeLinejoin="miter" aria-hidden>
                               <polygon points="6.5,1 8.1,4.8 12.2,5.2 9.2,7.9 10.1,12 6.5,9.8 2.9,12 3.8,7.9 0.8,5.2 4.9,4.8" />
                             </svg>
                           </button>
@@ -1368,7 +1371,7 @@ export default function BlockView({ tabId, block, previewPos, colWidthChars = 0,
                       onClick={() => setShowTypeMenu(false)}
                       className="w-full text-left px-2.5 py-1.5 text-xs text-zinc-500 hover:bg-zinc-50 flex items-center gap-2"
                     >
-                      <span className="w-3.5 h-3.5 flex items-center justify-center text-zinc-400" style={{ fontSize: 11 }}>⧉</span>
+                      <span className="w-3.5 h-3.5 flex items-center justify-center text-zinc-400"><IconDuplicate size={11} /></span>
                       Duplicar bloco
                     </button>
                     <div className="border-t border-zinc-100 my-1" />
@@ -1377,7 +1380,7 @@ export default function BlockView({ tabId, block, previewPos, colWidthChars = 0,
                       onClick={() => setShowTypeMenu(false)}
                       className="w-full text-left px-2.5 py-1.5 text-xs text-red-500 hover:bg-red-50 flex items-center gap-2"
                     >
-                      <span className="w-3.5 h-3.5 flex items-center justify-center text-red-300" style={{ fontSize: 11 }}>✕</span>
+                      <span className="w-3.5 h-3.5 flex items-center justify-center text-red-300"><IconClose size={11} /></span>
                       Deletar bloco
                     </button>
                   </div>
@@ -1423,10 +1426,10 @@ export default function BlockView({ tabId, block, previewPos, colWidthChars = 0,
                                     setNameValue(fb)
                                   }
                                 }}
-                                className="px-2 py-1.5 text-zinc-300 hover:text-zinc-500 opacity-0 group-hover/custom:opacity-100 transition-opacity text-xs"
+                                className="px-2 py-1.5 flex items-center text-zinc-300 hover:text-zinc-500 opacity-0 group-hover/custom:opacity-100 transition-opacity"
                                 title="Remover"
                               >
-                                ×
+                                <IconClose size={10} />
                               </button>
                             </div>
                           )

@@ -3,6 +3,7 @@
 import { useState, useLayoutEffect, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { ChordVoicing, getVoicing, setCustomVoicing, resetVoicing, emptyVoicing } from '../_lib/chords'
+import { IconEdit } from '@/components/ui/icons'
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
 
@@ -314,9 +315,9 @@ export default function ChordPopup({ chordValue, anchorRect, onClose }: ChordPop
             <button
               onClick={() => setMode('edit')}
               title="Editar digitação"
-              className="w-6 h-6 flex items-center justify-center rounded text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors text-sm"
+              className="w-6 h-6 flex items-center justify-center rounded text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
             >
-              ✏
+              <IconEdit size={12} />
             </button>
           ) : (
             <>

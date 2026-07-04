@@ -8,6 +8,7 @@ import { useProgressionEngine } from '../_lib/useProgressionEngine'
 import { useSyncClock } from '../_lib/useSyncClock'
 import { buildBarCumTimes, BARS_PER_ROW } from '../_lib/arrangement'
 import { SongHeader } from './BlockView'
+import { IconClose } from '@/components/ui/icons'
 import GuitarDiagram from './GuitarDiagram'
 import ChordPickerPopover from './ChordPickerPopover'
 
@@ -665,8 +666,8 @@ function GridRow({
                       >+</button>
                       <button
                         onClick={() => onBarClick?.(-1)}
-                        style={{ fontSize: 8, lineHeight: 1, color: '#86efac', background: 'transparent', cursor: 'pointer', padding: '0 1px', marginLeft: 1 }}
-                      >✕</button>
+                        style={{ display: 'flex', color: '#86efac', background: 'transparent', cursor: 'pointer', padding: '0 1px', marginLeft: 1 }}
+                      ><IconClose size={8} /></button>
                     </>
                   )}
                 </div>
@@ -1104,7 +1105,7 @@ const sorted      = activeTab.blocks.slice().sort((a, b) => a.order - b.order)
           userSelect: 'none',
         }}
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter">
           <rect x="3" y="3" width="7" height="7" rx="1"/>
           <rect x="14" y="3" width="7" height="7" rx="1"/>
           <rect x="3" y="14" width="7" height="7" rx="1"/>
@@ -2106,7 +2107,7 @@ const sorted      = activeTab.blocks.slice().sort((a, b) => a.order - b.order)
             onMouseEnter={e => (e.currentTarget.style.background = '#f4f4f5')}
             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter">
               <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
             </svg>
             Duplicar grupo
@@ -2133,7 +2134,7 @@ const sorted      = activeTab.blocks.slice().sort((a, b) => a.order - b.order)
             onMouseEnter={e => (e.currentTarget.style.background = '#fef2f2')}
             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" strokeLinejoin="miter">
               <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
             </svg>
             Excluir bloco

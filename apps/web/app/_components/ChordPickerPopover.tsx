@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { buildChordValue } from '../_lib/utils'
+import { IconClose } from '@/components/ui/icons'
 
 export const PICKER_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 
@@ -194,8 +195,8 @@ export default function ChordPickerPopover({
           >{isEditing ? 'Salvar' : 'Inserir'}</button>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors text-base leading-none"
-          >×</button>
+            className="w-7 h-7 flex items-center justify-center rounded text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors"
+          ><IconClose size={12} /></button>
         </div>
       </div>
     </div>
