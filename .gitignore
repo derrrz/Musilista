@@ -6,3 +6,7 @@ node_modules/
 tsconfig.tsbuildinfo
 .DS_Store
 *.zip
+
+# Acervos locais de conteúdo (packs de cifras/MIDI) — não versionar
+/DS/
+/SCR/
