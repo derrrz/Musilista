@@ -50,6 +50,7 @@ interface ApiRepertoireSong {
   title: string | null;
   notes: string | null;
   songKey: string | null;
+  bpm: number | null;
   itemType: string;
 }
 
@@ -80,6 +81,7 @@ export function useGroupRepertoires(groupId: string) {
             title: s.title ?? '(sem título)',
             artist: parseArtist(s.notes),
             key: s.songKey ?? undefined,
+            bpm: s.bpm ?? undefined,
           })),
       }));
     },
@@ -97,14 +99,43 @@ export function useCreateRepertoire(groupId: string) {
   });
 }
 
+export function useDeleteRepertoire(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (repertoireId: string) =>
+      api.delete(`/api/groups/${groupId}/repertoires/${repertoireId}`),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
+  });
+}
+
 export function useAddSongToRepertoire(groupId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: { repertoireId: string; title: string; artist?: string; songKey?: string }) =>
+    mutationFn: (data: {
+      repertoireId: string;
+      title: string;
+      artist?: string;
+      songKey?: string;
+      bpm?: string;
+    }) =>
       api.post(`/api/groups/${groupId}/repertoires/${data.repertoireId}/songs`, {
         title: data.title,
         artist: data.artist,
         songKey: data.songKey,
+        bpm: data.bpm,
+      }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
+  });
+}
+
+export function useRemoveSongFromRepertoire(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { repertoireId: string; songItemId: string }) =>
+      api.delete(`/api/groups/${groupId}/repertoires/${data.repertoireId}/songs`, {
+        songItemId: data.songItemId,
       }),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
@@ -145,21 +176,84 @@ export function useJoinGroup() {
   });
 }
 
+// Tipos em minúsculo do banco (rotas web) ↔ maiúsculo da UI mobile
+const EVENT_TYPE_TO_API: Record<'SHOW' | 'ENSAIO' | 'OUTRO', string> = {
+  SHOW: 'show',
+  ENSAIO: 'ensaio',
+  OUTRO: 'other',
+};
+
+export interface EventInput {
+  title: string;
+  date: string; // YYYY-MM-DD
+  time?: string; // HH:MM
+  type: 'SHOW' | 'ENSAIO' | 'OUTRO';
+  location?: string;
+  notice?: string;
+  technicalRider?: string;
+}
+
+function toEventPayload(data: EventInput) {
+  return {
+    title: data.title,
+    eventDate: data.date,
+    eventTime: data.time || null,
+    location: data.location,
+    eventType: EVENT_TYPE_TO_API[data.type],
+    notice: data.notice,
+    technicalRider: data.technicalRider,
+  };
+}
+
+// Row cru de events (GET /api/groups/[gid]/events/[eid]) — usado no form de edição
+export interface ApiEventRow {
+  id: string;
+  title: string;
+  eventDate: string;
+  eventTime: string | null;
+  eventType: string; // 'show' | 'ensaio' | 'other'
+  location: string | null;
+  notice: string | null;
+  technicalRider: string | null;
+}
+
+export function useEvent(groupId: string, eventId: string) {
+  return useQuery<ApiEventRow>({
+    queryKey: ['groups', groupId, 'events', eventId],
+    queryFn: () => api.get<ApiEventRow>(`/api/groups/${groupId}/events/${eventId}`),
+    enabled: Boolean(groupId && eventId),
+  });
+}
+
+// Cria via rota web — é a única que aceita technicalRider/location/horário
 export function useCreateEvent(groupId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: {
-      title: string;
-      date: string;
-      type: 'SHOW' | 'ENSAIO' | 'OUTRO';
-      description?: string;
-    }) =>
-      api.post<{ id: string }>(`/api/mobile/groups/${groupId}/events`, {
-        title: data.title,
-        eventDate: data.date,
-        eventType: data.type,
-        notice: data.description,
-      }),
+    mutationFn: (data: EventInput) =>
+      api.post<{ id: string }>(`/api/groups/${groupId}/events`, toEventPayload(data)),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'events'] }),
+  });
+}
+
+export function useUpdateEvent(groupId: string, eventId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: EventInput) =>
+      api.patch<{ id: string }>(
+        `/api/groups/${groupId}/events/${eventId}`,
+        toEventPayload(data),
+      ),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'events'] }),
+  });
+}
+
+export function useDeleteEvent(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (eventId: string) =>
+      api.delete(`/api/groups/${groupId}/events/${eventId}`),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['groups', groupId, 'events'] }),
   });

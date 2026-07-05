@@ -1,34 +1,50 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { parseCifraContent } from '@/lib/cifra';
-import type { Song } from '@/types';
+import { parseCifraContent, parseCifraHeaderMeta } from '@/lib/cifra';
+import type { ArtistResult, Song, SongResult } from '@/types';
 
-// Busca no acervo — pública, igual à Home da web
+export interface DirectorySearch {
+  songs: SongResult[];
+  artists: ArtistResult[];
+}
+
+// Busca no acervo — pública, igual à Home da web (retorna músicas E artistas)
 export function useSearchSongs(query: string) {
-  return useQuery<Song[]>({
+  return useQuery<DirectorySearch>({
     queryKey: ['acervo', 'search', query],
-    queryFn: async () =>
-      (
-        await api.get<{ songs: Song[] }>(
-          `/api/directory?q=${encodeURIComponent(query)}&limit=30`,
-        )
-      ).songs,
+    queryFn: () =>
+      api.get<DirectorySearch>(`/api/directory?q=${encodeURIComponent(query)}`),
     enabled: query.trim().length > 1,
     staleTime: 30_000,
   });
 }
 
-// Índice alfabético do acervo (por artista) — público
-export function useLetterSongs(letter: string | null) {
-  return useQuery<Song[]>({
+// Índice alfabético do acervo — por ARTISTA, como na web
+export function useLetterArtists(letter: string | null) {
+  return useQuery<ArtistResult[]>({
     queryKey: ['acervo', 'letter', letter],
     queryFn: async () =>
       (
-        await api.get<{ songs: Song[] }>(
-          `/api/directory?letter=${encodeURIComponent(letter ?? '')}&limit=30`,
+        await api.get<{ artists: ArtistResult[] }>(
+          `/api/directory?letter=${encodeURIComponent(letter ?? '')}`,
+        )
+      ).artists,
+    enabled: Boolean(letter),
+    staleTime: 30_000,
+  });
+}
+
+// Músicas de um artista do índice
+export function useArtistSongs(artist: string | null) {
+  return useQuery<SongResult[]>({
+    queryKey: ['acervo', 'artist', artist],
+    queryFn: async () =>
+      (
+        await api.get<{ songs: SongResult[] }>(
+          `/api/directory?artist=${encodeURIComponent(artist ?? '')}`,
         )
       ).songs,
-    enabled: Boolean(letter),
+    enabled: Boolean(artist),
     staleTime: 30_000,
   });
 }
@@ -51,12 +67,15 @@ export function useSong(id: string) {
       const song = await api.get<AcervoSongResponse>(`/api/mobile/acervo/${id}`);
       // o GET acima registrou o acesso no servidor
       qc.invalidateQueries({ queryKey: ['recents'] });
+      const meta = parseCifraHeaderMeta(song.content);
       return {
         id: song.id,
         title: song.title,
         artist: song.artist,
         key: song.songKey ?? undefined,
-        sections: parseCifraContent(song.content),
+        blocks: parseCifraContent(song.content),
+        capo: meta.capo,
+        tuning: meta.tuning,
         favorite: song.favorite,
       };
     },
