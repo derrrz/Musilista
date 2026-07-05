@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { transposeChord, transposeKey, preferFlats } from '@/app/_lib/harmony';
 import type { CifraBlock, CifraLine } from '@/app/_lib/cifra';
 import { IconPlay, IconPause, IconCapo } from '@/components/ui/icons';
 import { cn } from '@/components/ui/cn';
 import { FavoriteButton } from './FavoriteButton';
+
+export type SongVersionLink = { label: string; href: string; current: boolean };
 
 const BLOCK_TYPE_LABEL: Record<string, string> = {
   intro: 'Intro', verse: 'Verso', chorus: 'Refrão', bridge: 'Ponte', solo: 'Solo', unknown: '',
@@ -68,20 +71,26 @@ export function SongViewer({
   blocks,
   title,
   artist,
+  artistHref,
   songKey,
   capo,
   tuning,
   songId,
+  path,
+  versions = [],
   initialFavorite,
   hasSession,
 }: {
   blocks: CifraBlock[];
   title: string;
   artist: string;
+  artistHref?: string;
   songKey: string | null;
   capo?: number;
   tuning?: string;
   songId: string;
+  path: string;
+  versions?: SongVersionLink[];
   initialFavorite: boolean;
   hasSession: boolean;
 }) {
@@ -131,10 +140,35 @@ export function SongViewer({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-bold text-ink">{title}</h1>
-            <p className="truncate text-sm text-muted">{artist}</p>
+            {artistHref ? (
+              <Link href={artistHref} className="block truncate text-sm text-muted transition-colors hover:text-accent">
+                {artist}
+              </Link>
+            ) : (
+              <p className="truncate text-sm text-muted">{artist}</p>
+            )}
           </div>
-          <FavoriteButton songId={songId} initialFavorite={initialFavorite} hasSession={hasSession} />
+          <FavoriteButton songId={songId} path={path} initialFavorite={initialFavorite} hasSession={hasSession} />
         </div>
+        {versions.length > 1 && (
+          <nav aria-label="Versões da cifra" className="flex flex-wrap items-center gap-1.5">
+            {versions.map((v) => (
+              <Link
+                key={v.href}
+                href={v.href}
+                aria-current={v.current ? 'page' : undefined}
+                className={cn(
+                  'rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+                  v.current
+                    ? 'border-[color-mix(in_oklch,var(--ml-accent)_45%,transparent)] bg-[color-mix(in_oklch,var(--ml-accent)_15%,var(--ml-surface))] text-accent'
+                    : 'border-line bg-surface text-muted hover:text-ink',
+                )}
+              >
+                {v.label}
+              </Link>
+            ))}
+          </nav>
+        )}
         {(displayedKey || capo || tuning) && (
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {displayedKey && (

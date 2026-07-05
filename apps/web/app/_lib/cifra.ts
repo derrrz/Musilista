@@ -1,3 +1,5 @@
+import { parseCifraText } from './cifraParser/plainText';
+
 export type CifraChord = { value: string; position: number };
 export type CifraLine = { text: string; chords: CifraChord[] };
 export type CifraBlock = { type: string; lines: CifraLine[] };
@@ -54,6 +56,40 @@ export function parseCifraHeaderMeta(raw: string): CifraHeaderMeta {
   return {
     capo: typeof header.capo === 'number' && header.capo >= 1 && header.capo <= 12 ? header.capo : undefined,
     tuning: typeof header.tuning === 'string' && header.tuning.trim() ? header.tuning.trim() : undefined,
+  };
+}
+
+// O acervo novo guarda o TXT canônico ("Colar Cifra") em content; linhas
+// antigas guardavam JSON de blocks. O check por '{' mantém os dois formatos
+// funcionando durante o cutover (deploy antes/depois do upload).
+export type StoredCifra = {
+  blocks: CifraBlock[];
+  capo?: number;
+  tuning?: string;
+  songKey?: string;
+};
+
+export function parseStoredContent(raw: string): StoredCifra {
+  if (raw.trimStart().startsWith('{')) {
+    return { blocks: parseCifraContent(raw), ...parseCifraHeaderMeta(raw) };
+  }
+  const { blocks } = parseCifraText(raw);
+  const header = blocks.find((b) => b.type === 'header');
+  return {
+    blocks: blocks
+      .filter((b) => b.type !== 'header')
+      .map((b) => ({
+        type: b.type,
+        lines: b.sections.flatMap((s) =>
+          s.lines.map((l) => ({
+            text: l.text,
+            chords: l.chords.map((c) => ({ value: c.value, position: c.position })),
+          })),
+        ),
+      })),
+    capo: header?.capo,
+    tuning: header?.tuning,
+    songKey: header?.songKey,
   };
 }
 

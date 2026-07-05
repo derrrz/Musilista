@@ -15,6 +15,8 @@ export async function GET() {
       id: importedSongs.id,
       title: importedSongs.title,
       artist: importedSongs.artist,
+      artistSlug: importedSongs.artistSlug,
+      titleSlug: importedSongs.titleSlug,
       favoritedAt: userImportedSongs.lastSeen,
     })
     .from(userImportedSongs)

@@ -7,10 +7,12 @@ import { IconHeart } from '@/components/ui/icons';
 
 export function FavoriteButton({
   songId,
+  path,
   initialFavorite,
   hasSession,
 }: {
   songId: string;
+  path: string;
   initialFavorite: boolean;
   hasSession: boolean;
 }) {
@@ -20,7 +22,7 @@ export function FavoriteButton({
 
   async function toggle() {
     if (!hasSession) {
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/songs/${songId}`)}`);
+      router.push(`/login?callbackUrl=${encodeURIComponent(path)}`);
       return;
     }
     if (pending) return;

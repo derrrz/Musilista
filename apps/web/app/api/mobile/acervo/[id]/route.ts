@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/db';
 import { importedSongs, userImportedSongs } from '@/db/schema';
 import { eq, sql } from 'drizzle-orm';
+import { parseCifraText } from '@/app/_lib/cifraParser/plainText';
 
 // Conteúdo de cifra do acervo para o app mobile — público, como a página
 // /songs/[id] da web. Com sessão, também registra o acesso (recentes) e
@@ -38,5 +39,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     favorite = activity?.favorite ?? false;
   }
 
-  return NextResponse.json({ ...song, favorite });
+  // O acervo novo guarda TXT canônico; o app mobile espera o JSON
+  // {v, blocks} de sempre — sintetiza aqui, preservando o contrato.
+  const content = song.content.trimStart().startsWith('{')
+    ? song.content
+    : JSON.stringify({ v: 1, blocks: parseCifraText(song.content).blocks });
+
+  return NextResponse.json({ ...song, content, favorite });
 }

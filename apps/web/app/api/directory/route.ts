@@ -4,7 +4,17 @@ import { importedSongs } from '@/db/schema';
 import { and, eq, sql, type SQL } from 'drizzle-orm';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 
-const SELECT_COLUMNS = { id: importedSongs.id, title: importedSongs.title, artist: importedSongs.artist };
+const SELECT_COLUMNS = {
+  id: importedSongs.id,
+  title: importedSongs.title,
+  artist: importedSongs.artist,
+  artistSlug: importedSongs.artistSlug,
+  titleSlug: importedSongs.titleSlug,
+};
+
+// Só versões principais nas listagens — as variantes ("Versão 2",
+// "Simplificada") aparecem dentro da própria página da música.
+const onlyMainVersion = eq(importedSongs.versionSlug, '');
 
 // Ignora acento na comparação — sem isso "legiao" não encontra "Legião" e
 // vice-versa (existem artistas cadastrados com e sem acento na base importada).
@@ -72,7 +82,7 @@ export async function GET(req: NextRequest) {
     const songs = await db
       .select(SELECT_COLUMNS)
       .from(importedSongs)
-      .where(songsCondition)
+      .where(and(songsCondition, onlyMainVersion))
       .orderBy(
         sql`case
           when unaccent(${importedSongs.title}) ilike unaccent(${titleToken}) then 0
@@ -83,10 +93,14 @@ export async function GET(req: NextRequest) {
       )
       .limit(9);
     const artists = await db
-      .select({ name: importedSongs.artist, count: sql<number>`count(*)::int` })
+      .select({
+        name: importedSongs.artist,
+        slug: importedSongs.artistSlug,
+        count: sql<number>`count(*) filter (where ${importedSongs.versionSlug} = '')::int`,
+      })
       .from(importedSongs)
       .where(unaccentIlike(importedSongs.artist, pattern))
-      .groupBy(importedSongs.artist)
+      .groupBy(importedSongs.artist, importedSongs.artistSlug)
       .orderBy(importedSongs.artist)
       .limit(6);
     return NextResponse.json({ songs, artists });
@@ -97,7 +111,7 @@ export async function GET(req: NextRequest) {
     const rows = await db
       .select(SELECT_COLUMNS)
       .from(importedSongs)
-      .where(eq(importedSongs.artist, artist))
+      .where(and(eq(importedSongs.artist, artist), onlyMainVersion))
       .orderBy(importedSongs.title)
       .limit(browseLimit);
     return NextResponse.json({ songs: rows });
@@ -109,10 +123,14 @@ export async function GET(req: NextRequest) {
       ? sql`${importedSongs.artist} ~ '^[0-9]'`
       : unaccentIlike(importedSongs.artist, `${letter}%`);
     const rows = await db
-      .select({ name: importedSongs.artist, count: sql<number>`count(*)::int` })
+      .select({
+        name: importedSongs.artist,
+        slug: importedSongs.artistSlug,
+        count: sql<number>`count(*) filter (where ${importedSongs.versionSlug} = '')::int`,
+      })
       .from(importedSongs)
       .where(condition)
-      .groupBy(importedSongs.artist)
+      .groupBy(importedSongs.artist, importedSongs.artistSlug)
       .orderBy(importedSongs.artist)
       .limit(browseLimit);
     return NextResponse.json({ artists: rows });

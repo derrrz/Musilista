@@ -14,8 +14,18 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Musilista',
-  description: 'Editor técnico de cifras — a cifra como código musical.',
+  metadataBase: new URL('https://www.musilista.com.br'),
+  title: {
+    default: 'Musilista — Cifras com acordes, tom e transposição',
+    template: '%s | Musilista',
+  },
+  description:
+    'Acervo de cifras com acordes, tom, capotraste e transposição. Busque por música ou artista e monte repertórios.',
+  openGraph: {
+    siteName: 'Musilista',
+    locale: 'pt_BR',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -13,6 +13,8 @@ export async function GET() {
       id: importedSongs.id,
       title: importedSongs.title,
       artist: importedSongs.artist,
+      artistSlug: importedSongs.artistSlug,
+      titleSlug: importedSongs.titleSlug,
       favorite: userImportedSongs.favorite,
       lastSeen: userImportedSongs.lastSeen,
     })

@@ -10,8 +10,14 @@ import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Eyebrow, Caption } from '@/components/ui/Typography';
 
-type SongResult = { id: string; title: string; artist: string };
-type ArtistResult = { name: string; count: number };
+type SongResult = { id: string; title: string; artist: string; artistSlug?: string | null; titleSlug?: string | null };
+type ArtistResult = { name: string; slug?: string | null; count: number };
+
+// URL canônica nova quando os slugs existem; uuid legado como fallback
+// (a rota /songs/[id] redireciona).
+function songHref(song: SongResult): string {
+  return song.artistSlug && song.titleSlug ? `/${song.artistSlug}/${song.titleSlug}` : `/songs/${song.id}`;
+}
 
 const LETTERS = ['0-9', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
@@ -43,7 +49,7 @@ function SongCard({ song }: { song: SongResult }) {
   // cai pra foto do artista; sem nenhuma das duas, o Avatar mostra a inicial.
   return (
     <Link
-      href={`/songs/${song.id}`}
+      href={songHref(song)}
       onMouseDown={(e) => e.preventDefault()}
       className="flex items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 transition-colors hover:border-accent"
     >
@@ -65,15 +71,26 @@ function SongCard({ song }: { song: SongResult }) {
 function ArtistCard({ artist, onClick }: { artist: ArtistResult; onClick: () => void }) {
   const photoUrl = `/api/artist-photo?name=${encodeURIComponent(artist.name)}`;
   return (
-    <button
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
-      className="flex flex-col items-center gap-2 rounded-xl border border-line bg-surface px-3 py-4 text-center transition-colors hover:border-accent"
-    >
-      <Avatar name={artist.name} src={photoUrl} size="lg" />
-      <span className="line-clamp-1 w-full text-sm font-semibold text-ink">{artist.name}</span>
-      <span className="font-mono text-[11px] text-faint">{artist.count} {artist.count === 1 ? 'música' : 'músicas'}</span>
-    </button>
+    <div className="relative flex flex-col items-center gap-2 rounded-xl border border-line bg-surface px-3 py-4 text-center transition-colors hover:border-accent">
+      <button
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={onClick}
+        className="flex flex-col items-center gap-2"
+      >
+        <Avatar name={artist.name} src={photoUrl} size="lg" />
+        <span className="line-clamp-1 w-full text-sm font-semibold text-ink">{artist.name}</span>
+        <span className="font-mono text-[11px] text-faint">{artist.count} {artist.count === 1 ? 'música' : 'músicas'}</span>
+      </button>
+      {artist.slug && (
+        <Link
+          href={`/${artist.slug}`}
+          onMouseDown={(e) => e.preventDefault()}
+          className="text-[11px] text-muted underline underline-offset-2 transition-colors hover:text-accent"
+        >
+          página do artista
+        </Link>
+      )}
+    </div>
   );
 }
 
@@ -352,6 +369,10 @@ export function Home() {
 
           <footer className="flex flex-wrap items-center justify-center gap-4 border-t border-line pt-6 font-mono text-[11px] text-faint">
             <span>Musilista · Cifras e repertórios</span>
+            <span>·</span>
+            <a href="/artistas" className="underline underline-offset-2 transition-colors hover:text-muted">
+              Artistas A–Z
+            </a>
             <span>·</span>
             <a href="/terms" className="underline underline-offset-2 transition-colors hover:text-muted">
               Termos e Privacidade
