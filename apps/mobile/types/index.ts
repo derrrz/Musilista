@@ -1,3 +1,5 @@
+import type { CifraBlock } from '@/lib/cifra';
+
 export interface User {
   id: string;
   name: string;
@@ -6,10 +8,12 @@ export interface User {
   role?: string;
 }
 
+export type Availability = 'available' | 'busy' | 'not_looking';
+
 export interface Profile {
   bio: string | null;
   location: string | null;
-  availability: 'available' | 'busy' | 'not_looking';
+  availability: Availability;
   functions: string[];
   instruments: string[];
   competencies: string[];
@@ -26,19 +30,21 @@ export interface Song {
   title: string;
   artist: string;
   key?: string;
-  sections?: Section[];
+  blocks?: CifraBlock[];
+  capo?: number;
+  tuning?: string;
   favorite?: boolean;
 }
 
-export interface Section {
-  label: string;
-  active: boolean;
-  lines: Line[];
+export interface SongResult {
+  id: string;
+  title: string;
+  artist: string;
 }
 
-export interface Line {
-  chord?: string;
-  lyric?: string;
+export interface ArtistResult {
+  name: string;
+  count: number;
 }
 
 export interface Group {
@@ -48,9 +54,7 @@ export interface Group {
   imageUrl?: string;
   inviteCode?: string;
   myRole: 'DONO' | 'ADMIN' | 'MEMBRO';
-  songCount?: number;
   memberCount?: number;
-  setlistCount?: number;
 }
 
 export interface Member {
@@ -74,6 +78,8 @@ export interface GroupEvent {
   id: string;
   title: string;
   date: string;
+  time?: string;
+  location?: string;
   type: EventType;
   description?: string;
   technicalRider?: string;
@@ -90,17 +96,11 @@ export interface RepertoireSong {
   title: string;
   artist?: string;
   key?: string;
+  bpm?: number;
 }
 
 export interface Repertoire {
   id: string;
   name: string;
   songs: RepertoireSong[];
-}
-
-export interface Playlist {
-  id: string;
-  name: string;
-  songCount: number;
-  iconColor?: string;
 }
