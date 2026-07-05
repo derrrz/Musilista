@@ -10,3 +10,6 @@ tsconfig.tsbuildinfo
 # Acervos locais de conteúdo (packs de cifras/MIDI) — não versionar
 /DS/
 /SCR/
+/SCR-normalizado/
+/RESERVA-MIDI/
+/SCR-backup-*.tar.gz
