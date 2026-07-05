@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
+import type { ColorValue } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { colors } from '@/constants/colors';
 
 export interface IconProps {
   size?: number;
-  color?: string;
+  color?: ColorValue;
 }
 
 // Grade técnica do brand kit "Console" (mesma do web): 24×24, traço 1.6,

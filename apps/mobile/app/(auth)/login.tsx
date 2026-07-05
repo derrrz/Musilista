@@ -14,16 +14,43 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
+import { LogoMark, Wordmark } from '@/components/brand/Logo';
+import { Badge } from '@/components/ui/Badge';
 import { useSession } from '@/context/SessionContext';
 import { api } from '@/lib/api';
 import { colors } from '@/constants/colors';
-import { fonts, fontSize, fontWeight } from '@/constants/typography';
+import { fonts, fontSize } from '@/constants/typography';
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
   iosClientId:
     '285488021331-cu0mfhce635ums9a3koiq7e4e2dmk5tq.apps.googleusercontent.com',
 });
+
+// G multicolorido do login web
+function GoogleG({ size = 18 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 18 18" fill="none">
+      <Path
+        d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+        fill="#4285F4"
+      />
+      <Path
+        d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"
+        fill="#34A853"
+      />
+      <Path
+        d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+        fill="#FBBC05"
+      />
+      <Path
+        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+        fill="#EA4335"
+      />
+    </Svg>
+  );
+}
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -70,31 +97,29 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.brand}>
-        <View style={styles.logoCircle}>
-          <Text style={styles.logoText}>M</Text>
+      <View style={styles.card}>
+        <View style={styles.brand}>
+          <LogoMark size={32} />
+          <Wordmark />
+          <Badge label="Beta" variant="outline" />
         </View>
-        <Text style={styles.appName}>Musilista</Text>
-        <View style={styles.betaBadge}>
-          <Text style={styles.betaText}>BETA</Text>
-        </View>
-      </View>
 
-      <Text style={styles.tagline}>Sua biblioteca de cifras</Text>
+        <Text style={styles.tagline}>
+          Cifras, repertórios e agenda para a sua banda
+        </Text>
 
-      <View style={styles.actions}>
         <TouchableOpacity
           style={[styles.googleBtn, loading && styles.btnDisabled]}
           onPress={handleGoogleSignIn}
           disabled={loading}
-          activeOpacity={0.85}
+          activeOpacity={0.8}
         >
           {loading ? (
-            <ActivityIndicator color={colors.accentInk} />
+            <ActivityIndicator color={colors.ink} size="small" />
           ) : (
             <>
-              <Text style={styles.googleIcon}>G</Text>
-              <Text style={styles.googleBtnText}>Continuar com Google</Text>
+              <GoogleG />
+              <Text style={styles.googleBtnText}>Entrar com Google</Text>
             </>
           )}
         </TouchableOpacity>
@@ -102,6 +127,10 @@ export default function LoginScreen() {
         <TouchableOpacity style={styles.skipBtn} onPress={skipLogin} disabled={loading}>
           <Text style={styles.skipText}>Agora não</Text>
         </TouchableOpacity>
+
+        <Text style={styles.terms}>
+          Ao entrar, você concorda com os Termos de Uso
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -113,74 +142,59 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 24,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 384,
+    alignItems: 'center',
     gap: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 32,
+    paddingVertical: 40,
   },
   brand: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 8,
-  },
-  logoCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoText: {
-    color: colors.accentInk,
-    fontFamily: fonts.sansBold,
-    fontSize: 24,
-  },
-  appName: {
-    color: colors.ink,
-    fontFamily: fonts.sansBold,
-    fontSize: 28,
-  },
-  betaBadge: {
-    backgroundColor: colors.accent,
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  betaText: {
-    color: colors.accentInk,
-    fontFamily: fonts.sansBold,
-    fontSize: 10,
   },
   tagline: {
     color: colors.muted,
     fontFamily: fonts.sans,
-    fontSize: fontSize.base,
-    marginBottom: 32,
+    fontSize: fontSize.sm,
+    textAlign: 'center',
+    marginBottom: 8,
   },
-  actions: { width: '88%', gap: 12 },
   googleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: colors.accent,
-    borderRadius: 28,
-    paddingVertical: 15,
+    alignSelf: 'stretch',
+    height: 44,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   btnDisabled: { opacity: 0.6 },
-  googleIcon: {
-    color: colors.accentInk,
-    fontFamily: fonts.sansBold,
-    fontSize: fontSize.base,
-  },
   googleBtnText: {
-    color: colors.accentInk,
-    fontFamily: fonts.sansBold,
+    color: colors.ink,
+    fontFamily: fonts.sansMedium,
     fontSize: fontSize.base,
   },
-  skipBtn: { alignItems: 'center', paddingVertical: 12 },
+  skipBtn: { paddingVertical: 4 },
   skipText: {
     color: colors.muted,
     fontFamily: fonts.sansMedium,
     fontSize: fontSize.sm,
+  },
+  terms: {
+    color: colors.faint,
+    fontFamily: fonts.sans,
+    fontSize: fontSize.xs,
+    textAlign: 'center',
   },
 });
