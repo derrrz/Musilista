@@ -33,3 +33,30 @@ export const letterSpacing = {
   wider: 0.8,
   widest: 1.6,
 } as const;
+
+// Presets espelhando Typography.tsx / Badge da web
+export const textPresets = {
+  eyebrow: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 10,
+    letterSpacing: 1.8, // 0.18em
+    textTransform: 'uppercase' as const,
+  },
+  pageTitle: {
+    fontFamily: fonts.sansSemiBold,
+    fontSize: 28,
+    letterSpacing: -0.5,
+  },
+  caption: {
+    fontFamily: fonts.sansMedium,
+    fontSize: 11,
+    letterSpacing: 1.54, // 0.14em
+    textTransform: 'uppercase' as const,
+  },
+  badge: {
+    fontFamily: fonts.monoBold,
+    fontSize: 10,
+    letterSpacing: 0.8, // 0.08em
+    textTransform: 'uppercase' as const,
+  },
+} as const;
