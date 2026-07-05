@@ -1,4 +1,4 @@
-import { pgTable, unique, uuid, text, timestamp, foreignKey, integer, boolean, date, time, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, unique, uuid, text, timestamp, foreignKey, integer, boolean, date, time, primaryKey, index, uniqueIndex } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -19,8 +19,18 @@ export const importedSongs = pgTable("imported_songs", {
 	publishedSongId: uuid("published_song_id"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	promotedAt: timestamp("promoted_at", { withTimezone: true, mode: 'string' }),
+	// URLs públicas /<artist_slug>/<title_slug>; versão principal tem
+	// version_slug='' (NULL quebraria a unicidade do grupo no Postgres)
+	artistSlug: text("artist_slug"),
+	titleSlug: text("title_slug"),
+	versionLabel: text("version_label"),
+	versionSlug: text("version_slug").default('').notNull(),
 }, (table) => [
 	unique("imported_songs_slug_unique").on(table.slug),
+	index("imported_songs_artist_slug_idx").on(table.artistSlug),
+	uniqueIndex("imported_songs_group_version_unique")
+		.on(table.artistSlug, table.titleSlug, table.versionSlug)
+		.where(sql`artist_slug is not null`),
 ]);
 
 export const songs = pgTable("songs", {

@@ -57,6 +57,13 @@
       "when": 1783277508262,
       "tag": "0007_unaccent",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783294744120,
+      "tag": "0008_acervo_slugs",
+      "breakpoints": true
     }
   ]
 }
