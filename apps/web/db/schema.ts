@@ -443,17 +443,13 @@ export const importSourceCounts = pgTable("import_source_counts", {
 // Cache permanente da foto do artista (coletada uma vez de uma fonte pública e
 // guardada aqui — não busca de novo a cada visita). Os bytes ficam no Vercel
 // Blob (blobUrl), não no Postgres — guardar base64 aqui já encheu o banco
-// (plano free do Neon, 512 MB) rapidinho. imageData/width/height ficam
-// nullable só durante a migração (task de remoção derruba as colunas depois).
+// (plano free do Neon, 512 MB) rapidinho.
 export const artistPhotos = pgTable("artist_photos", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	normalizedName: text("normalized_name").notNull(),
 	artistName: text("artist_name").notNull(),
 	blobUrl: text("blob_url"),
-	imageData: text("image_data"),
 	contentType: text("content_type").notNull(),
-	width: integer(),
-	height: integer(),
 	sourceUrl: text("source_url"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
@@ -468,10 +464,7 @@ export const songCovers = pgTable("song_covers", {
 	title: text().notNull(),
 	artist: text().notNull(),
 	blobUrl: text("blob_url"),
-	imageData: text("image_data"),
 	contentType: text("content_type").notNull(),
-	width: integer(),
-	height: integer(),
 	sourceUrl: text("source_url"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
