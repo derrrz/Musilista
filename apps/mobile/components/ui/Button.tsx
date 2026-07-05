@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
@@ -6,7 +7,7 @@ import {
   type TouchableOpacityProps,
 } from 'react-native';
 import { colors } from '@/constants/colors';
-import { fontWeight, fontSize } from '@/constants/typography';
+import { fonts } from '@/constants/typography';
 
 type Variant = 'primary' | 'outline' | 'ghost' | 'destructive';
 type Size = 'sm' | 'md' | 'lg';
@@ -16,6 +17,7 @@ interface ButtonProps extends TouchableOpacityProps {
   size?: Size;
   loading?: boolean;
   label: string;
+  icon?: ReactNode;
 }
 
 export function Button({
@@ -23,6 +25,7 @@ export function Button({
   size = 'md',
   loading = false,
   label,
+  icon,
   style,
   disabled,
   ...props
@@ -47,9 +50,12 @@ export function Button({
           size="small"
         />
       ) : (
-        <Text style={[styles.label, styles[`${variant}Label`], styles[`${size}Label`]]}>
-          {label}
-        </Text>
+        <>
+          {icon}
+          <Text style={[styles.label, styles[`${variant}Label`], styles[`${size}Label`]]}>
+            {label}
+          </Text>
+        </>
       )}
     </TouchableOpacity>
   );
@@ -60,7 +66,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 28,
+    gap: 8,
+    borderRadius: 8,
   },
 
   // Variants
@@ -74,23 +81,23 @@ const styles = StyleSheet.create({
   destructive: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.error,
+    borderColor: colors.red400,
   },
 
-  // Sizes
-  sm: { paddingVertical: 7, paddingHorizontal: 14 },
-  md: { paddingVertical: 12, paddingHorizontal: 20 },
-  lg: { paddingVertical: 15, paddingHorizontal: 24 },
+  // Sizes (h-8 / h-9 / h-11 da web)
+  sm: { height: 32, paddingHorizontal: 12 },
+  md: { height: 36, paddingHorizontal: 16 },
+  lg: { height: 44, paddingHorizontal: 20 },
 
   disabled: { opacity: 0.5 },
 
   // Labels
-  label: { fontWeight: fontWeight.bold as '700' },
+  label: { fontFamily: fonts.sansMedium },
   primaryLabel: { color: colors.accentInk },
   outlineLabel: { color: colors.ink },
-  ghostLabel: { color: colors.ink },
-  destructiveLabel: { color: colors.error },
-  smLabel: { fontSize: fontSize.sm },
-  mdLabel: { fontSize: fontSize.base },
-  lgLabel: { fontSize: fontSize.lg },
+  ghostLabel: { color: colors.muted },
+  destructiveLabel: { color: colors.red400 },
+  smLabel: { fontSize: 12 },
+  mdLabel: { fontSize: 14 },
+  lgLabel: { fontSize: 16 },
 });

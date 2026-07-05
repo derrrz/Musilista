@@ -1,25 +1,31 @@
+import { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { colors } from '@/constants/colors';
-import { fontWeight } from '@/constants/typography';
+import { fonts } from '@/constants/typography';
 
 type Shape = 'circle' | 'square';
 
 interface AvatarProps {
   name?: string;
+  /** URL principal e fallbacks em ordem (ex.: capa → foto do artista). 404 cai para o próximo. */
   url?: string;
+  fallbackUrls?: string[];
   size?: number;
   shape?: Shape;
 }
 
-export function Avatar({ name, url, size = 44, shape = 'square' }: AvatarProps) {
-  const radius = shape === 'circle' ? size / 2 : size * 0.23;
+export function Avatar({ name, url, fallbackUrls = [], size = 36, shape = 'square' }: AvatarProps) {
+  const sources = [url, ...fallbackUrls].filter((u): u is string => Boolean(u));
+  const [srcIndex, setSrcIndex] = useState(0);
+  const radius = shape === 'circle' ? size / 2 : 8;
   const initial = (name ?? '?').charAt(0).toUpperCase();
-  const textSize = size * 0.42;
+  const src = sources[srcIndex];
 
-  if (url) {
+  if (src) {
     return (
       <Image
-        source={{ uri: url }}
+        source={{ uri: src }}
+        onError={() => setSrcIndex((i) => i + 1)}
         style={[styles.base, { width: size, height: size, borderRadius: radius }]}
       />
     );
@@ -33,7 +39,7 @@ export function Avatar({ name, url, size = 44, shape = 'square' }: AvatarProps) 
         { width: size, height: size, borderRadius: radius },
       ]}
     >
-      <Text style={[styles.initial, { fontSize: textSize }]}>{initial}</Text>
+      <Text style={[styles.initial, { fontSize: size * 0.42 }]}>{initial}</Text>
     </View>
   );
 }
@@ -41,12 +47,12 @@ export function Avatar({ name, url, size = 44, shape = 'square' }: AvatarProps) 
 const styles = StyleSheet.create({
   base: { overflow: 'hidden' },
   placeholder: {
-    backgroundColor: colors.avatarBg,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   initial: {
-    color: colors.accent,
-    fontWeight: fontWeight.black as '900',
+    color: colors.accentInk,
+    fontFamily: fonts.sansSemiBold,
   },
 });
