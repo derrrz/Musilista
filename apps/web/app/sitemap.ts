@@ -6,6 +6,10 @@ import { asc, eq, sql } from 'drizzle-orm';
 const BASE = 'https://www.musilista.com.br';
 const SONGS_PER_SITEMAP = 40000;
 
+// Regenera diariamente — o conteúdo é pré-renderizado no build, e um build
+// pode rodar enquanto o acervo está sendo carregado (contagem parcial).
+export const revalidate = 86400;
+
 // id 0: estáticas + índice + artistas; ids 1..N: músicas principais em
 // blocos de 40k (limite do Google é 50k URLs por arquivo).
 export async function generateSitemaps() {
