@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://musilista.vercel.app';
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://musilista.vercel.app';
 const TOKEN_KEY = 'session_token';
 
 export async function getToken(): Promise<string | null> {

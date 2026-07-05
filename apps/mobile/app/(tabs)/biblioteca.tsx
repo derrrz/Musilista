@@ -9,48 +9,85 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { LetterChip } from '@/components/ui/Chip';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { IconClose, IconSearch } from '@/components/ui/icons';
 import { SkeletonSongRow } from '@/components/ui/Skeleton';
+import { Caption, Eyebrow, PageTitle } from '@/components/ui/Typography';
 import { useSession } from '@/context/SessionContext';
 import {
+  useArtistSongs,
   useFavorites,
-  useLetterSongs,
+  useLetterArtists,
   useRecents,
   useSearchSongs,
 } from '@/hooks/useSongs';
+import { BASE_URL } from '@/lib/api';
 import { colors } from '@/constants/colors';
 import { fonts, fontSize } from '@/constants/typography';
-import type { Song } from '@/types';
+import type { ArtistResult, Song, SongResult } from '@/types';
 
 const LETTERS = ['0-9', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
-function SongRow({ song, onPress }: { song: Song; onPress: () => void }) {
+function coverUrl(song: { title: string; artist: string }) {
+  return `${BASE_URL}/api/song-cover?title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist)}`;
+}
+
+function artistPhotoUrl(name: string) {
+  return `${BASE_URL}/api/artist-photo?name=${encodeURIComponent(name)}`;
+}
+
+// Card de música da Home web: avatar quadrado sm + título/artista, grid de 3 colunas
+function SongCard({ song, onPress }: { song: SongResult; onPress: () => void }) {
   return (
-    <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.rowText}>
-        <Text style={styles.title} numberOfLines={1}>{song.title}</Text>
-        <Text style={styles.artist} numberOfLines={1}>{song.artist}</Text>
+    <TouchableOpacity style={styles.songCard} onPress={onPress} activeOpacity={0.7}>
+      <Avatar
+        name={song.artist}
+        url={coverUrl(song)}
+        fallbackUrls={[artistPhotoUrl(song.artist)]}
+        size={28}
+        shape="square"
+      />
+      <View style={styles.songCardText}>
+        <Text style={styles.songCardTitle} numberOfLines={1}>{song.title}</Text>
+        <Text style={styles.songCardArtist} numberOfLines={1}>{song.artist}</Text>
       </View>
     </TouchableOpacity>
   );
 }
 
-function SongSection({
+function ArtistCard({ artist, onPress }: { artist: ArtistResult; onPress: () => void }) {
+  return (
+    <TouchableOpacity style={styles.artistCard} onPress={onPress} activeOpacity={0.7}>
+      <Avatar name={artist.name} url={artistPhotoUrl(artist.name)} size={48} shape="circle" />
+      <Text style={styles.artistName} numberOfLines={1}>{artist.name}</Text>
+      <Text style={styles.artistCount}>
+        {artist.count} {artist.count === 1 ? 'música' : 'músicas'}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function SongGrid({
   label,
   songs,
   onOpen,
 }: {
-  label: string;
-  songs: Song[];
+  label?: string;
+  songs: SongResult[];
   onOpen: (id: string) => void;
 }) {
   if (songs.length === 0) return null;
   return (
-    <View>
-      <Text style={styles.sectionLabel}>{label}</Text>
-      {songs.map((s) => (
-        <SongRow key={s.id} song={s} onPress={() => onOpen(s.id)} />
-      ))}
+    <View style={styles.section}>
+      {label ? <Caption>{label}</Caption> : null}
+      <View style={styles.grid}>
+        {songs.map((s) => (
+          <SongCard key={s.id} song={s} onPress={() => onOpen(s.id)} />
+        ))}
+      </View>
     </View>
   );
 }
@@ -58,13 +95,13 @@ function SongSection({
 function LoginTeaser({ onLogin }: { onLogin: () => void }) {
   return (
     <View style={styles.teaser}>
-      <Text style={styles.teaserTitle}>
-        Favoritos, histórico e grupos ficam salvos quando você entra
-      </Text>
-      <Text style={styles.teaserHint}>Crie sua conta grátis para não perder nada.</Text>
-      <TouchableOpacity style={styles.teaserBtn} onPress={onLogin} activeOpacity={0.8}>
-        <Text style={styles.teaserBtnText}>Entrar</Text>
-      </TouchableOpacity>
+      <View style={styles.teaserText}>
+        <Text style={styles.teaserTitle}>
+          Favoritos, histórico e grupos ficam salvos quando você entra
+        </Text>
+        <Text style={styles.teaserHint}>Crie sua conta grátis para não perder nada.</Text>
+      </View>
+      <Button label="Entrar" variant="outline" size="sm" onPress={onLogin} />
     </View>
   );
 }
@@ -74,16 +111,20 @@ export default function BibliotecaScreen() {
   const { session } = useSession();
   const [query, setQuery] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
+  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
 
   const showSearch = query.trim().length > 1;
   const { data: results, isLoading: searching } = useSearchSongs(query);
-  const { data: letterResults, isLoading: loadingLetter } = useLetterSongs(activeLetter);
+  const { data: letterArtists, isLoading: loadingArtists } = useLetterArtists(
+    showSearch ? null : activeLetter,
+  );
+  const { data: artistSongs, isLoading: loadingArtistSongs } = useArtistSongs(
+    showSearch ? null : selectedArtist,
+  );
   const { data: favorites } = useFavorites(Boolean(session));
   const { data: recents } = useRecents(Boolean(session));
 
   const idle = !showSearch && !activeLetter;
-  const songs = showSearch ? (results ?? []) : (letterResults ?? []);
-  const isLoading = showSearch ? searching : activeLetter ? loadingLetter : false;
 
   const openSong = useCallback(
     (id: string) => router.push(`/songs/${id}`),
@@ -92,80 +133,150 @@ export default function BibliotecaScreen() {
 
   function handleQuery(q: string) {
     setQuery(q);
-    if (q.trim()) setActiveLetter(null);
+    if (q.trim()) {
+      setActiveLetter(null);
+      setSelectedArtist(null);
+    }
   }
+
+  function toggleLetter(letter: string) {
+    setSelectedArtist(null);
+    setActiveLetter((prev) => (prev === letter ? null : letter));
+  }
+
+  const favoriteIds = new Set((favorites ?? []).map((s) => s.id));
+  const recentsExceptFavorites = (recents ?? []).filter((s) => !favoriteIds.has(s.id));
+  const toResult = (s: Song): SongResult => ({ id: s.id, title: s.title, artist: s.artist });
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.heading}>Cifras</Text>
-      </View>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        stickyHeaderIndices={[1]}
+      >
+        <View style={styles.header}>
+          {!session && <Eyebrow>Acervo · busca</Eyebrow>}
+          <PageTitle>Buscar música</PageTitle>
+        </View>
 
-      <View style={styles.searchBox}>
-        <Text style={styles.searchIcon}>🔍</Text>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar música ou artista..."
-          placeholderTextColor={colors.faint}
-          value={query}
-          onChangeText={handleQuery}
-          autoCorrect={false}
-          returnKeyType="search"
-        />
-        {query.length > 0 && (
-          <TouchableOpacity onPress={() => handleQuery('')}>
-            <Text style={styles.clearIcon}>✕</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+        <View style={styles.searchWrap}>
+          <View style={styles.searchBox}>
+            <IconSearch size={16} color={colors.faint} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Nome da música ou artista..."
+              placeholderTextColor={colors.faint}
+              value={query}
+              onChangeText={handleQuery}
+              autoCorrect={false}
+              returnKeyType="search"
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => handleQuery('')} hitSlop={8}>
+                <IconClose size={14} color={colors.muted} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
 
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {!showSearch && (
           <View style={styles.letters}>
-            {LETTERS.map((letter) => {
-              const active = activeLetter === letter;
-              return (
-                <TouchableOpacity
-                  key={letter}
-                  style={[styles.letterBtn, active && styles.letterBtnActive]}
-                  onPress={() => setActiveLetter(active ? null : letter)}
-                >
-                  <Text style={[styles.letterText, active && styles.letterTextActive]}>
-                    {letter}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+            {LETTERS.map((letter) => (
+              <LetterChip
+                key={letter}
+                letter={letter}
+                active={activeLetter === letter}
+                onPress={() => toggleLetter(letter)}
+              />
+            ))}
           </View>
         )}
 
-        {isLoading ? (
-          <>
-            <SkeletonSongRow />
-            <SkeletonSongRow />
-            <SkeletonSongRow />
-          </>
-        ) : !idle && songs.length === 0 ? (
-          <EmptyState
-            icon="🔍"
-            title="Nenhum resultado"
-            description={showSearch ? `Sem resultados para "${query}"` : 'Nada nesta letra ainda'}
-          />
-        ) : !idle ? (
-          <View>
-            {songs.map((s) => (
-              <SongRow key={s.id} song={s} onPress={() => openSong(s.id)} />
-            ))}
+        {showSearch ? (
+          searching ? (
+            <View style={styles.section}>
+              <SkeletonSongRow />
+              <SkeletonSongRow />
+              <SkeletonSongRow />
+            </View>
+          ) : (results?.songs ?? []).length === 0 && (results?.artists ?? []).length === 0 ? (
+            <EmptyState
+              icon="🔍"
+              title="Nenhum resultado"
+              description={`Sem resultados para "${query}"`}
+            />
+          ) : (
+            <>
+              <SongGrid label="Músicas" songs={results?.songs ?? []} onOpen={openSong} />
+              {(results?.artists ?? []).length > 0 && (
+                <View style={styles.section}>
+                  <Caption>Artistas</Caption>
+                  <View style={styles.grid}>
+                    {(results?.artists ?? []).map((a) => (
+                      <ArtistCard
+                        key={a.name}
+                        artist={a}
+                        onPress={() => {
+                          setQuery('');
+                          setActiveLetter(a.name.charAt(0).toUpperCase());
+                          setSelectedArtist(a.name);
+                        }}
+                      />
+                    ))}
+                  </View>
+                </View>
+              )}
+            </>
+          )
+        ) : activeLetter && selectedArtist ? (
+          <View style={styles.section}>
+            <TouchableOpacity onPress={() => setSelectedArtist(null)} hitSlop={8}>
+              <Caption style={styles.backLink}>← Artistas</Caption>
+            </TouchableOpacity>
+            <Text style={styles.artistHeading}>{selectedArtist}</Text>
+            {loadingArtistSongs ? (
+              <SkeletonSongRow />
+            ) : (
+              <View style={styles.grid}>
+                {(artistSongs ?? []).map((s) => (
+                  <SongCard key={s.id} song={s} onPress={() => openSong(s.id)} />
+                ))}
+              </View>
+            )}
+          </View>
+        ) : activeLetter ? (
+          <View style={styles.section}>
+            <Caption>Artistas com {activeLetter}</Caption>
+            {loadingArtists ? (
+              <SkeletonSongRow />
+            ) : (letterArtists ?? []).length === 0 ? (
+              <EmptyState icon="🎵" title="Nada nesta letra ainda" />
+            ) : (
+              <View style={styles.grid}>
+                {(letterArtists ?? []).map((a) => (
+                  <ArtistCard
+                    key={a.name}
+                    artist={a}
+                    onPress={() => setSelectedArtist(a.name)}
+                  />
+                ))}
+              </View>
+            )}
           </View>
         ) : session ? (
           <>
-            <SongSection
+            <SongGrid
               label="Favoritas"
-              songs={(favorites ?? []).slice(0, 5)}
+              songs={(favorites ?? []).slice(0, 5).map(toResult)}
               onOpen={openSong}
             />
-            <SongSection label="Vistas recentemente" songs={recents ?? []} onOpen={openSong} />
-            {(favorites ?? []).length === 0 && (recents ?? []).length === 0 && (
+            <SongGrid
+              label="Vistas recentemente"
+              songs={recentsExceptFavorites.map(toResult)}
+              onOpen={openSong}
+            />
+            {(favorites ?? []).length === 0 && recentsExceptFavorites.length === 0 && (
               <EmptyState
                 icon="🎵"
                 title="Comece buscando uma música"
@@ -183,98 +294,105 @@ export default function BibliotecaScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4 },
-  heading: {
-    color: colors.ink,
-    fontFamily: fonts.sansBold,
-    fontSize: fontSize['2xl'],
-  },
+  content: { paddingHorizontal: 16, paddingBottom: 40 },
+  header: { paddingTop: 12, paddingBottom: 4, gap: 4 },
+  searchWrap: { backgroundColor: colors.bg, paddingVertical: 10 },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 12,
+    borderRadius: 8,
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: colors.line,
     gap: 8,
   },
-  searchIcon: { fontSize: 16, opacity: 0.6 },
   searchInput: {
     flex: 1,
     color: colors.ink,
-    fontSize: fontSize.base,
-    paddingVertical: 13,
+    fontSize: fontSize.sm,
+    paddingVertical: 11,
   },
-  clearIcon: { color: colors.muted, fontSize: 14, padding: 4 },
-  content: { paddingHorizontal: 16, paddingBottom: 40 },
   letters: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
     marginBottom: 16,
   },
-  letterBtn: {
-    minWidth: 34,
+  section: { gap: 8, marginBottom: 20 },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  songCard: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 8,
+    gap: 10,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.surface,
-    paddingHorizontal: 8,
-    paddingVertical: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    flexGrow: 1,
+    flexBasis: '30%',
   },
-  letterBtnActive: { borderColor: colors.accent, backgroundColor: colors.avatarBg },
-  letterText: { color: colors.muted, fontFamily: fonts.monoBold, fontSize: fontSize.xs },
-  letterTextActive: { color: colors.accent },
-  sectionLabel: {
-    color: colors.muted,
-    fontFamily: fonts.sansSemiBold,
-    fontSize: fontSize.xs,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  row: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  rowText: { flex: 1 },
-  title: {
+  songCardText: { flex: 1, minWidth: 0 },
+  songCardTitle: {
     color: colors.ink,
-    fontFamily: fonts.sansMedium,
-    fontSize: 15,
+    fontFamily: fonts.sansSemiBold,
+    fontSize: fontSize.sm,
   },
-  artist: {
+  songCardArtist: {
     color: colors.muted,
     fontFamily: fonts.sans,
+    fontSize: fontSize.xs,
+    marginTop: 1,
+  },
+  artistCard: {
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 16,
+    flexGrow: 1,
+    flexBasis: '30%',
+  },
+  artistName: {
+    color: colors.ink,
+    fontFamily: fonts.sansSemiBold,
     fontSize: fontSize.sm,
-    marginTop: 2,
+    textAlign: 'center',
+  },
+  artistCount: {
+    color: colors.faint,
+    fontFamily: fonts.mono,
+    fontSize: 11,
+  },
+  backLink: { color: colors.muted },
+  artistHeading: {
+    color: colors.ink,
+    fontFamily: fonts.sansBold,
+    fontSize: fontSize.lg,
+    marginBottom: 4,
   },
   teaser: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
     borderWidth: 1,
     borderColor: colors.line,
     borderStyle: 'dashed',
     borderRadius: 12,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surface60,
     padding: 16,
-    gap: 6,
     marginTop: 8,
   },
+  teaserText: { flex: 1, gap: 2 },
   teaserTitle: { color: colors.ink, fontFamily: fonts.sansMedium, fontSize: fontSize.sm },
   teaserHint: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs },
-  teaserBtn: {
-    alignSelf: 'flex-start',
-    marginTop: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.line,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  teaserBtnText: { color: colors.ink, fontFamily: fonts.sansSemiBold, fontSize: fontSize.sm },
 });
