@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/Button';
+import { IconClose } from '@/components/ui/icons';
+import { Eyebrow } from '@/components/ui/Typography';
 import { useJoinGroup } from '@/hooks/useGroups';
 import { colors } from '@/constants/colors';
 import { fonts, fontSize } from '@/constants/typography';
@@ -31,8 +33,8 @@ export default function EntrarCodigoModal() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Entrar em grupo</Text>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.close}>✕</Text>
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <IconClose size={18} color={colors.muted} />
         </TouchableOpacity>
       </View>
 
@@ -42,12 +44,12 @@ export default function EntrarCodigoModal() {
         </Text>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Código de convite</Text>
+          <Eyebrow>Código de convite</Eyebrow>
           <TextInput
             style={styles.input}
             value={code}
             onChangeText={setCode}
-            placeholder="GRP-XXXX"
+            placeholder="GRP-XXXXXX"
             placeholderTextColor={colors.faint}
             autoCapitalize="characters"
             autoCorrect={false}
@@ -74,7 +76,6 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
   },
   title: { color: colors.ink, fontFamily: fonts.sansBold, fontSize: fontSize.lg },
-  close: { color: colors.muted, fontSize: 20, padding: 4 },
   content: { padding: 16, gap: 20 },
   hint: {
     color: colors.muted,
@@ -83,17 +84,16 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   field: { gap: 8 },
-  label: { color: colors.muted, fontFamily: fonts.sansMedium, fontSize: fontSize.sm },
   input: {
+    height: 44,
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.line,
     paddingHorizontal: 12,
-    paddingVertical: 13,
     color: colors.ink,
     fontFamily: fonts.mono,
-    fontSize: fontSize.xl,
+    fontSize: fontSize.lg,
     textAlign: 'center',
     letterSpacing: 4,
   },

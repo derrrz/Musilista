@@ -3,35 +3,49 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   Alert,
-  FlatList,
   RefreshControl,
   ScrollView,
-  SectionList,
   Share,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/ui/Avatar';
-import { RoleBadge, EventTypeBadge } from '@/components/ui/Badge';
+import { EventTypeBadge, RoleBadge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { SegmentedTabs } from '@/components/SegmentedTabs';
-import { SkeletonSongRow } from '@/components/ui/Skeleton';
 import {
+  IconCheck,
+  IconClose,
+  IconEdit,
+  IconPin,
+  IconPlus,
+  IconWarning,
+} from '@/components/ui/icons';
+import { SkeletonSongRow } from '@/components/ui/Skeleton';
+import { Eyebrow, PageTitle } from '@/components/ui/Typography';
+import { UnderlineTabs } from '@/components/UnderlineTabs';
+import {
+  useConfirmAttendance,
+  useCreateRepertoire,
+  useDeleteEvent,
+  useDeleteRepertoire,
   useGroup,
   useGroupEvents,
   useGroupMembers,
   useGroupRepertoires,
-  useConfirmAttendance,
-  useShareEvent,
+  useRemoveSongFromRepertoire,
   useRevokeShare,
+  useShareEvent,
 } from '@/hooks/useGroups';
+import { BASE_URL } from '@/lib/api';
 import { colors } from '@/constants/colors';
 import { fonts, fontSize } from '@/constants/typography';
-import type { GroupEvent, Member, RepertoireSong } from '@/types';
+import type { GroupEvent, Member, Repertoire } from '@/types';
 
 const TABS = [
   { key: 'repertorio', label: 'Repertório' },
@@ -39,65 +53,40 @@ const TABS = [
   { key: 'agenda', label: 'Agenda' },
 ];
 
-function SongItem({ song }: { song: RepertoireSong }) {
-  return (
-    <View style={styles.row}>
-      <View style={styles.keyBadge}>
-        <Text style={styles.keyText}>{song.key ?? '?'}</Text>
-      </View>
-      <View style={styles.rowText}>
-        <Text style={styles.rowTitle} numberOfLines={1}>{song.title}</Text>
-        {song.artist ? (
-          <Text style={styles.rowSub} numberOfLines={1}>{song.artist}</Text>
-        ) : null}
-      </View>
-    </View>
-  );
+// ─── Agenda ───────────────────────────────────────────────────────────────────
+
+function formatEventDate(event: GroupEvent): string {
+  // event.date vem como "YYYY-MM-DD"; new Date(string) trataria como UTC
+  // e exibiria o dia anterior em fusos negativos
+  const [y, m, d] = event.date.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const dateStr = date.toLocaleDateString('pt-BR', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+  return event.time ? `${dateStr} às ${event.time.slice(0, 5)}` : dateStr;
 }
 
-function MemberItem({ member }: { member: Member }) {
-  return (
-    <View style={styles.row}>
-      <Avatar name={member.name} url={member.avatarUrl} size={40} shape="circle" />
-      <View style={styles.rowText}>
-        <View style={styles.rowHeader}>
-          <Text style={styles.rowTitle} numberOfLines={1}>{member.name}</Text>
-          <RoleBadge role={member.role} />
-        </View>
-        <Text style={styles.rowSub}>{member.email}</Text>
-      </View>
-      {member.available && <View style={styles.availableDot} />}
-    </View>
-  );
-}
-
-const APP_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://musilista.vercel.app';
-
-function EventItem({
+function EventCard({
   event,
   groupId,
-  myRole,
+  canManage,
 }: {
   event: GroupEvent;
   groupId: string;
-  myRole: 'DONO' | 'ADMIN' | 'MEMBRO';
+  canManage: boolean;
 }) {
+  const router = useRouter();
   const { mutate: confirm, isPending: confirming } = useConfirmAttendance(groupId, event.id);
   const { mutate: share, isPending: sharing } = useShareEvent(groupId, event.id);
   const { mutate: revoke, isPending: revoking } = useRevokeShare(groupId, event.id);
-
-  const canManage = myRole !== 'MEMBRO';
-
-  function handleConfirm() {
-    confirm(undefined, {
-      onError: (e) => Alert.alert('Erro', e.message),
-    });
-  }
+  const { mutate: deleteEvent, isPending: deleting } = useDeleteEvent(groupId);
 
   function handleShare() {
     if (event.publicToken) {
-      const url = `${APP_URL}/agenda/${event.publicToken}`;
-      Share.share({ title: event.title, url });
+      Share.share({ title: event.title, url: `${BASE_URL}/agenda/${event.publicToken}` });
       return;
     }
     share(undefined, {
@@ -107,56 +96,81 @@ function EventItem({
   }
 
   function handleRevoke() {
-    Alert.alert(
-      'Revogar link',
-      'O link público deixará de funcionar. Continuar?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Revogar',
-          style: 'destructive',
-          onPress: () =>
-            revoke(undefined, {
-              onError: (e) => Alert.alert('Erro', e.message),
-            }),
-        },
-      ],
-    );
+    Alert.alert('Revogar link', 'O link público deixará de funcionar. Continuar?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Revogar',
+        style: 'destructive',
+        onPress: () => revoke(undefined, { onError: (e) => Alert.alert('Erro', e.message) }),
+      },
+    ]);
   }
 
-  // event.date vem como "YYYY-MM-DD"; new Date(string) trataria como UTC
-  // e exibiria o dia anterior em fusos negativos
-  const [y, m, d] = event.date.split('-').map(Number);
-  const date = new Date(y, m - 1, d);
-  const dateStr = date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  function handleDelete() {
+    Alert.alert('Excluir evento', `Excluir "${event.title}"?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: () =>
+          deleteEvent(event.id, { onError: (e) => Alert.alert('Erro', e.message) }),
+      },
+    ]);
+  }
 
   return (
     <View style={styles.eventCard}>
       <View style={styles.eventHeader}>
         <View style={styles.eventMeta}>
           <EventTypeBadge type={event.type} />
-          <Text style={styles.eventDate}>{dateStr}</Text>
+          <Text style={styles.eventDate}>{formatEventDate(event)}</Text>
         </View>
-        {!event.attendanceConfirmed && (
-          <Button
-            label={confirming ? '...' : 'Confirmar'}
-            size="sm"
-            onPress={handleConfirm}
-            loading={confirming}
-          />
-        )}
-        {event.attendanceConfirmed && (
-          <Text style={styles.confirmedText}>✓ Confirmado</Text>
+        {canManage && (
+          <View style={styles.eventActions}>
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: '/(modals)/editar-evento',
+                  params: { groupId, eventId: event.id },
+                })
+              }
+              hitSlop={8}
+              style={styles.eventActionBtn}
+            >
+              <IconEdit size={14} color={colors.muted} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleDelete}
+              disabled={deleting}
+              hitSlop={8}
+              style={styles.eventActionBtn}
+            >
+              <IconClose size={14} color={colors.red400} />
+            </TouchableOpacity>
+          </View>
         )}
       </View>
+
       <Text style={styles.eventTitle}>{event.title}</Text>
-      {event.description ? (
-        <Text style={styles.eventDesc}>{event.description}</Text>
+
+      {event.location ? (
+        <View style={styles.eventLocation}>
+          <IconPin size={12} color={colors.muted} />
+          <Text style={styles.eventLocationText}>{event.location}</Text>
+        </View>
       ) : null}
+
+      {event.description ? (
+        <View style={styles.noticeBox}>
+          <IconWarning size={14} color={colors.amber400} />
+          <Text style={styles.noticeText}>{event.description}</Text>
+        </View>
+      ) : null}
+
+      {event.setlistName ? (
+        <Chip label={event.setlistName} pill mono />
+      ) : null}
+
       {event.roles.length > 0 && (
         <View style={styles.roles}>
           {event.roles.map((role) => (
@@ -167,51 +181,278 @@ function EventItem({
           ))}
         </View>
       )}
-      {canManage && (
-        <View style={styles.shareRow}>
-          <TouchableOpacity
-            style={[styles.shareBtn, event.publicToken && styles.shareBtnActive]}
-            onPress={handleShare}
-            disabled={sharing || revoking}
-          >
-            <Text style={[styles.shareBtnText, event.publicToken && styles.shareBtnTextActive]}>
-              {sharing ? 'Gerando...' : event.publicToken ? '🔗 Compartilhar link' : 'Compartilhar'}
+
+      <View style={styles.eventFooter}>
+        {event.attendanceConfirmed ? (
+          <View style={styles.confirmedRow}>
+            <IconCheck size={14} color={colors.emerald500} />
+            <Text style={styles.confirmedText}>Presença confirmada</Text>
+          </View>
+        ) : (
+          <Button
+            label="Confirmar presença"
+            size="sm"
+            variant="outline"
+            loading={confirming}
+            onPress={() =>
+              confirm(undefined, { onError: (e) => Alert.alert('Erro', e.message) })
+            }
+          />
+        )}
+        {canManage && (
+          <View style={styles.shareRow}>
+            <Button
+              label={event.publicToken ? 'Compartilhar link' : 'Gerar link público'}
+              size="sm"
+              variant="ghost"
+              loading={sharing}
+              onPress={handleShare}
+            />
+            {event.publicToken && (
+              <Button
+                label="Revogar"
+                size="sm"
+                variant="ghost"
+                loading={revoking}
+                onPress={handleRevoke}
+              />
+            )}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
+// ─── Membros ──────────────────────────────────────────────────────────────────
+
+function MemberCard({ member }: { member: Member }) {
+  return (
+    <View style={styles.memberCard}>
+      <Avatar name={member.name} url={member.avatarUrl} size={36} shape="circle" />
+      <View style={styles.memberText}>
+        <Text style={styles.memberName} numberOfLines={1}>{member.name}</Text>
+        <Text style={styles.memberEmail} numberOfLines={1}>{member.email}</Text>
+      </View>
+      {member.available && <View style={styles.availableDot} />}
+      <RoleBadge role={member.role} />
+    </View>
+  );
+}
+
+// ─── Repertório ───────────────────────────────────────────────────────────────
+
+function RepertoirePanel({
+  groupId,
+  repertoires,
+  loading,
+  canManage,
+}: {
+  groupId: string;
+  repertoires: Repertoire[];
+  loading: boolean;
+  canManage: boolean;
+}) {
+  const router = useRouter();
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState('');
+  const { mutate: createRepertoire, isPending: creatingPending } = useCreateRepertoire(groupId);
+  const { mutate: deleteRepertoire } = useDeleteRepertoire(groupId);
+  const { mutate: removeSong } = useRemoveSongFromRepertoire(groupId);
+
+  const active =
+    repertoires.find((r) => r.id === activeId) ?? repertoires[0] ?? null;
+
+  function handleCreate() {
+    const name = newName.trim();
+    if (!name) return;
+    createRepertoire(name, {
+      onSuccess: (created) => {
+        setNewName('');
+        setCreating(false);
+        setActiveId(created.id);
+      },
+      onError: (e) => Alert.alert('Erro', e.message),
+    });
+  }
+
+  function handleDeleteRepertoire(rep: Repertoire) {
+    Alert.alert('Excluir repertório', `Excluir "${rep.name}" e suas músicas?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: () =>
+          deleteRepertoire(rep.id, { onError: (e) => Alert.alert('Erro', e.message) }),
+      },
+    ]);
+  }
+
+  function handleRemoveSong(songItemId: string, title: string) {
+    Alert.alert('Remover música', `Remover "${title}" do repertório?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Remover',
+        style: 'destructive',
+        onPress: () =>
+          removeSong(
+            { repertoireId: active!.id, songItemId },
+            { onError: (e) => Alert.alert('Erro', e.message) },
+          ),
+      },
+    ]);
+  }
+
+  if (loading) return <SkeletonSongRow />;
+
+  return (
+    <View style={styles.panel}>
+      <View style={styles.panelHeader}>
+        <Eyebrow>Repertórios</Eyebrow>
+        {canManage && (
+          <TouchableOpacity onPress={() => setCreating((c) => !c)} hitSlop={8}>
+            <Text style={styles.panelAction}>
+              {creating ? 'Cancelar' : '+ Novo repertório'}
             </Text>
           </TouchableOpacity>
-          {event.publicToken && (
-            <TouchableOpacity onPress={handleRevoke} disabled={revoking} style={styles.revokeBtn}>
-              <Text style={styles.revokeBtnText}>{revoking ? '...' : 'Revogar'}</Text>
-            </TouchableOpacity>
-          )}
+        )}
+      </View>
+
+      {creating && (
+        <View style={styles.createRow}>
+          <TextInput
+            style={styles.createInput}
+            value={newName}
+            onChangeText={setNewName}
+            placeholder="Nome do repertório"
+            placeholderTextColor={colors.faint}
+            autoFocus
+            onSubmitEditing={handleCreate}
+          />
+          <Button label="Criar" size="sm" loading={creatingPending} onPress={handleCreate} />
         </View>
+      )}
+
+      {repertoires.length === 0 ? (
+        <EmptyState
+          icon="🎵"
+          title="Sem repertórios"
+          description={
+            canManage
+              ? 'Crie um repertório para organizar as músicas do grupo'
+              : 'Os administradores ainda não criaram repertórios'
+          }
+        />
+      ) : (
+        <>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.repChips}>
+              {repertoires.map((r) => (
+                <Chip
+                  key={r.id}
+                  label={`${r.name} · ${r.songs.length}`}
+                  active={active?.id === r.id}
+                  onPress={() => setActiveId(r.id)}
+                />
+              ))}
+            </View>
+          </ScrollView>
+
+          {active && (
+            <View style={styles.repDetail}>
+              <View style={styles.panelHeader}>
+                <Text style={styles.repName}>{active.name}</Text>
+                {canManage && (
+                  <View style={styles.repActions}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        router.push({
+                          pathname: '/(modals)/buscar-musica',
+                          params: { groupId, repertoireId: active.id },
+                        })
+                      }
+                      hitSlop={8}
+                    >
+                      <Text style={styles.panelAction}>+ Música</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleDeleteRepertoire(active)} hitSlop={8}>
+                      <Text style={styles.panelActionDanger}>Excluir</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+
+              {active.songs.length === 0 ? (
+                <Text style={styles.emptySongs}>Nenhuma música ainda.</Text>
+              ) : (
+                active.songs.map((song, i) => (
+                  <View key={song.id} style={styles.songRow}>
+                    <Text style={styles.songIndex}>
+                      {String(i + 1).padStart(2, '0')}
+                    </Text>
+                    <View style={styles.songText}>
+                      <Text style={styles.songTitle} numberOfLines={1}>{song.title}</Text>
+                      {song.artist ? (
+                        <Text style={styles.songArtist} numberOfLines={1}>{song.artist}</Text>
+                      ) : null}
+                    </View>
+                    {song.key ? (
+                      <View style={styles.keyBadge}>
+                        <Text style={styles.keyText}>{song.key}</Text>
+                      </View>
+                    ) : null}
+                    {song.bpm ? (
+                      <Text style={styles.bpmText}>{song.bpm} bpm</Text>
+                    ) : null}
+                    {canManage && (
+                      <TouchableOpacity
+                        onPress={() => handleRemoveSong(song.id, song.title)}
+                        hitSlop={8}
+                      >
+                        <IconClose size={13} color={colors.faint} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                ))
+              )}
+            </View>
+          )}
+        </>
       )}
     </View>
   );
 }
 
+// ─── Tela ─────────────────────────────────────────────────────────────────────
+
 export default function GroupScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('repertorio');
+  const [activeTab, setActiveTab] = useState('agenda');
+  const [copied, setCopied] = useState(false);
 
   const { data: group, isLoading: loadingGroup } = useGroup(id);
-  const {
-    data: repertoires,
-    isLoading: loadingSongs,
-    refetch: refetchSongs,
-  } = useGroupRepertoires(id);
-  const { data: members, isLoading: loadingMembers, refetch: refetchMembers } = useGroupMembers(id);
-  const { data: events, isLoading: loadingEvents, refetch: refetchEvents } = useGroupEvents(id);
+  const { data: repertoires, isLoading: loadingSongs, refetch: refetchSongs } =
+    useGroupRepertoires(id);
+  const { data: members, isLoading: loadingMembers, refetch: refetchMembers } =
+    useGroupMembers(id);
+  const { data: events, isLoading: loadingEvents, refetch: refetchEvents } =
+    useGroupEvents(id);
 
-  const repertoireSections = (repertoires ?? []).map((r) => ({
-    title: r.name,
-    data: r.songs,
-  }));
+  const canManage = Boolean(group && group.myRole !== 'MEMBRO');
 
   async function copyCode() {
     if (!group?.inviteCode) return;
     await Clipboard.setStringAsync(group.inviteCode);
-    Alert.alert('Copiado!', `Código ${group.inviteCode} copiado.`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function refetchActive() {
+    if (activeTab === 'repertorio') refetchSongs();
+    else if (activeTab === 'membros') refetchMembers();
+    else refetchEvents();
   }
 
   if (loadingGroup) {
@@ -224,222 +465,204 @@ export default function GroupScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
+      {/* Cabeçalho */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+          <Text style={styles.backLink}>← Grupos</Text>
         </TouchableOpacity>
-        <Avatar name={group?.name} size={40} shape="square" />
-        <View style={styles.headerInfo}>
-          <Text style={styles.groupName} numberOfLines={1}>{group?.name}</Text>
-          <View style={styles.headerMeta}>
-            {group && <RoleBadge role={group.myRole} />}
-            {group?.inviteCode && (
-              <TouchableOpacity onPress={copyCode}>
-                <Text style={styles.code}>{group.inviteCode}</Text>
-              </TouchableOpacity>
-            )}
+        <View style={styles.headerRow}>
+          <View style={styles.headerInfo}>
+            <PageTitle numberOfLines={1}>{group?.name}</PageTitle>
+            {group?.description ? (
+              <Text style={styles.groupDesc} numberOfLines={2}>{group.description}</Text>
+            ) : null}
           </View>
+          {group?.inviteCode && (
+            <TouchableOpacity onPress={copyCode} style={styles.codeBox} activeOpacity={0.7}>
+              <Eyebrow>Código de convite</Eyebrow>
+              <Text style={styles.code}>{copied ? 'copiado ✓' : group.inviteCode}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
       {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        <SegmentedTabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
-      </View>
+      <UnderlineTabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
 
-      {/* Content */}
-      {activeTab === 'repertorio' && (
-        <SectionList
-          sections={repertoireSections}
-          keyExtractor={(s) => s.id}
-          renderItem={({ item }) => <SongItem song={item} />}
-          renderSectionHeader={({ section }) => (
-            <Text style={styles.repertoireHeader}>{section.title}</Text>
-          )}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={styles.list}
-          stickySectionHeadersEnabled={false}
-          ListHeaderComponent={
-            group?.myRole !== 'MEMBRO' ? (
-              <TouchableOpacity
-                style={styles.addBtn}
-                onPress={() =>
-                  router.push({ pathname: '/(modals)/buscar-musica', params: { groupId: id } })
-                }
-              >
-                <Text style={styles.addBtnText}>+ Adicionar música</Text>
-              </TouchableOpacity>
-            ) : null
-          }
-          ListEmptyComponent={
-            loadingSongs ? (
+      <ScrollView
+        contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={false} onRefresh={refetchActive} tintColor={colors.accent} />
+        }
+      >
+        {activeTab === 'repertorio' && (
+          <RepertoirePanel
+            groupId={id}
+            repertoires={repertoires ?? []}
+            loading={loadingSongs}
+            canManage={canManage}
+          />
+        )}
+
+        {activeTab === 'membros' && (
+          <View style={styles.panel}>
+            <Eyebrow>Membros</Eyebrow>
+            {loadingMembers ? (
               <SkeletonSongRow />
+            ) : (members ?? []).length === 0 ? (
+              <EmptyState icon="👤" title="Sem membros" />
             ) : (
-              <EmptyState
-                icon="🎵"
-                title="Sem repertórios"
-                description="Adicione uma música para criar o primeiro repertório"
-              />
-            )
-          }
-          refreshControl={
-            <RefreshControl refreshing={false} onRefresh={refetchSongs} tintColor={colors.accent} />
-          }
-        />
-      )}
+              (members ?? []).map((m) => <MemberCard key={m.id} member={m} />)
+            )}
+          </View>
+        )}
 
-      {activeTab === 'membros' && (
-        <FlatList
-          data={members}
-          keyExtractor={(m) => m.id}
-          renderItem={({ item }) => <MemberItem member={item} />}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={styles.list}
-          ListEmptyComponent={
-            loadingMembers ? <SkeletonSongRow /> : <EmptyState icon="👤" title="Sem membros" />
-          }
-          refreshControl={
-            <RefreshControl refreshing={false} onRefresh={refetchMembers} tintColor={colors.accent} />
-          }
-        />
-      )}
-
-      {activeTab === 'agenda' && (
-        <ScrollView
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={false} onRefresh={refetchEvents} tintColor={colors.accent} />
-          }
-        >
-          {group?.myRole !== 'MEMBRO' && (
-            <TouchableOpacity
-              style={styles.addBtn}
-              onPress={() =>
-                router.push({ pathname: '/(modals)/novo-evento', params: { groupId: id } })
-              }
-            >
-              <Text style={styles.addBtnText}>+ Criar evento</Text>
-            </TouchableOpacity>
-          )}
-          {loadingEvents ? (
-            <SkeletonSongRow />
-          ) : (events ?? []).length === 0 ? (
-            <EmptyState icon="📅" title="Sem eventos" description="Crie um ensaio ou show" />
-          ) : (
-            (events ?? []).map((ev) => (
-              <EventItem key={ev.id} event={ev} groupId={id} myRole={group?.myRole ?? 'MEMBRO'} />
-            ))
-          )}
-        </ScrollView>
-      )}
+        {activeTab === 'agenda' && (
+          <View style={styles.panel}>
+            <View style={styles.panelHeader}>
+              <Eyebrow>Agenda</Eyebrow>
+              {canManage && (
+                <Button
+                  label="+ Evento"
+                  size="sm"
+                  onPress={() =>
+                    router.push({ pathname: '/(modals)/novo-evento', params: { groupId: id } })
+                  }
+                />
+              )}
+            </View>
+            {loadingEvents ? (
+              <SkeletonSongRow />
+            ) : (events ?? []).length === 0 ? (
+              <EmptyState icon="📅" title="Sem eventos" description="Crie um ensaio ou show" />
+            ) : (
+              (events ?? []).map((ev) => (
+                <EventCard key={ev.id} event={ev} groupId={id} canManage={canManage} />
+              ))
+            )}
+          </View>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  header: {
+  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 12, gap: 8 },
+  backLink: { color: colors.muted, fontFamily: fonts.sans, fontSize: 13 },
+  headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  headerInfo: { flex: 1, minWidth: 0, gap: 2 },
+  groupDesc: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm },
+  codeBox: { alignItems: 'flex-end', gap: 2, paddingTop: 6 },
+  code: { color: colors.accent, fontFamily: fonts.monoBold, fontSize: 15 },
+  list: { padding: 16, paddingBottom: 48 },
+  panel: { gap: 12 },
+  panelHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
+    justifyContent: 'space-between',
   },
-  backBtn: { padding: 6 },
-  backIcon: { color: colors.accent, fontSize: 20, fontFamily: fonts.sansBold },
-  headerInfo: { flex: 1 },
-  groupName: { color: colors.ink, fontFamily: fonts.sansBold, fontSize: fontSize.base },
-  headerMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
-  code: {
-    color: colors.muted,
-    fontFamily: fonts.mono,
-    fontSize: fontSize.xs,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  tabsContainer: { padding: 12 },
-  list: { paddingHorizontal: 16, paddingBottom: 40 },
-  separator: { height: 1, backgroundColor: colors.line },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
-  rowHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
-  rowText: { flex: 1 },
-  availableDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.success,
-  },
-  repertoireHeader: {
-    color: colors.muted,
-    fontFamily: fonts.sansSemiBold,
-    fontSize: fontSize.xs,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    paddingTop: 16,
-    paddingBottom: 6,
-  },
-  rowTitle: { color: colors.ink, fontFamily: fonts.sansMedium, fontSize: 15 },
-  rowSub: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm, marginTop: 2 },
-  keyBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: colors.avatarBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  keyText: { color: colors.accent, fontFamily: fonts.monoBold, fontSize: fontSize.sm },
-  addBtn: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderStyle: 'dashed',
-    padding: 14,
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  addBtnText: { color: colors.accent, fontFamily: fonts.sansSemiBold, fontSize: fontSize.sm },
+  panelAction: { color: colors.accent, fontFamily: fonts.sansSemiBold, fontSize: fontSize.sm },
+  panelActionDanger: { color: colors.red400, fontFamily: fonts.sansMedium, fontSize: fontSize.sm },
+
+  // Agenda
   eventCard: {
     backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.line,
     padding: 14,
-    gap: 8,
-    marginBottom: 8,
+    gap: 10,
   },
   eventHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  eventMeta: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  eventDate: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm },
-  eventTitle: { color: colors.ink, fontFamily: fonts.sansSemiBold, fontSize: fontSize.base },
-  eventDesc: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm },
-  confirmedText: { color: colors.success, fontFamily: fonts.sansSemiBold, fontSize: fontSize.sm },
+  eventMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
+  eventDate: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs },
+  eventActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  eventActionBtn: { padding: 6 },
+  eventTitle: { color: colors.ink, fontFamily: fonts.sansBold, fontSize: fontSize.xl },
+  eventLocation: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  eventLocationText: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm },
+  noticeBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.amberBorder40,
+    backgroundColor: colors.amberTint10,
+    padding: 10,
+  },
+  noticeText: { flex: 1, color: colors.amber400, fontFamily: fonts.sans, fontSize: fontSize.sm },
   roles: { gap: 4 },
   roleItem: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs },
-  shareRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
-  shareBtn: {
-    flex: 1,
-    paddingVertical: 7,
-    paddingHorizontal: 12,
+  eventFooter: {
+    borderTopWidth: 1,
+    borderTopColor: colors.line,
+    paddingTop: 10,
+    gap: 8,
+  },
+  confirmedRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  confirmedText: { color: colors.emerald500, fontFamily: fonts.sansSemiBold, fontSize: fontSize.sm },
+  shareRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+
+  // Membros
+  memberCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.raised,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.line,
-    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
-  shareBtnActive: { borderColor: colors.accent },
-  shareBtnText: { color: colors.muted, fontFamily: fonts.sansMedium, fontSize: fontSize.xs },
-  shareBtnTextActive: { color: colors.accent },
-  revokeBtn: { paddingVertical: 7, paddingHorizontal: 10 },
-  revokeBtnText: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs },
+  memberText: { flex: 1, minWidth: 0 },
+  memberName: { color: colors.ink, fontFamily: fonts.sansSemiBold, fontSize: fontSize.sm },
+  memberEmail: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs, marginTop: 1 },
+  availableDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.emerald500 },
+
+  // Repertório
+  createRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  createInput: {
+    flex: 1,
+    height: 36,
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.line,
+    paddingHorizontal: 12,
+    color: colors.ink,
+    fontSize: fontSize.sm,
+  },
+  repChips: { flexDirection: 'row', gap: 8 },
+  repDetail: { gap: 8 },
+  repName: { color: colors.ink, fontFamily: fonts.sansBold, fontSize: fontSize.base },
+  repActions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  emptySongs: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm },
+  songRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+  songIndex: { color: colors.faint, fontFamily: fonts.mono, fontSize: fontSize.xs, width: 22 },
+  songText: { flex: 1, minWidth: 0 },
+  songTitle: { color: colors.ink, fontFamily: fonts.sansMedium, fontSize: fontSize.sm },
+  songArtist: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs, marginTop: 1 },
+  keyBadge: {
+    borderRadius: 6,
+    backgroundColor: colors.blueTint15,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  keyText: { color: colors.blue400, fontFamily: fonts.monoBold, fontSize: fontSize.xs },
+  bpmText: { color: colors.faint, fontFamily: fonts.mono, fontSize: fontSize.xs },
 });
