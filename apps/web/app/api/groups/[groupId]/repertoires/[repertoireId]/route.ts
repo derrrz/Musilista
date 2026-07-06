@@ -34,6 +34,27 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   return NextResponse.json({ ...r, songs });
 }
 
+// Renomear o setlist (admin/owner, como criar/excluir).
+export async function PATCH(req: NextRequest, { params }: Ctx) {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { groupId, repertoireId } = await params;
+  const m = await getMembership(groupId, session.user.id);
+  if (!m || m.role === 'member') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const { name } = await req.json();
+  if (!name?.trim()) return NextResponse.json({ error: 'Nome obrigatório' }, { status: 400 });
+
+  const [updated] = await db
+    .update(repertoires)
+    .set({ name: name.trim() })
+    .where(and(eq(repertoires.id, repertoireId), eq(repertoires.groupId, groupId)))
+    .returning();
+
+  if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  return NextResponse.json(updated);
+}
+
 export async function DELETE(req: NextRequest, { params }: Ctx) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

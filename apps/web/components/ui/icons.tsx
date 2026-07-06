@@ -361,3 +361,25 @@ export function IconMenu(props: IconProps) {
     </Svg>
   );
 }
+
+export function IconMic(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M5.5 11a6.5 6.5 0 0 0 13 0" />
+      <path d="M12 17.5V21" />
+      <path d="M8.5 21h7" />
+    </Svg>
+  );
+}
+
+export function IconScreen(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="4.5" width="18" height="12" />
+      <path d="M12 16.5V20" />
+      <path d="M8 20h8" />
+      <path d="m10 8 4 2.5-4 2.5z" />
+    </Svg>
+  );
+}
