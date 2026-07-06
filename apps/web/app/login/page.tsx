@@ -14,7 +14,7 @@ export default async function LoginPage({
   const session = await auth();
   const { callbackUrl } = await searchParams;
   // só aceita caminho relativo, nunca URL absoluta — evita open-redirect
-  const dest = callbackUrl?.startsWith('/') ? callbackUrl : '/groups';
+  const dest = callbackUrl?.startsWith('/') ? callbackUrl : '/';
   if (session?.user?.id) redirect(dest);
 
   const devLoginEnabled = process.env.AUTH_DEV_LOGIN === '1' && process.env.NODE_ENV !== 'production';
