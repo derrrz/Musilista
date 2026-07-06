@@ -5,10 +5,8 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/components/ui/cn';
-import { Badge } from '@/components/ui/Badge';
-import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
-import { Eyebrow, Caption } from '@/components/ui/Typography';
+import { Caption } from '@/components/ui/Typography';
 
 type SongResult = { id: string; title: string; artist: string; artistSlug?: string | null; titleSlug?: string | null };
 type ArtistResult = { name: string; slug?: string | null; count: number };
@@ -22,21 +20,9 @@ function songHref(song: SongResult): string {
 const LETTERS = ['0-9', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
 const FEATURES = [
-  {
-    index: '01',
-    title: 'Acervo pesquisável',
-    description: 'Milhares de cifras prontas, com busca por título ou artista e índice alfabético do repertório brasileiro.',
-  },
-  {
-    index: '02',
-    title: 'Bandas, corais e grupos',
-    description: 'Organize shows e ensaios, compartilhe repertórios e mantenha todos os membros na mesma página.',
-  },
-  {
-    index: '03',
-    title: 'Editor A4 profissional',
-    description: 'Canvas visual com régua, zoom e paginação automática. Acordes alinhados letra por letra, prontos para imprimir.',
-  },
+  { index: '01', title: 'Acervo com 55 mil cifras' },
+  { index: '02', title: 'Repertórios para grupos' },
+  { index: '03', title: 'Editor A4 para imprimir' },
 ];
 
 // Card de música é mais baixo que o de artista (foto pequena + texto ao
@@ -110,11 +96,8 @@ function SongSection({ label, songs }: { label: string; songs: SongResult[] }) {
 
 function LoginTeaser() {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-xl border border-dashed border-line bg-surface/50 p-4">
-      <div className="flex flex-col gap-0.5">
-        <p className="text-sm font-medium text-ink">Favoritos, histórico e grupos ficam salvos quando você entra</p>
-        <p className="text-xs text-muted">Crie sua conta grátis para não perder nada.</p>
-      </div>
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-dashed border-line bg-surface/50 px-4 py-3">
+      <p className="text-sm text-muted">Entre para salvar favoritos e repertórios.</p>
       <Link
         href="/login?callbackUrl=%2F"
         className="shrink-0 rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-raised"
@@ -212,27 +195,18 @@ export function Home() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-6 py-10">
-      {!authed && (
-        <div className="flex flex-col gap-3">
-          <Badge variant="neutral">Lançamento Beta · Acesso antecipado</Badge>
-          <h1 className="text-3xl font-bold leading-tight tracking-tight text-ink sm:text-4xl">
-            Cifras, repertórios e agenda
-            <br />
-            para a sua banda.
-          </h1>
-          <p className="max-w-lg text-sm leading-relaxed text-muted">
-            Pesquise cifras no acervo e use na hora, sem precisar entrar. Crie sua conta quando
-            quiser salvar favoritos, rascunhos e organizar sua banda.
-          </p>
-        </div>
-      )}
-
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
+      {/* Busca em primeiro lugar — a home é a ação de procurar uma cifra */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          {!authed && <Eyebrow>Acervo · busca</Eyebrow>}
-          <h2 className="text-[28px] font-semibold tracking-tight text-ink">Buscar música</h2>
-        </div>
+        {!authed ? (
+          <h1 className="text-2xl font-bold tracking-tight text-ink">
+            Qual cifra você quer tocar hoje?
+          </h1>
+        ) : (
+          <h2 className="text-2xl font-bold tracking-tight text-ink">
+            Qual cifra você quer tocar hoje?
+          </h2>
+        )}
 
         <div className="relative">
           <Input
@@ -241,7 +215,8 @@ export function Home() {
             onChange={(e) => handleSearch(e.target.value)}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            placeholder="Buscar por título ou artista, ou clique para ver o índice…"
+            placeholder="Título ou artista — ou clique para ver o índice A–Z…"
+            className="h-12 px-4 text-base"
             autoFocus
           />
 
@@ -343,31 +318,30 @@ export function Home() {
           )}
         </div>
 
-        {!focused && (
-          authed ? (
-            <>
-              <SongSection label="Favoritas" songs={favorites} />
-              <SongSection label="Vistas recentemente" songs={recentsExceptFavorites} />
-            </>
-          ) : (
-            !sessionLoading && <LoginTeaser />
-          )
+        {/* Favoritas/recentes sempre visíveis pra quem está logado — o painel
+            de busca é um overlay absoluto, então não precisa escondê-las
+            enquanto o campo está focado (o autoFocus deixava a home vazia). */}
+        {authed ? (
+          <>
+            <SongSection label="Favoritas" songs={favorites} />
+            <SongSection label="Vistas recentemente" songs={recentsExceptFavorites} />
+          </>
+        ) : (
+          !sessionLoading && <LoginTeaser />
         )}
       </div>
 
       {!authed && (
-        <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <footer className="flex flex-col gap-4 border-t border-line pt-5">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1.5">
             {FEATURES.map((f) => (
-              <Card key={f.title} className="flex flex-col gap-3 text-left">
-                <span className="font-mono text-[11px] font-semibold text-accent">{f.index} /</span>
-                <CardTitle>{f.title}</CardTitle>
-                <CardDescription className="leading-relaxed">{f.description}</CardDescription>
-              </Card>
+              <span key={f.title} className="flex items-center gap-1.5 text-xs text-muted">
+                <span className="font-mono text-[10px] font-semibold text-accent">{f.index} /</span>
+                {f.title}
+              </span>
             ))}
           </div>
-
-          <footer className="flex flex-wrap items-center justify-center gap-4 border-t border-line pt-6 font-mono text-[11px] text-faint">
+          <div className="flex flex-wrap items-center justify-center gap-4 font-mono text-[11px] text-faint">
             <span>Musilista · Cifras e repertórios</span>
             <span>·</span>
             <a href="/artistas" className="underline underline-offset-2 transition-colors hover:text-muted">
@@ -381,8 +355,8 @@ export function Home() {
             <a href="/planos" className="underline underline-offset-2 transition-colors hover:text-muted">
               Planos
             </a>
-          </footer>
-        </>
+          </div>
+        </footer>
       )}
     </div>
   );
