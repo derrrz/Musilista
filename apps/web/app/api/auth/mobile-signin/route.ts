@@ -12,11 +12,16 @@ export async function POST(req: NextRequest) {
   const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
   if (!res.ok) return NextResponse.json({ error: 'Invalid Google token' }, { status: 401 });
 
-  const info = await res.json() as { email: string; name?: string; picture?: string; aud?: string };
+  const info = await res.json() as { email: string; email_verified?: string; name?: string; picture?: string; aud?: string };
 
   const allowedAudience = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? process.env.AUTH_GOOGLE_ID;
   if (allowedAudience && info.aud !== allowedAudience) {
     return NextResponse.json({ error: 'Token audience mismatch' }, { status: 401 });
+  }
+  // e-mail precisa estar verificado pelo Google — sem isso, uma conta Google
+  // recém-criada com e-mail de terceiro poderia assumir a conta desse e-mail
+  if (info.email_verified !== 'true' && info.email_verified !== undefined) {
+    return NextResponse.json({ error: 'Email not verified' }, { status: 401 });
   }
 
   const existing = await db.select({ id: users.id })
