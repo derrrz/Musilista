@@ -33,6 +33,31 @@ export const importedSongs = pgTable("imported_songs", {
 		.where(sql`artist_slug is not null`),
 ]);
 
+// Referências da banda: links (YouTube, Spotify…) que os membros adicionam
+// para compor a característica sonora/visual do grupo.
+export const groupReferences = pgTable("group_references", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	groupId: uuid("group_id").notNull(),
+	url: text().notNull(),
+	title: text(),
+	kind: text().default('other').notNull(),
+	note: text(),
+	addedBy: uuid("added_by").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("group_references_group_id_idx").on(table.groupId),
+	foreignKey({
+		columns: [table.groupId],
+		foreignColumns: [groups.id],
+		name: "group_references_group_id_fkey"
+	}).onDelete("cascade"),
+	foreignKey({
+		columns: [table.addedBy],
+		foreignColumns: [users.id],
+		name: "group_references_added_by_fkey"
+	}).onDelete("cascade"),
+]);
+
 // ── Analytics primeira-parte ────────────────────────────────────────────────
 // page_events guarda só as últimas 48h (poda no /api/track) — serve pro
 // "online agora" e únicos do dia; o histórico fica no agregado diário.
