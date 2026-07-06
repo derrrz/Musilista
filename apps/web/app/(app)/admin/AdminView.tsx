@@ -258,6 +258,10 @@ function TicketsTab() {
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
 
+// Dashboard do Web Analytics na Vercel (dados independentes dos nossos)
+const VERCEL_ANALYTICS_URL =
+  process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_URL ?? 'https://vercel.com';
+
 type Overview = { configured: boolean; pv7d?: number; pvToday?: number; uniques24h?: number; online?: number };
 type DailyRow = { day: string; pv: number };
 type PageRow = { path: string; count: number };
@@ -306,6 +310,19 @@ function AnalyticsTab() {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-end">
+        <a
+          href={VERCEL_ANALYTICS_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-surface hover:text-ink"
+        >
+          <svg width="11" height="11" viewBox="0 0 76 65" fill="currentColor" aria-hidden="true">
+            <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+          </svg>
+          Relatório completo na Vercel
+        </a>
+      </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Card className="flex flex-col gap-1 p-4">
           <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
