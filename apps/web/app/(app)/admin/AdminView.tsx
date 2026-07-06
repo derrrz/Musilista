@@ -260,7 +260,8 @@ function TicketsTab() {
 
 // Dashboard do Web Analytics na Vercel (dados independentes dos nossos)
 const VERCEL_ANALYTICS_URL =
-  process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_URL ?? 'https://vercel.com';
+  process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_URL ??
+  'https://vercel.com/lopesedersouza-7157s-projects/musilista/analytics';
 
 type Overview = { configured: boolean; pv7d?: number; pvToday?: number; uniques24h?: number; online?: number };
 type DailyRow = { day: string; pv: number };
