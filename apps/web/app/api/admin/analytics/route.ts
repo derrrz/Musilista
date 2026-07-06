@@ -1,33 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser, isPrivilegedRole } from '@/app/_lib/authUser';
+import { db } from '@/db';
+import { pageEvents, pageViewsDaily } from '@/db/schema';
+import { desc, sql } from 'drizzle-orm';
 
-const PH_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
-const PH_KEY = process.env.POSTHOG_PERSONAL_API_KEY;
-const PH_PROJECT = process.env.POSTHOG_PROJECT_ID;
-
-async function hogql(query: string): Promise<unknown[][]> {
-  const res = await fetch(`${PH_HOST}/api/projects/${PH_PROJECT}/query/`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${PH_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: { kind: 'HogQLQuery', query } }),
-    cache: 'no-store',
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`PostHog ${res.status}: ${body.slice(0, 200)}`);
-  }
-  const data = await res.json();
-  return (data.results ?? []) as unknown[][];
-}
-
+// Analytics primeira-parte: agregado diário (page_views_daily) pro histórico
+// e eventos crus das últimas 48h (page_events) pro "online agora" e únicos.
 export async function GET(req: NextRequest) {
   const user = await getAuthUser();
   if (!user || !isPrivilegedRole(user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  if (!PH_KEY || !PH_PROJECT) {
-    return NextResponse.json({ configured: false });
   }
 
   const metric = req.nextUrl.searchParams.get('metric') ?? 'overview';
@@ -35,49 +17,56 @@ export async function GET(req: NextRequest) {
   try {
     switch (metric) {
       case 'overview': {
-        const [pv, ev, us] = await Promise.all([
-          hogql(`SELECT count() FROM events WHERE event = '$pageview' AND timestamp > now() - interval 7 day`),
-          hogql(`SELECT count() FROM events WHERE timestamp > now() - interval 7 day`),
-          hogql(`SELECT count(DISTINCT person_id) FROM events WHERE timestamp > now() - interval 7 day`),
-        ]);
-        return NextResponse.json({
-          configured: true,
-          pageviews: pv[0]?.[0] ?? 0,
-          events: ev[0]?.[0] ?? 0,
-          users: us[0]?.[0] ?? 0,
-        });
+        const [row] = await db
+          .select({
+            pv7d: sql<number>`coalesce((select sum(views) from page_views_daily where day > current_date - 7), 0)::int`,
+            pvToday: sql<number>`coalesce((select sum(views) from page_views_daily where day = current_date), 0)::int`,
+            uniques24h: sql<number>`(select count(distinct visitor) from page_events where created_at > now() - interval '24 hours')::int`,
+            online: sql<number>`(select count(distinct visitor) from page_events where created_at > now() - interval '5 minutes')::int`,
+          })
+          .from(sql`(select 1) as t`);
+        return NextResponse.json({ configured: true, ...row });
       }
 
       case 'daily': {
-        const rows = await hogql(`
-          SELECT toDate(timestamp) as day, count() as pv, count(DISTINCT person_id) as users
-          FROM events
-          WHERE event = '$pageview' AND timestamp > now() - interval 14 day
-          GROUP BY day ORDER BY day ASC
-        `);
-        return NextResponse.json(rows.map(([day, pv, users]) => ({ day, pv, users })));
+        const rows = await db
+          .select({
+            day: pageViewsDaily.day,
+            pv: sql<number>`sum(${pageViewsDaily.views})::int`,
+          })
+          .from(pageViewsDaily)
+          .where(sql`${pageViewsDaily.day} > current_date - 14`)
+          .groupBy(pageViewsDaily.day)
+          .orderBy(pageViewsDaily.day);
+        return NextResponse.json(rows);
       }
 
       case 'top_pages': {
-        const rows = await hogql(`
-          SELECT properties.$pathname as path, count() as c
-          FROM events
-          WHERE event = '$pageview'
-            AND timestamp > now() - interval 7 day
-            AND isNotNull(properties.$pathname)
-          GROUP BY path ORDER BY c DESC LIMIT 10
-        `);
-        return NextResponse.json(rows.map(([path, count]) => ({ path, count })));
+        const rows = await db
+          .select({
+            path: pageViewsDaily.path,
+            count: sql<number>`sum(${pageViewsDaily.views})::int`,
+          })
+          .from(pageViewsDaily)
+          .where(sql`${pageViewsDaily.day} > current_date - 7`)
+          .groupBy(pageViewsDaily.path)
+          .orderBy(desc(sql`sum(${pageViewsDaily.views})`))
+          .limit(10);
+        return NextResponse.json(rows);
       }
 
-      case 'devices': {
-        const rows = await hogql(`
-          SELECT properties.$browser as browser, count(DISTINCT person_id) as c
-          FROM events
-          WHERE timestamp > now() - interval 7 day AND isNotNull(properties.$browser)
-          GROUP BY browser ORDER BY c DESC LIMIT 8
-        `);
-        return NextResponse.json(rows.map(([browser, count]) => ({ browser, count })));
+      case 'referrers': {
+        const rows = await db
+          .select({
+            referrer: pageEvents.referrer,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(pageEvents)
+          .where(sql`${pageEvents.referrer} is not null`)
+          .groupBy(pageEvents.referrer)
+          .orderBy(desc(sql`count(*)`))
+          .limit(8);
+        return NextResponse.json(rows);
       }
 
       default:

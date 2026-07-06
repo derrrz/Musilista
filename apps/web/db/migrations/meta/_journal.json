@@ -64,6 +64,13 @@
       "when": 1783294744120,
       "tag": "0008_acervo_slugs",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783302839748,
+      "tag": "0009_analytics_proprio",
+      "breakpoints": true
     }
   ]
 }

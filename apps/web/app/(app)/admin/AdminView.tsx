@@ -258,14 +258,16 @@ function TicketsTab() {
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
 
-type Overview = { configured: boolean; pageviews?: number; events?: number; users?: number };
-type DailyRow = { day: string; pv: number; users: number };
+type Overview = { configured: boolean; pv7d?: number; pvToday?: number; uniques24h?: number; online?: number };
+type DailyRow = { day: string; pv: number };
 type PageRow = { path: string; count: number };
+type ReferrerRow = { referrer: string; count: number };
 
 function AnalyticsTab() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [daily, setDaily] = useState<DailyRow[]>([]);
   const [pages, setPages] = useState<PageRow[]>([]);
+  const [referrers, setReferrers] = useState<ReferrerRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -274,14 +276,25 @@ function AnalyticsTab() {
       fetch('/api/admin/analytics?metric=overview').then((r) => r.json()),
       fetch('/api/admin/analytics?metric=daily').then((r) => r.json()),
       fetch('/api/admin/analytics?metric=top_pages').then((r) => r.json()),
+      fetch('/api/admin/analytics?metric=referrers').then((r) => r.json()),
     ])
-      .then(([ov, dl, tp]) => {
+      .then(([ov, dl, tp, rf]) => {
         setOverview(ov);
         if (Array.isArray(dl)) setDaily(dl);
         if (Array.isArray(tp)) setPages(tp);
+        if (Array.isArray(rf)) setReferrers(rf);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
+
+    // "online agora" fica vivo enquanto a aba está aberta
+    const id = setInterval(() => {
+      fetch('/api/admin/analytics?metric=overview')
+        .then((r) => r.json())
+        .then((ov) => setOverview(ov))
+        .catch(() => {});
+    }, 30000);
+    return () => clearInterval(id);
   }, []);
 
   if (loading) return <p className="font-mono text-xs text-muted">Carregando…</p>;
@@ -293,11 +306,18 @@ function AnalyticsTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Card className="flex flex-col gap-1 p-4">
+          <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+            Online agora
+          </span>
+          <span className="font-mono text-2xl font-bold text-ink">{String(overview.online ?? 0)}</span>
+        </Card>
         {[
-          { label: 'Pageviews · 7d', value: overview.pageviews },
-          { label: 'Eventos · 7d', value: overview.events },
-          { label: 'Usuários · 7d', value: overview.users },
+          { label: 'Views · hoje', value: overview.pvToday },
+          { label: 'Views · 7d', value: overview.pv7d },
+          { label: 'Visitantes · 24h', value: overview.uniques24h },
         ].map((m) => (
           <Card key={m.label} className="flex flex-col gap-1 p-4">
             <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
@@ -311,13 +331,13 @@ function AnalyticsTab() {
       {daily.length > 0 && (
         <Card className="flex flex-col gap-3">
           <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Pageviews · últimos 14 dias
+            Views · últimos 14 dias
           </span>
           <div className="flex h-24 items-end gap-1">
             {daily.map((d) => (
               <div
                 key={d.day}
-                title={`${d.day}: ${d.pv} pageviews, ${d.users} usuários`}
+                title={`${d.day}: ${d.pv} views`}
                 className="min-w-0 flex-1 rounded-t bg-accent/70"
                 style={{ height: `${Math.max(4, (Number(d.pv) / maxPv) * 100)}%` }}
               />
@@ -333,8 +353,24 @@ function AnalyticsTab() {
           </span>
           {pages.map((p) => (
             <div key={p.path} className="flex items-center justify-between gap-3">
-              <span className="truncate font-mono text-xs text-ink">{p.path}</span>
+              <a href={p.path} target="_blank" rel="noreferrer" className="truncate font-mono text-xs text-ink hover:text-accent">
+                {p.path}
+              </a>
               <span className="shrink-0 font-mono text-xs text-muted">{String(p.count)}</span>
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {referrers.length > 0 && (
+        <Card className="flex flex-col gap-2.5">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Origem do tráfego · 48h
+          </span>
+          {referrers.map((r) => (
+            <div key={r.referrer} className="flex items-center justify-between gap-3">
+              <span className="truncate font-mono text-xs text-ink">{r.referrer}</span>
+              <span className="shrink-0 font-mono text-xs text-muted">{String(r.count)}</span>
             </div>
           ))}
         </Card>

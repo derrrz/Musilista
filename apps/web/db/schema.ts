@@ -33,6 +33,27 @@ export const importedSongs = pgTable("imported_songs", {
 		.where(sql`artist_slug is not null`),
 ]);
 
+// ── Analytics primeira-parte ────────────────────────────────────────────────
+// page_events guarda só as últimas 48h (poda no /api/track) — serve pro
+// "online agora" e únicos do dia; o histórico fica no agregado diário.
+export const pageEvents = pgTable("page_events", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	path: text().notNull(),
+	visitor: text().notNull(),
+	referrer: text(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	index("page_events_created_at_idx").on(table.createdAt),
+]);
+
+export const pageViewsDaily = pgTable("page_views_daily", {
+	day: date().notNull(),
+	path: text().notNull(),
+	views: integer().default(0).notNull(),
+}, (table) => [
+	primaryKey({ columns: [table.day, table.path], name: "page_views_daily_pk" }),
+]);
+
 export const songs = pgTable("songs", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	title: text().notNull(),
