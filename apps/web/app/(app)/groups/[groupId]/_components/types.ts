@@ -33,3 +33,11 @@ export type Member = {
   image: string | null;
   role: string;
 };
+
+// Uma capacidade agregada do grupo (derivada dos perfis dos membros):
+// count = quantos membros a declararam.
+export type Capability = {
+  label: string;
+  category: 'function' | 'instrument' | 'competency';
+  count: number;
+};

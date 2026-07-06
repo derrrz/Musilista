@@ -3,10 +3,33 @@ import { auth } from '@/auth';
 import { db } from '@/db';
 import {
   groups, groupMembers, events, eventRoles, eventAcknowledgments,
-  users, repertoires, eventRepertoires,
+  users, repertoires, eventRepertoires, userProfiles,
 } from '@/db/schema';
 import { eq, and, count } from 'drizzle-orm';
 import { GroupDetail } from './GroupDetail';
+import type { Capability } from './_components/types';
+
+// Agrega o que os membros declararam no perfil num mapa de capacidades do
+// grupo: cada função/instrumento/competência conta quantos membros a têm.
+function aggregateCapabilities(
+  profiles: { functions: string[] | null; instruments: string[] | null; competencies: string[] | null }[],
+): Capability[] {
+  const tally = new Map<string, Capability>();
+  const add = (label: string, category: Capability['category']) => {
+    const key = `${category}|${label.toLowerCase()}`;
+    const cur = tally.get(key);
+    if (cur) cur.count++;
+    else tally.set(key, { label, category, count: 1 });
+  };
+  for (const p of profiles) {
+    for (const f of p.functions ?? []) add(f, 'function');
+    for (const i of p.instruments ?? []) add(i, 'instrument');
+    for (const c of p.competencies ?? []) add(c, 'competency');
+  }
+  return [...tally.values()]
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, 40);
+}
 
 export default async function GroupPage({ params }: { params: Promise<{ groupId: string }> }) {
   const session = await auth();
@@ -37,11 +60,23 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
     .where(eq(groupMembers.groupId, groupId));
 
   const members = await db
-    .select({ userId: groupMembers.userId, name: users.name, email: users.email, image: users.image, role: groupMembers.role })
+    .select({
+      userId: groupMembers.userId,
+      name: users.name,
+      email: users.email,
+      image: users.image,
+      role: groupMembers.role,
+      functions: userProfiles.functions,
+      instruments: userProfiles.instruments,
+      competencies: userProfiles.competencies,
+    })
     .from(groupMembers)
     .innerJoin(users, eq(groupMembers.userId, users.id))
+    .leftJoin(userProfiles, eq(userProfiles.userId, users.id))
     .where(eq(groupMembers.groupId, groupId))
     .orderBy(groupMembers.joinedAt);
+
+  const capabilities = aggregateCapabilities(members);
 
   const eventsRows = await db
     .select({
@@ -94,7 +129,9 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
     <GroupDetail
       group={{ ...group, myRole: roleMap[membership.role] ?? 'MEMBRO', memberCount }}
       events={enrichedEvents}
-      members={members}
+      members={members.map(({ userId: uid, name, email, image, role }) => ({ userId: uid, name, email, image, role }))}
+      capabilities={capabilities}
+      myUserId={userId}
     />
   );
 }
