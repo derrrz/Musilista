@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { db } from '@/db';
-import { events, groupMembers } from '@/db/schema';
+import { events, eventRepertoires, groupMembers } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { EventForm } from '../../EventForm';
 
@@ -28,6 +28,14 @@ export default async function EditEventPage({ params }: { params: Promise<{ grou
 
   if (!event) redirect(`/groups/${groupId}`);
 
+  // setlists vinculados (N:N; fallback pro campo legado de eventos antigos)
+  const links = await db
+    .select({ repertoireId: eventRepertoires.repertoireId })
+    .from(eventRepertoires)
+    .where(eq(eventRepertoires.eventId, eventId));
+  const repertoireIds = links.map((l) => l.repertoireId);
+  if (repertoireIds.length === 0 && event.repertoireId) repertoireIds.push(event.repertoireId);
+
   return (
     <EventForm
       groupId={groupId}
@@ -40,6 +48,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ grou
         eventType: event.eventType,
         notice: event.notice ?? '',
         technicalRider: event.technicalRider ?? '',
+        repertoireIds,
       }}
     />
   );

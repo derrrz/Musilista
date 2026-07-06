@@ -5,6 +5,7 @@ import {
   events,
   eventRoles,
   eventAcknowledgments,
+  eventRepertoires,
   groupMembers,
   users,
   repertoires,
@@ -143,6 +144,12 @@ export async function POST(req: NextRequest, { params }: Params) {
       createdBy: userId,
     })
     .returning({ id: events.id });
+
+  // espelha no N:N — sem isso o evento criado no mobile não mostra o chip
+  // de setlist na web (que lê event_repertoires)
+  if (repertoireId) {
+    await db.insert(eventRepertoires).values({ eventId: created.id, repertoireId }).onConflictDoNothing();
+  }
 
   return NextResponse.json({ id: created.id }, { status: 201 });
 }

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/db';
-import { events, groupMembers } from '@/db/schema';
+import { events, eventRepertoires, groupMembers } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { validRepertoireIds, syncEventRepertoires } from '@/app/_lib/eventSetlists';
 
 type Params = { params: Promise<{ groupId: string; eventId: string }> };
 
@@ -30,7 +31,16 @@ export async function GET(req: NextRequest, { params }: Params) {
     .limit(1);
 
   if (!event) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json(event);
+
+  // setlists vinculados (N:N) — o form de edição precisa deles
+  const links = await db
+    .select({ repertoireId: eventRepertoires.repertoireId })
+    .from(eventRepertoires)
+    .where(eq(eventRepertoires.eventId, eventId));
+  const repertoireIds = links.map((l) => l.repertoireId);
+  if (repertoireIds.length === 0 && event.repertoireId) repertoireIds.push(event.repertoireId);
+
+  return NextResponse.json({ ...event, repertoireIds });
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
@@ -44,11 +54,14 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   const body = await req.json();
-  const { title, eventDate, eventTime, location, eventType, notice, technicalRider } = body;
+  const { title, eventDate, eventTime, location, eventType, notice, technicalRider, repertoireIds } = body;
 
   if (!title?.trim() || !eventDate) {
     return NextResponse.json({ error: 'Título e data são obrigatórios' }, { status: 400 });
   }
+
+  const reps = repertoireIds !== undefined ? await validRepertoireIds(groupId, repertoireIds) : undefined;
+  if (reps === null) return NextResponse.json({ error: 'Setlist inválido' }, { status: 400 });
 
   const [updated] = await db
     .update(events)
@@ -65,6 +78,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     .returning({ id: events.id });
 
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  if (reps !== undefined) await syncEventRepertoires(eventId, reps);
+
   return NextResponse.json(updated);
 }
 

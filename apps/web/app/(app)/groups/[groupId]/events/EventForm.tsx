@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
-import { IconBack } from '@/components/ui/icons';
+import { cn } from '@/components/ui/cn';
+import { IconBack, IconCheck } from '@/components/ui/icons';
 
 type EventFormProps = {
   groupId: string;
@@ -20,6 +21,7 @@ type EventFormProps = {
     eventType: string;
     notice: string;
     technicalRider: string;
+    repertoireIds?: string[];
   };
 };
 
@@ -37,6 +39,29 @@ export function EventForm({ groupId, eventId, initial }: EventFormProps) {
   const [notice, setNotice] = useState(initial?.notice ?? '');
   const [technicalRider, setTechnicalRider] = useState(initial?.technicalRider ?? '');
 
+  // setlists do grupo pra vincular ao evento (carregados no evento certo)
+  const [setlists, setSetlists] = useState<{ id: string; name: string; count: number }[]>([]);
+  const [repertoireIds, setRepertoireIds] = useState<string[]>(initial?.repertoireIds ?? []);
+
+  useEffect(() => {
+    fetch(`/api/groups/${groupId}/repertoires`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: { id: string; name: string; songs?: { itemType?: string | null }[] }[]) => {
+        if (Array.isArray(data)) {
+          setSetlists(data.map((r) => ({
+            id: r.id,
+            name: r.name,
+            count: (r.songs ?? []).filter((s) => (s.itemType ?? 'song') === 'song').length,
+          })));
+        }
+      })
+      .catch(() => {});
+  }, [groupId]);
+
+  function toggleSetlist(id: string) {
+    setRepertoireIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
@@ -48,7 +73,7 @@ export function EventForm({ groupId, eventId, initial }: EventFormProps) {
       const res = await fetch(url, {
         method: isEdit ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, eventDate, eventTime, location, eventType, notice, technicalRider }),
+        body: JSON.stringify({ title, eventDate, eventTime, location, eventType, notice, technicalRider, repertoireIds }),
       });
 
       if (!res.ok) {
@@ -118,6 +143,38 @@ export function EventForm({ groupId, eventId, initial }: EventFormProps) {
           placeholder="Algum aviso importante para os membros?"
           rows={3}
         />
+
+        {setlists.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
+              Setlists do show
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {setlists.map((s) => {
+                const selected = repertoireIds.includes(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => toggleSetlist(s.id)}
+                    aria-pressed={selected}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                      selected
+                        ? 'border-[color-mix(in_oklch,var(--ml-accent)_45%,transparent)] bg-[color-mix(in_oklch,var(--ml-accent)_15%,var(--ml-surface))] text-accent'
+                        : 'border-line bg-surface text-muted hover:text-ink',
+                    )}
+                  >
+                    {selected && <IconCheck size={11} />}
+                    {s.name}
+                    <span className="font-mono text-[10px] text-faint">{s.count}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-faint">O roteiro completo aparece no link público da agenda.</p>
+          </div>
+        )}
 
         <Textarea
           label="Rider Técnico"
