@@ -267,12 +267,14 @@ type Overview = { configured: boolean; pv7d?: number; pvToday?: number; uniques2
 type DailyRow = { day: string; pv: number };
 type PageRow = { path: string; count: number };
 type ReferrerRow = { referrer: string; count: number };
+type CampaignRow = { source: string; medium: string | null; campaign: string | null; count: number };
 
 function AnalyticsTab() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [daily, setDaily] = useState<DailyRow[]>([]);
   const [pages, setPages] = useState<PageRow[]>([]);
   const [referrers, setReferrers] = useState<ReferrerRow[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -282,12 +284,14 @@ function AnalyticsTab() {
       fetch('/api/admin/analytics?metric=daily').then((r) => r.json()),
       fetch('/api/admin/analytics?metric=top_pages').then((r) => r.json()),
       fetch('/api/admin/analytics?metric=referrers').then((r) => r.json()),
+      fetch('/api/admin/analytics?metric=campaigns').then((r) => r.json()),
     ])
-      .then(([ov, dl, tp, rf]) => {
+      .then(([ov, dl, tp, rf, cp]) => {
         setOverview(ov);
         if (Array.isArray(dl)) setDaily(dl);
         if (Array.isArray(tp)) setPages(tp);
         if (Array.isArray(rf)) setReferrers(rf);
+        if (Array.isArray(cp)) setCampaigns(cp);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -390,6 +394,24 @@ function AnalyticsTab() {
             <div key={r.referrer} className="flex items-center justify-between gap-3">
               <span className="truncate font-mono text-xs text-ink">{r.referrer}</span>
               <span className="shrink-0 font-mono text-xs text-muted">{String(r.count)}</span>
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {campaigns.length > 0 && (
+        <Card className="flex flex-col gap-2.5">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Campanhas (UTM) · 48h
+          </span>
+          {campaigns.map((c, i) => (
+            <div key={i} className="flex items-center justify-between gap-3">
+              <span className="truncate font-mono text-xs text-ink">
+                {c.source}
+                {c.medium ? ` / ${c.medium}` : ''}
+                {c.campaign ? ` · ${c.campaign}` : ''}
+              </span>
+              <span className="shrink-0 font-mono text-xs text-muted">{String(c.count)}</span>
             </div>
           ))}
         </Card>

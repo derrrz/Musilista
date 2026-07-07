@@ -14,7 +14,14 @@ export function TrackPageview() {
       ? document.referrer
       : undefined;
     const theme = document.documentElement.getAttribute('data-theme') ?? undefined;
-    const blob = new Blob([JSON.stringify({ path: pathname, ref, theme })], { type: 'application/json' });
+    // parâmetros de campanha (links utm_source=instagram etc.)
+    const qs = new URLSearchParams(location.search);
+    const utm = {
+      utmSource: qs.get('utm_source') ?? undefined,
+      utmMedium: qs.get('utm_medium') ?? undefined,
+      utmCampaign: qs.get('utm_campaign') ?? undefined,
+    };
+    const blob = new Blob([JSON.stringify({ path: pathname, ref, theme, ...utm })], { type: 'application/json' });
     if (navigator.sendBeacon) navigator.sendBeacon('/api/track', blob);
     else fetch('/api/track', { method: 'POST', body: blob, keepalive: true }).catch(() => {});
   }, [pathname]);

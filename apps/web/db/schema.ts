@@ -67,6 +67,9 @@ export const pageEvents = pgTable("page_events", {
 	visitor: text().notNull(),
 	referrer: text(),
 	theme: text(),
+	utmSource: text("utm_source"),
+	utmMedium: text("utm_medium"),
+	utmCampaign: text("utm_campaign"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	index("page_events_created_at_idx").on(table.createdAt),

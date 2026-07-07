@@ -11,11 +11,17 @@ export async function POST(req: NextRequest) {
   let path = '';
   let ref: string | undefined;
   let theme: string | null = null;
+  let utmSource: string | null = null;
+  let utmMedium: string | null = null;
+  let utmCampaign: string | null = null;
   try {
     const body = await req.json();
     path = typeof body.path === 'string' ? body.path : '';
     ref = typeof body.ref === 'string' ? body.ref : undefined;
     theme = body.theme === 'light' || body.theme === 'dark' ? body.theme : null;
+    utmSource = typeof body.utmSource === 'string' ? body.utmSource.slice(0, 80) : null;
+    utmMedium = typeof body.utmMedium === 'string' ? body.utmMedium.slice(0, 80) : null;
+    utmCampaign = typeof body.utmCampaign === 'string' ? body.utmCampaign.slice(0, 80) : null;
   } catch {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
@@ -45,7 +51,7 @@ export async function POST(req: NextRequest) {
     } catch {}
   }
 
-  await db.insert(pageEvents).values({ path, visitor, referrer, theme });
+  await db.insert(pageEvents).values({ path, visitor, referrer, theme, utmSource, utmMedium, utmCampaign });
   await db
     .insert(pageViewsDaily)
     .values({ day, path, views: 1 })

@@ -56,6 +56,22 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(rows);
       }
 
+      case 'campaigns': {
+        const rows = await db
+          .select({
+            source: pageEvents.utmSource,
+            medium: pageEvents.utmMedium,
+            campaign: pageEvents.utmCampaign,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(pageEvents)
+          .where(sql`${pageEvents.utmSource} is not null`)
+          .groupBy(pageEvents.utmSource, pageEvents.utmMedium, pageEvents.utmCampaign)
+          .orderBy(desc(sql`count(*)`))
+          .limit(10);
+        return NextResponse.json(rows);
+      }
+
       case 'referrers': {
         const rows = await db
           .select({
