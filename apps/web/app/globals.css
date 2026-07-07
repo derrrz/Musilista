@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 
-/* Tokens da marca (direção Console, brand kit DS/Musilista) — fonte da verdade das cores */
+/* Tokens da marca (direção Console, brand kit DS/Musilista) — fonte da verdade das cores.
+   O tema é trocado via data-theme no <html> (script no-flash no layout raiz);
+   sem preferência salva, segue o prefers-color-scheme do sistema. */
 :root {
   --ml-bg: #0f1214;
   --ml-surface: #161a1d;
@@ -8,13 +10,29 @@
   --ml-line: #23282c;
   --ml-ink: #e5e7ea;
   --ml-muted: #8b9296;
-  --ml-faint: #4a5054;
+  --ml-faint: #6b7378; /* era #4a5054 — subiu p/ contraste AA em labels */
   --ml-accent: #a1e645;
   --ml-accent-ink: #0f1214;
   --ml-verse: oklch(0.72 0.10 200);
   --ml-chorus: oklch(0.70 0.11 295);
   --ml-bridge: oklch(0.78 0.10 70);
   --ml-solo: oklch(0.72 0.13 25);
+}
+
+[data-theme='light'] {
+  --ml-bg: #f6f7f7;
+  --ml-surface: #ffffff;
+  --ml-raised: #eef0f1;
+  --ml-line: #dde2e4;
+  --ml-ink: #16191b;
+  --ml-muted: #555e63;
+  --ml-faint: #8b9296;
+  --ml-accent: #4f8a0b; /* verde da marca escurecido — o limão não lê sobre branco */
+  --ml-accent-ink: #ffffff;
+  --ml-verse: oklch(0.45 0.10 200);
+  --ml-chorus: oklch(0.45 0.11 295);
+  --ml-bridge: oklch(0.50 0.10 70);
+  --ml-solo: oklch(0.48 0.13 25);
 }
 
 /* Mapeia os tokens para as utilities do Tailwind (bg-surface, text-ink, border-line…) */
@@ -45,4 +63,41 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* Foco visível para navegação por teclado em TODO elemento interativo —
+   os primitivos de form têm ring próprio; isto cobre links e botões crus. */
+:focus-visible {
+  outline: 2px solid var(--ml-accent);
+  outline-offset: 2px;
+}
+
+/* Impressão: a cifra sai em papel — fundo branco, tinta preta, sem cromo.
+   .print-hide esconde navegação/controles; .print-block evita quebrar um
+   bloco de cifra no meio da página. */
+@media print {
+  :root, [data-theme='light'] {
+    --ml-bg: #ffffff;
+    --ml-surface: #ffffff;
+    --ml-raised: #ffffff;
+    --ml-line: #cccccc;
+    --ml-ink: #000000;
+    --ml-muted: #333333;
+    --ml-faint: #555555;
+    --ml-accent: #000000;
+    --ml-accent-ink: #ffffff;
+    --ml-verse: #000000;
+    --ml-chorus: #000000;
+    --ml-bridge: #000000;
+    --ml-solo: #000000;
+  }
+  body {
+    background: #ffffff !important;
+  }
+  .print-hide {
+    display: none !important;
+  }
+  .print-block {
+    break-inside: avoid;
+  }
 }

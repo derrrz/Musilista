@@ -30,9 +30,27 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#0f1214' },
+    { media: '(prefers-color-scheme: light)', color: '#f6f7f7' },
+  ],
+};
+
+// Define o tema antes do primeiro paint (sem flash): preferência salva no
+// localStorage vence; sem preferência, segue o sistema.
+const themeInit = `try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+      </head>
       <body>
         <SessionProvider>{children}</SessionProvider>
         <Analytics />

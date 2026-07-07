@@ -13,7 +13,8 @@ export function TrackPageview() {
     const ref = document.referrer && !document.referrer.includes(location.host)
       ? document.referrer
       : undefined;
-    const blob = new Blob([JSON.stringify({ path: pathname, ref })], { type: 'application/json' });
+    const theme = document.documentElement.getAttribute('data-theme') ?? undefined;
+    const blob = new Blob([JSON.stringify({ path: pathname, ref, theme })], { type: 'application/json' });
     if (navigator.sendBeacon) navigator.sendBeacon('/api/track', blob);
     else fetch('/api/track', { method: 'POST', body: blob, keepalive: true }).catch(() => {});
   }, [pathname]);

@@ -66,6 +66,7 @@ export const pageEvents = pgTable("page_events", {
 	path: text().notNull(),
 	visitor: text().notNull(),
 	referrer: text(),
+	theme: text(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	index("page_events_created_at_idx").on(table.createdAt),

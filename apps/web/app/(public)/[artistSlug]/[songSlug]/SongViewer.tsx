@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { transposeChord, transposeKey, preferFlats } from '@/app/_lib/harmony';
 import type { CifraBlock, CifraLine } from '@/app/_lib/cifra';
-import { IconPlay, IconPause, IconCapo } from '@/components/ui/icons';
+import { IconPlay, IconPause, IconCapo, IconDocument } from '@/components/ui/icons';
 import { cn } from '@/components/ui/cn';
 import { FavoriteButton } from './FavoriteButton';
 
@@ -148,10 +148,20 @@ export function SongViewer({
               <p className="truncate text-sm text-muted">{artist}</p>
             )}
           </div>
-          <FavoriteButton songId={songId} path={path} initialFavorite={initialFavorite} hasSession={hasSession} />
+          <div className="print-hide flex shrink-0 items-center gap-2">
+            <button
+              onClick={() => window.print()}
+              title="Imprimir cifra"
+              aria-label="Imprimir cifra"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-line text-muted transition-colors hover:bg-surface hover:text-ink"
+            >
+              <IconDocument size={14} />
+            </button>
+            <FavoriteButton songId={songId} path={path} initialFavorite={initialFavorite} hasSession={hasSession} />
+          </div>
         </div>
         {versions.length > 1 && (
-          <nav aria-label="Versões da cifra" className="flex flex-wrap items-center gap-1.5">
+          <nav aria-label="Versões da cifra" className="print-hide flex flex-wrap items-center gap-1.5">
             {versions.map((v) => (
               <Link
                 key={v.href}
@@ -191,7 +201,7 @@ export function SongViewer({
       </div>
 
       {/* Barra de controle — só da sessão, nada aqui altera a cifra salva */}
-      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-line bg-raised/95 p-3 backdrop-blur">
+      <div className="print-hide sticky top-0 z-10 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-line bg-raised/95 p-3 backdrop-blur">
         <Stepper
           label="Tom"
           value={semitones > 0 ? `+${semitones}` : semitones}
@@ -255,7 +265,7 @@ export function SongViewer({
           const typeClass = BLOCK_TYPE_CLASS[block.type] ?? BLOCK_TYPE_CLASS.unknown;
           const label = BLOCK_TYPE_LABEL[block.type];
           return (
-            <div key={bi} className="flex flex-col gap-1.5">
+            <div key={bi} className="print-block flex flex-col gap-1.5">
               {label && (
                 <span className={cn('w-fit border-l-2 pl-2 text-[11px] font-semibold uppercase tracking-wide', typeClass)}>
                   {label}

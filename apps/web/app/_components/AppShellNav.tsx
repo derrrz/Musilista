@@ -16,9 +16,13 @@ export function AppShellNav({
 }) {
   return (
     <div className="flex min-h-screen bg-bg">
-      <Sidebar isAdmin={isAdmin} />
+      <div className="print-hide contents">
+        <Sidebar isAdmin={isAdmin} />
+      </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar userName={userName} userImage={userImage} />
+        <div className="print-hide">
+          <TopBar userName={userName} userImage={userImage} />
+        </div>
         <main className="flex-1">{children}</main>
       </div>
     </div>

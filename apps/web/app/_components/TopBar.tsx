@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { Avatar } from '@/components/ui/Avatar';
-import { IconTheme, IconChevronDown, IconProfile, IconLogout } from '@/components/ui/icons';
+import { IconChevronDown, IconProfile, IconLogout } from '@/components/ui/icons';
 import { MobileNavMenu } from './MobileNavMenu';
+import { ThemeToggle } from './ThemeToggle';
 
 type TopBarProps = {
   userName: string;
@@ -29,10 +30,7 @@ export function TopBar({ userName, userImage }: TopBarProps) {
       <MobileNavMenu />
       <div className="flex-1" />
 
-      {/* Theme toggle (decorative) */}
-      <button className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-raised hover:text-ink">
-        <IconTheme size={16} />
-      </button>
+      <ThemeToggle />
 
       <div ref={ref} className="relative">
         <button

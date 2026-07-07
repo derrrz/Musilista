@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
             pvToday: sql<number>`coalesce((select sum(views) from page_views_daily where day = current_date), 0)::int`,
             uniques24h: sql<number>`(select count(distinct visitor) from page_events where created_at > now() - interval '24 hours')::int`,
             online: sql<number>`(select count(distinct visitor) from page_events where created_at > now() - interval '5 minutes')::int`,
+            lightShare: sql<number>`coalesce((select round(100.0 * count(*) filter (where theme = 'light') / nullif(count(*) filter (where theme is not null), 0)) from page_events), 0)::int`,
           })
           .from(sql`(select 1) as t`);
         return NextResponse.json({ configured: true, ...row });

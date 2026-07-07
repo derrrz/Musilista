@@ -263,7 +263,7 @@ const VERCEL_ANALYTICS_URL =
   process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_URL ??
   'https://vercel.com/lopesedersouza-7157s-projects/musilista/analytics';
 
-type Overview = { configured: boolean; pv7d?: number; pvToday?: number; uniques24h?: number; online?: number };
+type Overview = { configured: boolean; pv7d?: number; pvToday?: number; uniques24h?: number; online?: number; lightShare?: number };
 type DailyRow = { day: string; pv: number };
 type PageRow = { path: string; count: number };
 type ReferrerRow = { referrer: string; count: number };
@@ -324,7 +324,7 @@ function AnalyticsTab() {
           Relatório completo na Vercel
         </a>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <Card className="flex flex-col gap-1 p-4">
           <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
@@ -336,6 +336,7 @@ function AnalyticsTab() {
           { label: 'Views · hoje', value: overview.pvToday },
           { label: 'Views · 7d', value: overview.pv7d },
           { label: 'Visitantes · 24h', value: overview.uniques24h },
+          { label: 'Tema claro · 48h', value: `${overview.lightShare ?? 0}%` },
         ].map((m) => (
           <Card key={m.label} className="flex flex-col gap-1 p-4">
             <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted">

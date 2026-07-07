@@ -10,10 +10,12 @@ import { sql } from 'drizzle-orm';
 export async function POST(req: NextRequest) {
   let path = '';
   let ref: string | undefined;
+  let theme: string | null = null;
   try {
     const body = await req.json();
     path = typeof body.path === 'string' ? body.path : '';
     ref = typeof body.ref === 'string' ? body.ref : undefined;
+    theme = body.theme === 'light' || body.theme === 'dark' ? body.theme : null;
   } catch {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest) {
     } catch {}
   }
 
-  await db.insert(pageEvents).values({ path, visitor, referrer });
+  await db.insert(pageEvents).values({ path, visitor, referrer, theme });
   await db
     .insert(pageViewsDaily)
     .values({ day, path, views: 1 })
