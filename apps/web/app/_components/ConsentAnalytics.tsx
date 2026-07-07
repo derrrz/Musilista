@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 const GA_ID = 'G-8E1257458N';
-const CLARITY_ID = ''; // preencher quando o projeto do Clarity for criado
+const CLARITY_ID = 'xitday2x52';
 
 // Analytics de terceiros (GA4/Clarity) atrás de consentimento LGPD:
 // nada carrega antes do aceite; a escolha persiste no localStorage.
