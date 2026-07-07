@@ -3,6 +3,7 @@ import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import { SessionProvider } from 'next-auth/react';
 import { Analytics } from '@vercel/analytics/next';
 import { TrackPageview } from './_components/TrackPageview';
+import { ConsentAnalytics } from './_components/ConsentAnalytics';
 import './globals.css';
 
 const spaceGrotesk = Space_Grotesk({
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SessionProvider>{children}</SessionProvider>
         <Analytics />
         <TrackPageview />
+        <ConsentAnalytics />
       </body>
     </html>
   );
