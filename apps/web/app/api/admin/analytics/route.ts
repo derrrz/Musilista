@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser, isPrivilegedRole } from '@/app/_lib/authUser';
+import { googleConfigured, ga4Overview, ga4Channels, gscTopQueries } from '@/app/_lib/googleData';
 import { db } from '@/db';
 import { pageEvents, pageViewsDaily } from '@/db/schema';
 import { desc, sql } from 'drizzle-orm';
@@ -54,6 +55,18 @@ export async function GET(req: NextRequest) {
           .orderBy(desc(sql`sum(${pageViewsDaily.views})`))
           .limit(10);
         return NextResponse.json(rows);
+      }
+
+      // Dados externos do Google (GA4 + Search Console) centralizados no
+      // painel — cacheados por 1h no servidor pra respeitar quotas.
+      case 'google': {
+        if (!googleConfigured()) return NextResponse.json({ configured: false });
+        const [overview, channels, queries] = await Promise.all([
+          ga4Overview(),
+          ga4Channels(),
+          gscTopQueries(),
+        ]);
+        return NextResponse.json({ configured: true, overview, channels, queries });
       }
 
       case 'campaigns': {
