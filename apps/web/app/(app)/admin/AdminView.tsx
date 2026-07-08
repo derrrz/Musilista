@@ -353,6 +353,70 @@ function AnalyticsTab() {
           Relatório completo na Vercel
         </a>
       </div>
+      {/* Dados do Google primeiro (GA4 + Search Console) — filtram por consentimento
+          e execução de JS real, então são o retrato mais "limpo" de quem é gente. */}
+      {google?.configured && google.overview && (
+        <Card className="flex flex-col gap-3">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Google Analytics · 7 dias
+          </span>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { label: 'Usuários', value: String(google.overview.users) },
+              { label: 'Sessões', value: String(google.overview.sessions) },
+              { label: 'Views', value: String(google.overview.pageViews) },
+              { label: 'Sessão média', value: fmtDuration(google.overview.avgSessionSec) },
+            ].map((m) => (
+              <div key={m.label} className="rounded-lg bg-surface p-3">
+                <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-muted">{m.label}</span>
+                <span className="font-mono text-xl font-bold text-ink">{m.value}</span>
+              </div>
+            ))}
+          </div>
+          {google.channels && google.channels.length > 0 && (
+            <div className="flex flex-col gap-1.5 border-t border-line pt-3">
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted">Canais</span>
+              {google.channels.map((c) => (
+                <div key={c.channel} className="flex items-center justify-between gap-3">
+                  <span className="truncate text-xs text-ink">{c.channel}</span>
+                  <span className="shrink-0 font-mono text-xs text-muted">{c.sessions}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {google?.configured && google.queries && google.queries.length > 0 && (
+        <Card className="flex flex-col gap-2.5">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Buscas no Google · 28 dias
+          </span>
+          {google.queries.map((q) => (
+            <div key={q.query} className="flex items-center justify-between gap-3">
+              <span className="truncate text-xs text-ink">{q.query}</span>
+              <span className="shrink-0 font-mono text-xs text-muted">
+                {q.clicks} cliques · {q.impressions} impressões
+              </span>
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {google && !google.configured && (
+        <Card className="flex flex-col gap-1 border-dashed">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Google Analytics + Search Console
+          </span>
+          <p className="text-xs text-muted">
+            Dados do GA4 e das buscas do Google aparecem aqui quando a conexão for configurada
+            (service account — envs GOOGLE_SA_JSON_B64, GA4_PROPERTY_ID e GSC_SITE).
+          </p>
+        </Card>
+      )}
+
+      {/* Analytics próprio (sem cookie, sem consentimento) + atalho pro Vercel —
+          útil como contraprova quando o GA4 ainda tem poucos dados. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <Card className="flex flex-col gap-1 p-4">
           <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
@@ -421,67 +485,6 @@ function AnalyticsTab() {
               <span className="shrink-0 font-mono text-xs text-muted">{String(r.count)}</span>
             </div>
           ))}
-        </Card>
-      )}
-
-      {/* Dados do Google centralizados (GA4 + Search Console) */}
-      {google?.configured && google.overview && (
-        <Card className="flex flex-col gap-3">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Google Analytics · 7 dias
-          </span>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
-              { label: 'Usuários', value: String(google.overview.users) },
-              { label: 'Sessões', value: String(google.overview.sessions) },
-              { label: 'Views', value: String(google.overview.pageViews) },
-              { label: 'Sessão média', value: fmtDuration(google.overview.avgSessionSec) },
-            ].map((m) => (
-              <div key={m.label} className="rounded-lg bg-surface p-3">
-                <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-muted">{m.label}</span>
-                <span className="font-mono text-xl font-bold text-ink">{m.value}</span>
-              </div>
-            ))}
-          </div>
-          {google.channels && google.channels.length > 0 && (
-            <div className="flex flex-col gap-1.5 border-t border-line pt-3">
-              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted">Canais</span>
-              {google.channels.map((c) => (
-                <div key={c.channel} className="flex items-center justify-between gap-3">
-                  <span className="truncate text-xs text-ink">{c.channel}</span>
-                  <span className="shrink-0 font-mono text-xs text-muted">{c.sessions}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-      )}
-
-      {google?.configured && google.queries && google.queries.length > 0 && (
-        <Card className="flex flex-col gap-2.5">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Buscas no Google · 28 dias
-          </span>
-          {google.queries.map((q) => (
-            <div key={q.query} className="flex items-center justify-between gap-3">
-              <span className="truncate text-xs text-ink">{q.query}</span>
-              <span className="shrink-0 font-mono text-xs text-muted">
-                {q.clicks} cliques · {q.impressions} impressões
-              </span>
-            </div>
-          ))}
-        </Card>
-      )}
-
-      {google && !google.configured && (
-        <Card className="flex flex-col gap-1 border-dashed">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Google Analytics + Search Console
-          </span>
-          <p className="text-xs text-muted">
-            Dados do GA4 e das buscas do Google aparecem aqui quando a conexão for configurada
-            (service account — envs GOOGLE_SA_JSON_B64, GA4_PROPERTY_ID e GSC_SITE).
-          </p>
         </Card>
       )}
 
