@@ -11,7 +11,11 @@ import { createSign } from 'node:crypto';
 type ServiceAccount = { client_email: string; private_key: string };
 
 function serviceAccount(): ServiceAccount | null {
-  const raw = process.env.GOOGLE_SA_JSON;
+  // Base64: os parsers de .env (Next.js local, Vercel) tendem a expandir os
+  // "\n" da private_key em quebras de linha reais, quebrando o JSON — em
+  // base64 isso nunca acontece, em nenhum ambiente.
+  const b64 = process.env.GOOGLE_SA_JSON_B64;
+  const raw = b64 ? Buffer.from(b64, 'base64').toString('utf8') : process.env.GOOGLE_SA_JSON;
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
