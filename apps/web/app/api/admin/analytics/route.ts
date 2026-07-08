@@ -60,6 +60,16 @@ export async function GET(req: NextRequest) {
       // Dados externos do Google (GA4 + Search Console) centralizados no
       // painel — cacheados por 1h no servidor pra respeitar quotas.
       case 'google': {
+        if (req.nextUrl.searchParams.get('debug') === '1') {
+          return NextResponse.json({
+            hasB64: !!process.env.GOOGLE_SA_JSON_B64,
+            b64Len: (process.env.GOOGLE_SA_JSON_B64 || '').length,
+            hasRaw: !!process.env.GOOGLE_SA_JSON,
+            gaProp: process.env.GA4_PROPERTY_ID,
+            gscSite: process.env.GSC_SITE,
+            configuredResult: googleConfigured(),
+          });
+        }
         if (!googleConfigured()) return NextResponse.json({ configured: false });
         const [overview, channels, queries] = await Promise.all([
           ga4Overview(),
