@@ -480,7 +480,7 @@ function AnalyticsTab() {
           </span>
           <p className="text-xs text-muted">
             Dados do GA4 e das buscas do Google aparecem aqui quando a conexão for configurada
-            (service account — envs GOOGLE_SA_JSON, GA4_PROPERTY_ID e GSC_SITE).
+            (service account — envs GOOGLE_SA_JSON_B64, GA4_PROPERTY_ID e GSC_SITE).
           </p>
         </Card>
       )}
