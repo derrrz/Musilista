@@ -85,7 +85,7 @@ function SongSection({ label, songs }: { label: string; songs: SongResult[] }) {
   return (
     <div className="flex flex-col gap-2">
       <Caption>{label}</Caption>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {songs.map((s) => (
           <SongCard key={s.id} song={s} />
         ))}
@@ -260,7 +260,7 @@ export function Home() {
               {!searching && browsingArtists && artists.length > 0 && (
                 <div className="flex flex-col gap-2">
                   <Caption>Artistas</Caption>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {artists.map((a) => (
                       <ArtistCard key={a.name} artist={a} onClick={() => handleArtistClick(a.name)} />
                     ))}
@@ -280,7 +280,7 @@ export function Home() {
                       ← Artistas
                     </button>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {results.map((s) => (
                       <SongCard key={s.id} song={s} />
                     ))}
@@ -295,7 +295,7 @@ export function Home() {
                   {results.length > 0 && (
                     <div className="flex flex-col gap-2">
                       <Caption>Músicas</Caption>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         {results.map((s) => (
                           <SongCard key={s.id} song={s} />
                         ))}
@@ -305,7 +305,7 @@ export function Home() {
                   {artists.length > 0 && (
                     <div className="flex flex-col gap-2">
                       <Caption>Artistas</Caption>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         {artists.map((a) => (
                           <ArtistCard key={a.name} artist={a} onClick={() => handleArtistClick(a.name)} />
                         ))}
