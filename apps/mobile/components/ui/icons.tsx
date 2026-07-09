@@ -208,3 +208,61 @@ export function IconChevronDown(props: IconProps) {
     </Icon>
   );
 }
+
+export function IconChevronUp(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <Path d="M5 15l7-7 7 7" />
+    </Icon>
+  );
+}
+
+export function IconMenu(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <Path d="M3 6h18" />
+      <Path d="M3 12h18" />
+      <Path d="M3 18h18" />
+    </Icon>
+  );
+}
+
+export function IconMic(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <Rect x="9" y="3" width="6" height="11" rx="3" />
+      <Path d="M5.5 11a6.5 6.5 0 0 0 13 0" />
+      <Path d="M12 17.5V21" />
+      <Path d="M8.5 21h7" />
+    </Icon>
+  );
+}
+
+export function IconScreen(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <Rect x="3" y="4.5" width="18" height="12" />
+      <Path d="M12 16.5V20" />
+      <Path d="M8 20h8" />
+      <Path d="m10 8 4 2.5-4 2.5z" />
+    </Icon>
+  );
+}
+
+export function IconDocument(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <Rect x="4" y="5" width="16" height="14" />
+      <Path d="M4 9h16M9 5v14" />
+    </Icon>
+  );
+}
+
+export function IconSettings(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <Rect x="9" y="9" width="6" height="6" />
+      <Path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+    </Icon>
+  );
+}

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
-import type { ApiEventRow, EventInput } from '@/hooks/useGroups';
+import { useGroupRepertoires, type ApiEventRow, type EventInput } from '@/hooks/useGroups';
+import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import type { EventType } from '@/types';
 
@@ -20,6 +21,7 @@ const API_TYPE_TO_UI: Record<string, EventType> = {
 };
 
 interface EventFormProps {
+  groupId: string;
   /** Row cru vindo do GET (modo edição); ausente = criação */
   initial?: ApiEventRow;
   submitLabel: string;
@@ -27,7 +29,7 @@ interface EventFormProps {
   onSubmit: (data: EventInput) => void;
 }
 
-export function EventForm({ initial, submitLabel, submitting, onSubmit }: EventFormProps) {
+export function EventForm({ groupId, initial, submitLabel, submitting, onSubmit }: EventFormProps) {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -35,6 +37,10 @@ export function EventForm({ initial, submitLabel, submitting, onSubmit }: EventF
   const [location, setLocation] = useState('');
   const [notice, setNotice] = useState('');
   const [rider, setRider] = useState('');
+  const [repertoireIds, setRepertoireIds] = useState<string[]>([]);
+
+  // Setlists do grupo para vincular ao evento (multiselect, como na web)
+  const { data: setlists } = useGroupRepertoires(groupId);
 
   useEffect(() => {
     if (!initial) return;
@@ -48,7 +54,14 @@ export function EventForm({ initial, submitLabel, submitting, onSubmit }: EventF
     setLocation(initial.location ?? '');
     setNotice(initial.notice ?? '');
     setRider(initial.technicalRider ?? '');
+    setRepertoireIds(initial.repertoireIds ?? []);
   }, [initial]);
+
+  function toggleSetlist(id: string) {
+    setRepertoireIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
 
   function handleSubmit() {
     if (!title.trim()) {
@@ -76,6 +89,7 @@ export function EventForm({ initial, submitLabel, submitting, onSubmit }: EventF
       location: location.trim() || undefined,
       notice: notice.trim() || undefined,
       technicalRider: rider.trim() || undefined,
+      repertoireIds,
     });
   }
 
@@ -139,6 +153,28 @@ export function EventForm({ initial, submitLabel, submitting, onSubmit }: EventF
         textarea
       />
 
+      {(setlists ?? []).length > 0 && (
+        <View style={styles.setlistsField}>
+          <Text style={styles.setlistsLabel}>Setlists do show</Text>
+          <View style={styles.setlistsChips}>
+            {(setlists ?? []).map((s) => {
+              const n = s.songs.filter((b) => (b.itemType ?? 'song') === 'song').length;
+              return (
+                <Chip
+                  key={s.id}
+                  label={`${s.name} · ${n}`}
+                  active={repertoireIds.includes(s.id)}
+                  onPress={() => toggleSetlist(s.id)}
+                />
+              );
+            })}
+          </View>
+          <Text style={styles.setlistsHint}>
+            O roteiro completo aparece no link público da agenda
+          </Text>
+        </View>
+      )}
+
       <Input
         label="Rider Técnico"
         value={rider}
@@ -160,4 +196,14 @@ const styles = StyleSheet.create({
   typeRow: { flexDirection: 'row', gap: 8 },
   typeChip: { flex: 1, justifyContent: 'center', paddingVertical: 9 },
   riderInput: { fontFamily: fonts.mono, fontSize: 13 },
+  setlistsField: { gap: 8 },
+  setlistsLabel: {
+    color: colors.muted,
+    fontFamily: fonts.sansMedium,
+    fontSize: 10,
+    letterSpacing: 1.8,
+    textTransform: 'uppercase',
+  },
+  setlistsChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  setlistsHint: { color: colors.faint, fontFamily: fonts.sans, fontSize: 11 },
 });

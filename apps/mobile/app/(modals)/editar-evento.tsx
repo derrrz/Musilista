@@ -15,7 +15,7 @@ export default function EditarEventoModal() {
   const { mutate: updateEvent, isPending } = useUpdateEvent(groupId, eventId);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <Text style={styles.title}>Editar evento</Text>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
@@ -28,6 +28,7 @@ export default function EditarEventoModal() {
         </View>
       ) : (
         <EventForm
+          groupId={groupId}
           initial={event}
           submitLabel="Salvar alterações"
           submitting={isPending}

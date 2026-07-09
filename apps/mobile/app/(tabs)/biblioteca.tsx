@@ -156,8 +156,7 @@ export default function BibliotecaScreen() {
         stickyHeaderIndices={[1]}
       >
         <View style={styles.header}>
-          {!session && <Eyebrow>Acervo · busca</Eyebrow>}
-          <PageTitle>Buscar música</PageTitle>
+          <Text style={styles.heading}>Qual cifra você quer tocar hoje?</Text>
         </View>
 
         <View style={styles.searchWrap}>
@@ -165,7 +164,7 @@ export default function BibliotecaScreen() {
             <IconSearch size={16} color={colors.faint} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Nome da música ou artista..."
+              placeholder="Título ou artista..."
               placeholderTextColor={colors.faint}
               value={query}
               onChangeText={handleQuery}
@@ -295,7 +294,13 @@ export default function BibliotecaScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   content: { paddingHorizontal: 16, paddingBottom: 40 },
-  header: { paddingTop: 12, paddingBottom: 4, gap: 4 },
+  header: { paddingTop: 12, paddingBottom: 4 },
+  heading: {
+    color: colors.ink,
+    fontFamily: fonts.sansBold,
+    fontSize: fontSize['2xl'],
+    letterSpacing: -0.4,
+  },
   searchWrap: { backgroundColor: colors.bg, paddingVertical: 10 },
   searchBox: {
     flexDirection: 'row',
@@ -320,23 +325,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   section: { gap: 8, marginBottom: 20 },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
+  // Mobile web usa grid-cols-1: cada resultado é uma linha de largura total
+  grid: { gap: 10 },
   songCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.surface,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    flexGrow: 1,
-    flexBasis: '30%',
   },
   songCardText: { flex: 1, minWidth: 0 },
   songCardTitle: {
@@ -357,10 +357,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.surface,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 16,
-    flexGrow: 1,
-    flexBasis: '30%',
   },
   artistName: {
     color: colors.ink,

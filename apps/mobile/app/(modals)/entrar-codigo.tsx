@@ -30,7 +30,7 @@ export default function EntrarCodigoModal() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <Text style={styles.title}>Entrar em grupo</Text>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>

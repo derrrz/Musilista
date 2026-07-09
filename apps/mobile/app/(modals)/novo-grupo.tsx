@@ -33,7 +33,7 @@ export default function NovoGrupoModal() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <Text style={styles.title}>Novo grupo</Text>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>

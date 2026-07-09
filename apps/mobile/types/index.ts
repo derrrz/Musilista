@@ -91,16 +91,33 @@ export interface GroupEvent {
   publicToken?: string;
 }
 
-export interface RepertoireSong {
+// Bloco de setlist (roteiro de show) — espelho do shape da API web
+export interface SetlistBlock {
   id: string;
-  title: string;
-  artist?: string;
-  key?: string;
-  bpm?: number;
+  title: string | null;
+  notes: string | null;
+  songKey: string | null;
+  bpm: number | null;
+  position: number;
+  itemType: string | null;
+  body: string | null;
+  durationSec: number | null;
+  segue: boolean | null;
 }
 
 export interface Repertoire {
   id: string;
   name: string;
-  songs: RepertoireSong[];
+  songs: SetlistBlock[];
+}
+
+export interface Reference {
+  id: string;
+  url: string;
+  title: string | null;
+  kind: string;
+  note: string | null;
+  addedBy: string;
+  addedByName: string | null;
+  createdAt: string;
 }

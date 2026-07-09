@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
@@ -90,6 +90,8 @@ export default function PerfilScreen() {
     ]);
   }
 
+  const insets = useSafeAreaInsets();
+
   if (!session) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -166,7 +168,7 @@ export default function PerfilScreen() {
         </ScrollView>
 
         {/* Barra fixa de salvar */}
-        <View style={styles.saveBar}>
+        <View style={[styles.saveBar, { paddingBottom: 12 + insets.bottom }]}>
           <Button
             label="Cancelar"
             variant="outline"

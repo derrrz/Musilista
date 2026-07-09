@@ -13,7 +13,7 @@ export default function NovoEventoModal() {
   const { mutate: createEvent, isPending } = useCreateEvent(groupId);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <Text style={styles.title}>Novo evento</Text>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
@@ -21,6 +21,7 @@ export default function NovoEventoModal() {
         </TouchableOpacity>
       </View>
       <EventForm
+        groupId={groupId}
         submitLabel="Criar evento"
         submitting={isPending}
         onSubmit={(data) =>

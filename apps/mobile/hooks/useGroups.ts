@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { Group, GroupEvent, Member, Repertoire } from '@/types';
+import type { Group, GroupEvent, Member, Reference, Repertoire } from '@/types';
 
 const ROLE_MAP: Record<string, Group['myRole']> = {
   owner: 'DONO',
@@ -45,47 +45,18 @@ export function useGroup(id: string) {
   });
 }
 
-interface ApiRepertoireSong {
-  id: string;
-  title: string | null;
-  notes: string | null;
-  songKey: string | null;
-  bpm: number | null;
-  itemType: string;
-}
-
-interface ApiRepertoire {
-  id: string;
-  name: string;
-  songs: ApiRepertoireSong[];
-}
-
 // A web codifica o artista dentro de notes como "artist:Fulano | resto"
-function parseArtist(notes: string | null): string | undefined {
+export function parseArtist(notes: string | null): string | undefined {
   const m = notes?.match(/^artist:([^|]+)/);
   return m ? m[1].trim() : undefined;
 }
 
-export function useGroupRepertoires(groupId: string) {
+// Setlists com todos os blocos (roteiro completo), ordenados por posição
+export function useGroupRepertoires(groupId: string, enabled = true) {
   return useQuery<Repertoire[]>({
     queryKey: ['groups', groupId, 'repertoires'],
-    queryFn: async () => {
-      const rows = await api.get<ApiRepertoire[]>(`/api/groups/${groupId}/repertoires`);
-      return rows.map((r) => ({
-        id: r.id,
-        name: r.name,
-        songs: (r.songs ?? [])
-          .filter((s) => s.itemType === 'song')
-          .map((s) => ({
-            id: s.id,
-            title: s.title ?? '(sem título)',
-            artist: parseArtist(s.notes),
-            key: s.songKey ?? undefined,
-            bpm: s.bpm ?? undefined,
-          })),
-      }));
-    },
-    enabled: Boolean(groupId),
+    queryFn: () => api.get<Repertoire[]>(`/api/groups/${groupId}/repertoires`),
+    enabled: Boolean(groupId) && enabled,
   });
 }
 
@@ -94,6 +65,18 @@ export function useCreateRepertoire(groupId: string) {
   return useMutation({
     mutationFn: (name: string) =>
       api.post<{ id: string; name: string }>(`/api/groups/${groupId}/repertoires`, { name }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
+  });
+}
+
+export function useRenameRepertoire(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { repertoireId: string; name: string }) =>
+      api.patch(`/api/groups/${groupId}/repertoires/${data.repertoireId}`, {
+        name: data.name,
+      }),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
   });
@@ -109,28 +92,63 @@ export function useDeleteRepertoire(groupId: string) {
   });
 }
 
-export function useAddSongToRepertoire(groupId: string) {
+// ─── Blocos de setlist (qualquer membro pode gerenciar, como na web) ─────────
+
+export interface AddBlockInput {
+  repertoireId: string;
+  itemType: string;
+  title: string;
+  artist?: string;
+  body?: string;
+  songKey?: string;
+  bpm?: string;
+  durationSec?: number | null;
+}
+
+export function useAddBlock(groupId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: {
-      repertoireId: string;
-      title: string;
-      artist?: string;
-      songKey?: string;
-      bpm?: string;
-    }) =>
-      api.post(`/api/groups/${groupId}/repertoires/${data.repertoireId}/songs`, {
-        title: data.title,
-        artist: data.artist,
-        songKey: data.songKey,
-        bpm: data.bpm,
+    mutationFn: ({ repertoireId, ...body }: AddBlockInput) =>
+      api.post(`/api/groups/${groupId}/repertoires/${repertoireId}/songs`, body),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
+  });
+}
+
+export interface UpdateBlockInput {
+  repertoireId: string;
+  songItemId: string;
+  title?: string;
+  body?: string;
+  songKey?: string;
+  bpm?: string;
+  durationSec?: number | null;
+  segue?: boolean;
+}
+
+export function useUpdateBlock(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ repertoireId, ...body }: UpdateBlockInput) =>
+      api.patch(`/api/groups/${groupId}/repertoires/${repertoireId}/songs`, body),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
+  });
+}
+
+export function useReorderBlocks(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { repertoireId: string; orderedIds: string[] }) =>
+      api.put(`/api/groups/${groupId}/repertoires/${data.repertoireId}/songs`, {
+        orderedIds: data.orderedIds,
       }),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
   });
 }
 
-export function useRemoveSongFromRepertoire(groupId: string) {
+export function useRemoveBlock(groupId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: { repertoireId: string; songItemId: string }) =>
@@ -139,6 +157,49 @@ export function useRemoveSongFromRepertoire(groupId: string) {
       }),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['groups', groupId, 'repertoires'] }),
+  });
+}
+
+// ─── Referências da banda ─────────────────────────────────────────────────────
+
+export function useGroupReferences(groupId: string) {
+  return useQuery<Reference[]>({
+    queryKey: ['groups', groupId, 'references'],
+    queryFn: () => api.get<Reference[]>(`/api/groups/${groupId}/references`),
+    enabled: Boolean(groupId),
+  });
+}
+
+export function useAddReference(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { url: string; note?: string }) =>
+      api.post<Reference>(`/api/groups/${groupId}/references`, data),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'references'] }),
+  });
+}
+
+export function useDeleteReference(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (referenceId: string) =>
+      api.delete(`/api/groups/${groupId}/references/${referenceId}`),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['groups', groupId, 'references'] }),
+  });
+}
+
+// Editar identidade do grupo (nome/descrição) — só dono/admin
+export function useUpdateGroup(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string; description: string | null }) =>
+      api.patch(`/api/groups/${groupId}`, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['groups', groupId] });
+      qc.invalidateQueries({ queryKey: ['groups'] });
+    },
   });
 }
 
@@ -191,6 +252,7 @@ export interface EventInput {
   location?: string;
   notice?: string;
   technicalRider?: string;
+  repertoireIds?: string[]; // setlists vinculados (N:N)
 }
 
 function toEventPayload(data: EventInput) {
@@ -202,6 +264,7 @@ function toEventPayload(data: EventInput) {
     eventType: EVENT_TYPE_TO_API[data.type],
     notice: data.notice,
     technicalRider: data.technicalRider,
+    repertoireIds: data.repertoireIds ?? [],
   };
 }
 
@@ -215,6 +278,7 @@ export interface ApiEventRow {
   location: string | null;
   notice: string | null;
   technicalRider: string | null;
+  repertoireIds: string[];
 }
 
 export function useEvent(groupId: string, eventId: string) {

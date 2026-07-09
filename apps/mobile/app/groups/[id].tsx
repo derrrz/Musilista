@@ -1,57 +1,61 @@
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Alert,
+  Modal,
   RefreshControl,
   ScrollView,
   Share,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ReferencesPanel } from '@/components/groups/ReferencesPanel';
+import { SetlistPanel } from '@/components/groups/SetlistPanel';
 import { Avatar } from '@/components/ui/Avatar';
-import { EventTypeBadge, RoleBadge } from '@/components/ui/Badge';
+import { EventTypeBadge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
+  IconBack,
   IconCheck,
   IconClose,
   IconEdit,
   IconPin,
-  IconPlus,
   IconWarning,
 } from '@/components/ui/icons';
+import { Input } from '@/components/ui/Input';
 import { SkeletonSongRow } from '@/components/ui/Skeleton';
-import { Eyebrow, PageTitle } from '@/components/ui/Typography';
-import { UnderlineTabs } from '@/components/UnderlineTabs';
+import { Eyebrow } from '@/components/ui/Typography';
+import { useSession } from '@/context/SessionContext';
 import {
   useConfirmAttendance,
-  useCreateRepertoire,
   useDeleteEvent,
-  useDeleteRepertoire,
   useGroup,
   useGroupEvents,
   useGroupMembers,
   useGroupRepertoires,
-  useRemoveSongFromRepertoire,
   useRevokeShare,
   useShareEvent,
+  useUpdateGroup,
 } from '@/hooks/useGroups';
 import { BASE_URL } from '@/lib/api';
 import { colors } from '@/constants/colors';
 import { fonts, fontSize } from '@/constants/typography';
-import type { GroupEvent, Member, Repertoire } from '@/types';
+import type { GroupEvent, Member } from '@/types';
 
-const TABS = [
-  { key: 'repertorio', label: 'Repertório' },
-  { key: 'membros', label: 'Membros' },
+const SECTIONS = [
   { key: 'agenda', label: 'Agenda' },
-];
+  { key: 'setlists', label: 'Setlists' },
+  { key: 'referencias', label: 'Referências' },
+  { key: 'membros', label: 'Membros' },
+] as const;
+
+type SectionKey = (typeof SECTIONS)[number]['key'];
 
 // ─── Agenda ───────────────────────────────────────────────────────────────────
 
@@ -168,15 +172,18 @@ function EventCard({
       ) : null}
 
       {event.setlistName ? (
-        <Chip label={event.setlistName} pill mono />
+        <View>
+          <Text style={styles.eventSectionLabel}>Repertórios</Text>
+          <Chip label={event.setlistName} pill mono />
+        </View>
       ) : null}
 
       {event.roles.length > 0 && (
         <View style={styles.roles}>
+          <Text style={styles.eventSectionLabel}>Funções</Text>
           {event.roles.map((role) => (
             <Text key={role.id} style={styles.roleItem}>
-              {role.label}
-              {role.assigneeName ? `: ${role.assigneeName}` : ''}
+              {role.label}: {role.assigneeName ?? '—'}
             </Text>
           ))}
         </View>
@@ -235,191 +242,20 @@ function MemberCard({ member }: { member: Member }) {
         <Text style={styles.memberEmail} numberOfLines={1}>{member.email}</Text>
       </View>
       {member.available && <View style={styles.availableDot} />}
-      <RoleBadge role={member.role} />
+      <RoleLabel role={member.role} />
     </View>
   );
 }
 
-// ─── Repertório ───────────────────────────────────────────────────────────────
-
-function RepertoirePanel({
-  groupId,
-  repertoires,
-  loading,
-  canManage,
-}: {
-  groupId: string;
-  repertoires: Repertoire[];
-  loading: boolean;
-  canManage: boolean;
-}) {
-  const router = useRouter();
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [newName, setNewName] = useState('');
-  const { mutate: createRepertoire, isPending: creatingPending } = useCreateRepertoire(groupId);
-  const { mutate: deleteRepertoire } = useDeleteRepertoire(groupId);
-  const { mutate: removeSong } = useRemoveSongFromRepertoire(groupId);
-
-  const active =
-    repertoires.find((r) => r.id === activeId) ?? repertoires[0] ?? null;
-
-  function handleCreate() {
-    const name = newName.trim();
-    if (!name) return;
-    createRepertoire(name, {
-      onSuccess: (created) => {
-        setNewName('');
-        setCreating(false);
-        setActiveId(created.id);
-      },
-      onError: (e) => Alert.alert('Erro', e.message),
-    });
-  }
-
-  function handleDeleteRepertoire(rep: Repertoire) {
-    Alert.alert('Excluir repertório', `Excluir "${rep.name}" e suas músicas?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Excluir',
-        style: 'destructive',
-        onPress: () =>
-          deleteRepertoire(rep.id, { onError: (e) => Alert.alert('Erro', e.message) }),
-      },
-    ]);
-  }
-
-  function handleRemoveSong(songItemId: string, title: string) {
-    Alert.alert('Remover música', `Remover "${title}" do repertório?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Remover',
-        style: 'destructive',
-        onPress: () =>
-          removeSong(
-            { repertoireId: active!.id, songItemId },
-            { onError: (e) => Alert.alert('Erro', e.message) },
-          ),
-      },
-    ]);
-  }
-
-  if (loading) return <SkeletonSongRow />;
-
+function RoleLabel({ role }: { role: Member['role'] }) {
+  const cfg = {
+    DONO: { bg: colors.accentTint15, text: colors.accent, label: 'Dono' },
+    ADMIN: { bg: colors.blueTint15, text: colors.blue400, label: 'Admin' },
+    MEMBRO: { bg: colors.mutedTint15, text: colors.muted, label: 'Membro' },
+  }[role];
   return (
-    <View style={styles.panel}>
-      <View style={styles.panelHeader}>
-        <Eyebrow>Repertórios</Eyebrow>
-        {canManage && (
-          <TouchableOpacity onPress={() => setCreating((c) => !c)} hitSlop={8}>
-            <Text style={styles.panelAction}>
-              {creating ? 'Cancelar' : '+ Novo repertório'}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {creating && (
-        <View style={styles.createRow}>
-          <TextInput
-            style={styles.createInput}
-            value={newName}
-            onChangeText={setNewName}
-            placeholder="Nome do repertório"
-            placeholderTextColor={colors.faint}
-            autoFocus
-            onSubmitEditing={handleCreate}
-          />
-          <Button label="Criar" size="sm" loading={creatingPending} onPress={handleCreate} />
-        </View>
-      )}
-
-      {repertoires.length === 0 ? (
-        <EmptyState
-          icon="🎵"
-          title="Sem repertórios"
-          description={
-            canManage
-              ? 'Crie um repertório para organizar as músicas do grupo'
-              : 'Os administradores ainda não criaram repertórios'
-          }
-        />
-      ) : (
-        <>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.repChips}>
-              {repertoires.map((r) => (
-                <Chip
-                  key={r.id}
-                  label={`${r.name} · ${r.songs.length}`}
-                  active={active?.id === r.id}
-                  onPress={() => setActiveId(r.id)}
-                />
-              ))}
-            </View>
-          </ScrollView>
-
-          {active && (
-            <View style={styles.repDetail}>
-              <View style={styles.panelHeader}>
-                <Text style={styles.repName}>{active.name}</Text>
-                {canManage && (
-                  <View style={styles.repActions}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        router.push({
-                          pathname: '/(modals)/buscar-musica',
-                          params: { groupId, repertoireId: active.id },
-                        })
-                      }
-                      hitSlop={8}
-                    >
-                      <Text style={styles.panelAction}>+ Música</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDeleteRepertoire(active)} hitSlop={8}>
-                      <Text style={styles.panelActionDanger}>Excluir</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-
-              {active.songs.length === 0 ? (
-                <Text style={styles.emptySongs}>Nenhuma música ainda.</Text>
-              ) : (
-                active.songs.map((song, i) => (
-                  <View key={song.id} style={styles.songRow}>
-                    <Text style={styles.songIndex}>
-                      {String(i + 1).padStart(2, '0')}
-                    </Text>
-                    <View style={styles.songText}>
-                      <Text style={styles.songTitle} numberOfLines={1}>{song.title}</Text>
-                      {song.artist ? (
-                        <Text style={styles.songArtist} numberOfLines={1}>{song.artist}</Text>
-                      ) : null}
-                    </View>
-                    {song.key ? (
-                      <View style={styles.keyBadge}>
-                        <Text style={styles.keyText}>{song.key}</Text>
-                      </View>
-                    ) : null}
-                    {song.bpm ? (
-                      <Text style={styles.bpmText}>{song.bpm} bpm</Text>
-                    ) : null}
-                    {canManage && (
-                      <TouchableOpacity
-                        onPress={() => handleRemoveSong(song.id, song.title)}
-                        hitSlop={8}
-                      >
-                        <IconClose size={13} color={colors.faint} />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                ))
-              )}
-            </View>
-          )}
-        </>
-      )}
+    <View style={[styles.roleBadge, { backgroundColor: cfg.bg }]}>
+      <Text style={[styles.roleBadgeText, { color: cfg.text }]}>{cfg.label}</Text>
     </View>
   );
 }
@@ -429,16 +265,28 @@ function RepertoirePanel({
 export default function GroupScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('agenda');
+  const { session } = useSession();
   const [copied, setCopied] = useState(false);
+  const [editingGroup, setEditingGroup] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
-  const { data: group, isLoading: loadingGroup } = useGroup(id);
-  const { data: repertoires, isLoading: loadingSongs, refetch: refetchSongs } =
+  const scrollRef = useRef<ScrollView>(null);
+  const sectionY = useRef<Record<SectionKey, number>>({
+    agenda: 0,
+    setlists: 0,
+    referencias: 0,
+    membros: 0,
+  });
+
+  const { data: group, isLoading: loadingGroup, refetch: refetchGroup } = useGroup(id);
+  const { data: repertoires, isLoading: loadingSetlists, refetch: refetchSetlists } =
     useGroupRepertoires(id);
   const { data: members, isLoading: loadingMembers, refetch: refetchMembers } =
     useGroupMembers(id);
   const { data: events, isLoading: loadingEvents, refetch: refetchEvents } =
     useGroupEvents(id);
+  const { mutate: updateGroup, isPending: savingGroup } = useUpdateGroup(id);
 
   const canManage = Boolean(group && group.myRole !== 'MEMBRO');
 
@@ -446,81 +294,116 @@ export default function GroupScreen() {
     if (!group?.inviteCode) return;
     await Clipboard.setStringAsync(group.inviteCode);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1500);
   }
 
-  function refetchActive() {
-    if (activeTab === 'repertorio') refetchSongs();
-    else if (activeTab === 'membros') refetchMembers();
-    else refetchEvents();
+  function scrollToSection(key: SectionKey) {
+    scrollRef.current?.scrollTo({ y: sectionY.current[key] - 44, animated: true });
+  }
+
+  function openEditGroup() {
+    if (!group) return;
+    setEditName(group.name);
+    setEditDescription(group.description ?? '');
+    setEditingGroup(true);
+  }
+
+  function saveGroup() {
+    if (!editName.trim()) {
+      Alert.alert('Nome obrigatório', 'O grupo precisa de um nome.');
+      return;
+    }
+    updateGroup(
+      { name: editName.trim(), description: editDescription.trim() || null },
+      {
+        onSuccess: () => setEditingGroup(false),
+        onError: (e) => Alert.alert('Erro', e.message),
+      },
+    );
+  }
+
+  function refetchAll() {
+    refetchGroup();
+    refetchSetlists();
+    refetchMembers();
+    refetchEvents();
   }
 
   if (loadingGroup) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <SkeletonSongRow />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Cabeçalho */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <Text style={styles.backLink}>← Grupos</Text>
-        </TouchableOpacity>
-        <View style={styles.headerRow}>
-          <View style={styles.headerInfo}>
-            <PageTitle numberOfLines={1}>{group?.name}</PageTitle>
-            {group?.description ? (
-              <Text style={styles.groupDesc} numberOfLines={2}>{group.description}</Text>
-            ) : null}
-          </View>
-          {group?.inviteCode && (
-            <TouchableOpacity onPress={copyCode} style={styles.codeBox} activeOpacity={0.7}>
-              <Eyebrow>Código de convite</Eyebrow>
-              <Text style={styles.code}>{copied ? 'copiado ✓' : group.inviteCode}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* Tabs */}
-      <UnderlineTabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
-
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView
-        contentContainerStyle={styles.list}
+        ref={scrollRef}
+        stickyHeaderIndices={[1]}
         refreshControl={
-          <RefreshControl refreshing={false} onRefresh={refetchActive} tintColor={colors.accent} />
+          <RefreshControl refreshing={false} onRefresh={refetchAll} tintColor={colors.accent} />
         }
       >
-        {activeTab === 'repertorio' && (
-          <RepertoirePanel
-            groupId={id}
-            repertoires={repertoires ?? []}
-            loading={loadingSongs}
-            canManage={canManage}
-          />
-        )}
+        {/* [0] Hero */}
+        <View style={styles.hero}>
+          <TouchableOpacity onPress={() => router.back()} hitSlop={8} style={styles.backRow}>
+            <IconBack size={12} color={colors.muted} />
+            <Text style={styles.backLink}>Grupos</Text>
+          </TouchableOpacity>
 
-        {activeTab === 'membros' && (
-          <View style={styles.panel}>
-            <Eyebrow>Membros</Eyebrow>
-            {loadingMembers ? (
-              <SkeletonSongRow />
-            ) : (members ?? []).length === 0 ? (
-              <EmptyState icon="👤" title="Sem membros" />
-            ) : (
-              (members ?? []).map((m) => <MemberCard key={m.id} member={m} />)
-            )}
+          <View style={styles.heroRow}>
+            <Avatar name={group?.name} url={group?.imageUrl} size={48} shape="square" />
+            <View style={styles.heroInfo}>
+              <View style={styles.heroTitleRow}>
+                <Text style={styles.heroName}>{group?.name}</Text>
+                {canManage && (
+                  <TouchableOpacity onPress={openEditGroup} hitSlop={8} style={styles.heroEditBtn}>
+                    <IconEdit size={16} color={colors.muted} />
+                  </TouchableOpacity>
+                )}
+              </View>
+              {group?.description ? (
+                <Text style={styles.heroDesc}>{group.description}</Text>
+              ) : null}
+              <Text style={styles.heroMeta}>
+                {group?.memberCount ?? 0} {group?.memberCount === 1 ? 'membro' : 'membros'}
+              </Text>
+            </View>
           </View>
-        )}
 
-        {activeTab === 'agenda' && (
-          <View style={styles.panel}>
-            <View style={styles.panelHeader}>
-              <Eyebrow>Agenda</Eyebrow>
+          {group?.inviteCode && (
+            <View style={styles.codeBox}>
+              <Eyebrow>Código de convite</Eyebrow>
+              <TouchableOpacity onPress={copyCode} activeOpacity={0.7} style={styles.codeBtn}>
+                <Text style={styles.code}>{copied ? 'copiado' : group.inviteCode}</Text>
+                {copied && <IconCheck size={13} color={colors.accent} />}
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {/* [1] Navegação âncora (sticky) */}
+        <View style={styles.anchorNav}>
+          {SECTIONS.map((s) => (
+            <TouchableOpacity key={s.key} onPress={() => scrollToSection(s.key)} hitSlop={4}>
+              <Text style={styles.anchorLink}>{s.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* [2] Seções */}
+        <View style={styles.sections}>
+          {/* Agenda */}
+          <View
+            style={styles.section}
+            onLayout={(e) => {
+              sectionY.current.agenda = e.nativeEvent.layout.y;
+            }}
+          >
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Agenda</Text>
               {canManage && (
                 <Button
                   label="+ Evento"
@@ -534,37 +417,146 @@ export default function GroupScreen() {
             {loadingEvents ? (
               <SkeletonSongRow />
             ) : (events ?? []).length === 0 ? (
-              <EmptyState icon="📅" title="Sem eventos" description="Crie um ensaio ou show" />
+              <EmptyState icon="📅" title="Nenhum evento agendado" />
             ) : (
               (events ?? []).map((ev) => (
                 <EventCard key={ev.id} event={ev} groupId={id} canManage={canManage} />
               ))
             )}
           </View>
-        )}
+
+          {/* Setlists */}
+          <View
+            style={styles.section}
+            onLayout={(e) => {
+              sectionY.current.setlists = e.nativeEvent.layout.y;
+            }}
+          >
+            <Text style={styles.sectionTitle}>Setlists</Text>
+            <SetlistPanel
+              groupId={id}
+              repertoires={repertoires ?? []}
+              loading={loadingSetlists}
+              canManage={canManage}
+            />
+          </View>
+
+          {/* Referências */}
+          <View
+            style={styles.section}
+            onLayout={(e) => {
+              sectionY.current.referencias = e.nativeEvent.layout.y;
+            }}
+          >
+            <Text style={styles.sectionTitle}>Referências da banda</Text>
+            <ReferencesPanel groupId={id} myUserId={session?.user.id} canManage={canManage} />
+          </View>
+
+          {/* Membros */}
+          <View
+            style={styles.section}
+            onLayout={(e) => {
+              sectionY.current.membros = e.nativeEvent.layout.y;
+            }}
+          >
+            <Text style={styles.sectionTitle}>Membros</Text>
+            {loadingMembers ? (
+              <SkeletonSongRow />
+            ) : (members ?? []).length === 0 ? (
+              <EmptyState icon="👤" title="Sem membros" />
+            ) : (
+              (members ?? []).map((m) => <MemberCard key={m.id} member={m} />)
+            )}
+          </View>
+        </View>
       </ScrollView>
+
+      {/* Modal de edição do grupo (nome/descrição) — só dono/admin */}
+      <Modal visible={editingGroup} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalPanel}>
+            <Text style={styles.modalTitle}>Editar grupo</Text>
+            <Input label="Nome" value={editName} onChangeText={(t) => setEditName(t.slice(0, 80))} />
+            <Input
+              label="Descrição"
+              value={editDescription}
+              onChangeText={(t) => setEditDescription(t.slice(0, 280))}
+              placeholder="O que é esse grupo? Estilo, propósito, vibe…"
+              textarea
+            />
+            <View style={styles.modalActions}>
+              <Button
+                label="Cancelar"
+                variant="outline"
+                onPress={() => setEditingGroup(false)}
+                style={styles.modalBtn}
+              />
+              <Button
+                label="Salvar"
+                loading={savingGroup}
+                onPress={saveGroup}
+                style={styles.modalBtn}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  header: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 12, gap: 8 },
+
+  // Hero
+  hero: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, gap: 14 },
+  backRow: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
   backLink: { color: colors.muted, fontFamily: fonts.sans, fontSize: 13 },
-  headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  headerInfo: { flex: 1, minWidth: 0, gap: 2 },
-  groupDesc: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm },
-  codeBox: { alignItems: 'flex-end', gap: 2, paddingTop: 6 },
+  heroRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
+  heroInfo: { flex: 1, minWidth: 0 },
+  heroTitleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  heroName: {
+    flexShrink: 1,
+    color: colors.ink,
+    fontFamily: fonts.sansBold,
+    fontSize: 34,
+    letterSpacing: -0.8,
+    lineHeight: 38,
+  },
+  heroEditBtn: { marginTop: 8 },
+  heroDesc: {
+    color: colors.muted,
+    fontFamily: fonts.sans,
+    fontSize: fontSize.sm,
+    lineHeight: 20,
+    marginTop: 6,
+  },
+  heroMeta: { color: colors.faint, fontFamily: fonts.mono, fontSize: fontSize.xs, marginTop: 8 },
+  codeBox: { gap: 2 },
+  codeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   code: { color: colors.accent, fontFamily: fonts.monoBold, fontSize: 15 },
-  list: { padding: 16, paddingBottom: 48 },
-  panel: { gap: 12 },
-  panelHeader: {
+
+  // Anchor nav
+  anchorNav: {
+    flexDirection: 'row',
+    gap: 20,
+    backgroundColor: colors.bg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  anchorLink: { color: colors.muted, fontFamily: fonts.sansMedium, fontSize: fontSize.sm },
+
+  // Sections
+  sections: { padding: 16, gap: 36, paddingBottom: 64 },
+  section: { gap: 12 },
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  panelAction: { color: colors.accent, fontFamily: fonts.sansSemiBold, fontSize: fontSize.sm },
-  panelActionDanger: { color: colors.red400, fontFamily: fonts.sansMedium, fontSize: fontSize.sm },
+  sectionTitle: { color: colors.ink, fontFamily: fonts.sansBold, fontSize: fontSize.xl },
 
   // Agenda
   eventCard: {
@@ -598,6 +590,14 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   noticeText: { flex: 1, color: colors.amber400, fontFamily: fonts.sans, fontSize: fontSize.sm },
+  eventSectionLabel: {
+    color: colors.muted,
+    fontFamily: fonts.sansSemiBold,
+    fontSize: 10,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    marginBottom: 6,
+  },
   roles: { gap: 4 },
   roleItem: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs },
   eventFooter: {
@@ -621,48 +621,39 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     paddingHorizontal: 14,
     paddingVertical: 10,
+    marginBottom: 8,
   },
   memberText: { flex: 1, minWidth: 0 },
   memberName: { color: colors.ink, fontFamily: fonts.sansSemiBold, fontSize: fontSize.sm },
   memberEmail: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs, marginTop: 1 },
   availableDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.emerald500 },
+  roleBadge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
+  roleBadgeText: {
+    fontFamily: fonts.monoBold,
+    fontSize: 10,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
 
-  // Repertório
-  createRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  createInput: {
+  // Modal editar grupo
+  modalOverlay: {
     flex: 1,
-    height: 36,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalPanel: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.line,
-    paddingHorizontal: 12,
-    color: colors.ink,
-    fontSize: fontSize.sm,
+    backgroundColor: colors.raised,
+    padding: 24,
+    gap: 16,
   },
-  repChips: { flexDirection: 'row', gap: 8 },
-  repDetail: { gap: 8 },
-  repName: { color: colors.ink, fontFamily: fonts.sansBold, fontSize: fontSize.base },
-  repActions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  emptySongs: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.sm },
-  songRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  songIndex: { color: colors.faint, fontFamily: fonts.mono, fontSize: fontSize.xs, width: 22 },
-  songText: { flex: 1, minWidth: 0 },
-  songTitle: { color: colors.ink, fontFamily: fonts.sansMedium, fontSize: fontSize.sm },
-  songArtist: { color: colors.muted, fontFamily: fonts.sans, fontSize: fontSize.xs, marginTop: 1 },
-  keyBadge: {
-    borderRadius: 6,
-    backgroundColor: colors.blueTint15,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  keyText: { color: colors.blue400, fontFamily: fonts.monoBold, fontSize: fontSize.xs },
-  bpmText: { color: colors.faint, fontFamily: fonts.mono, fontSize: fontSize.xs },
+  modalTitle: { color: colors.ink, fontFamily: fonts.sansBold, fontSize: fontSize.xl },
+  modalActions: { flexDirection: 'row', gap: 12 },
+  modalBtn: { flex: 1 },
 });
