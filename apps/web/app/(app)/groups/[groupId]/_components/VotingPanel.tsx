@@ -133,8 +133,8 @@ function CandidateRow({
   );
 }
 
-// Quem já votou e quanto — só participação (soma dos pontos dados sobre o
-// máximo possível), nunca em qual música cada nota foi dada. Visível pra
+// Quem já votou e quanto — só participação (quantas músicas já avaliadas
+// sobre o total), nunca em qual música cada nota foi dada. Visível pra
 // todo mundo, inclusive quem administra o grupo.
 function ProgressPanel({ participants }: { participants: Participant[] }) {
   if (participants.length === 0) return null;

@@ -53,9 +53,11 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     byRound.set(c.votingRoundId, list);
   }
 
-  // Painel de progresso: pra cada rodada, quanto cada membro do grupo (e
-  // cada convidado que já votou) já deu de pontos, sobre o máximo possível
-  // (candidatos × 3). Não revela em qual música a nota foi dada.
+  // Painel de progresso: pra cada rodada, quantas músicas cada membro do
+  // grupo (e cada convidado que já votou) já avaliou — contagem de músicas
+  // com alguma nota (1, 2 ou 3, tanto faz qual), sobre o total de músicas
+  // da rodada. Não é soma de pontos nem revela em qual música a nota foi
+  // dada, só quanto falta pra passar por todas.
   const members = await db
     .select({ userId: groupMembers.userId, name: users.name, email: users.email })
     .from(groupMembers)
@@ -66,7 +68,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     .select({
       votingRoundId: votingCandidates.votingRoundId,
       userId: votingBallots.userId,
-      given: sql<number>`sum(${votingBallots.level})`.mapWith(Number),
+      given: sql<number>`count(*)`.mapWith(Number),
     })
     .from(votingBallots)
     .innerJoin(votingCandidates, eq(votingCandidates.id, votingBallots.candidateId))
@@ -78,7 +80,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
       votingRoundId: votingCandidates.votingRoundId,
       guestId: votingGuestBallots.guestId,
       guestName: sql<string>`max(${votingGuestBallots.guestName})`,
-      given: sql<number>`sum(${votingGuestBallots.level})`.mapWith(Number),
+      given: sql<number>`count(*)`.mapWith(Number),
     })
     .from(votingGuestBallots)
     .innerJoin(votingCandidates, eq(votingCandidates.id, votingGuestBallots.candidateId))
@@ -87,7 +89,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 
   const result = rounds.map((r) => {
     const cands = (byRound.get(r.id) ?? []).sort((a, b) => b.votes - a.votes);
-    const max = cands.length * 3;
+    const max = cands.length;
     const participants = [
       ...members.map((m) => ({
         name: m.name || m.email,
