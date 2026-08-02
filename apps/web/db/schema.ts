@@ -700,3 +700,19 @@ export const songCovers = pgTable("song_covers", {
 }, (table) => [
 	unique("song_covers_normalized_key_unique").on(table.normalizedKey),
 ]);
+
+// Cache do trecho de 30s (Deezer, busca pública sem chave) — mesma ideia do
+// song_covers, mas guarda só a URL do preview (CDN da Deezer, sem re-hospedar
+// no Blob: é leve e o navegador toca direto de lá). previewUrl null = já
+// buscamos e não achou nada nessa música (evita repetir a busca à toa).
+export const songPreviews = pgTable("song_previews", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	normalizedKey: text("normalized_key").notNull(),
+	title: text().notNull(),
+	artist: text().notNull(),
+	previewUrl: text("preview_url"),
+	deezerTrackId: text("deezer_track_id"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	unique("song_previews_normalized_key_unique").on(table.normalizedKey),
+]);

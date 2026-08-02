@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { cn } from '@/components/ui/cn';
 import { IconHeart, IconPlus, IconClose, IconShare } from '@/components/ui/icons';
+import { SongPreviewButton } from './SongPreviewButton';
 
 type Candidate = {
   id: string;
@@ -261,13 +262,16 @@ function SessionCard({
         )}
       </div>
       <div className="rounded-xl border border-line bg-surface p-5 text-center">
-        {href ? (
-          <Link href={href} target="_blank" className="text-base font-semibold text-ink underline-offset-2 hover:text-accent hover:underline">
-            {candidate.title}
-          </Link>
-        ) : (
-          <p className="text-base font-semibold text-ink">{candidate.title}</p>
-        )}
+        <div className="flex items-center justify-center gap-2">
+          {href ? (
+            <Link href={href} target="_blank" className="text-base font-semibold text-ink underline-offset-2 hover:text-accent hover:underline">
+              {candidate.title}
+            </Link>
+          ) : (
+            <p className="text-base font-semibold text-ink">{candidate.title}</p>
+          )}
+          <SongPreviewButton title={candidate.title} artist={candidate.artist} />
+        </div>
         {candidate.artist && <p className="text-sm text-muted">{candidate.artist}</p>}
         {candidate.body ? (
           <details className="mt-2 text-left">

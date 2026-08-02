@@ -176,6 +176,13 @@
       "when": 1785711345115,
       "tag": "0024_fixed_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1785713710116,
+      "tag": "0025_supreme_piledriver",
+      "breakpoints": true
     }
   ]
 }
