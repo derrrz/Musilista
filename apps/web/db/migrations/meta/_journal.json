@@ -141,6 +141,13 @@
       "when": 1785693962374,
       "tag": "0019_wise_next_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1785704041747,
+      "tag": "0020_famous_power_pack",
+      "breakpoints": true
     }
   ]
 }

@@ -34,14 +34,18 @@ export const importedSongs = pgTable("imported_songs", {
 ]);
 
 // Referências da banda: links (YouTube, Spotify…) que os membros adicionam
-// para compor a característica sonora/visual do grupo.
+// para compor a característica sonora/visual do grupo, ou músicas
+// levantadas em brainstorm (kind='song') — pool de ideias, separado e
+// independente do setlist e da votação.
 export const groupReferences = pgTable("group_references", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	groupId: uuid("group_id").notNull(),
-	url: text().notNull(),
+	url: text(),
 	title: text(),
 	kind: text().default('other').notNull(),
 	note: text(),
+	artist: text(),
+	importedSongId: uuid("imported_song_id"),
 	addedBy: uuid("added_by").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
@@ -56,6 +60,11 @@ export const groupReferences = pgTable("group_references", {
 		foreignColumns: [users.id],
 		name: "group_references_added_by_fkey"
 	}).onDelete("cascade"),
+	foreignKey({
+		columns: [table.importedSongId],
+		foreignColumns: [importedSongs.id],
+		name: "group_references_imported_song_id_fkey"
+	}).onDelete("set null"),
 ]);
 
 // ── Analytics primeira-parte ────────────────────────────────────────────────

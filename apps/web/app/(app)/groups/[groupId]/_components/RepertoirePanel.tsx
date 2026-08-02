@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/icons';
 import { BLOCK_TYPES, blockDef, formatDuration, type BlockType } from '@/app/_lib/setlistBlocks';
 import type { IconProps } from '@/components/ui/icons';
+import { StyleCloud } from './StyleCloud';
 
 type SetlistBlock = {
   id: string;
@@ -59,6 +60,8 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
   const [repertoires, setRepertoires] = useState<Repertoire[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
+  // grid de cards por padrão; expandedId abre a view completa de um setlist
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
@@ -296,32 +299,22 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
           <p className="mb-1 text-muted">Nenhum setlist ainda</p>
           {canManage && <p className="text-[13px]">Um setlist é o roteiro do show: músicas, falas, interações…</p>}
         </div>
+      ) : expandedId === null ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {repertoires.map((r) => (
+            <SetlistCard key={r.id} repertoire={r} onOpen={() => { setActiveId(r.id); setExpandedId(r.id); }} />
+          ))}
+        </div>
       ) : (
-        <div className="flex gap-4">
-          {/* Sidebar de setlists */}
-          <div className="w-[200px] shrink-0">
-            {repertoires.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => setActiveId(r.id)}
-                className={cn(
-                  'mb-1 w-full rounded-lg border px-3 py-2.5 text-left transition-colors',
-                  activeId === r.id
-                    ? 'border-[color-mix(in_oklch,var(--ml-accent)_30%,transparent)] bg-[color-mix(in_oklch,var(--ml-accent)_12%,transparent)]'
-                    : 'border-transparent hover:bg-surface',
-                )}
-              >
-                <div className={cn('mb-0.5 text-[13px] font-semibold', activeId === r.id ? 'text-accent' : 'text-muted')}>
-                  {r.name}
-                </div>
-                <div className="text-[11px] text-faint">
-                  {r.songs.filter((s) => (s.itemType ?? 'song') === 'song').length} músicas
-                </div>
-              </button>
-            ))}
-          </div>
+        <div>
+          <button
+            onClick={() => setExpandedId(null)}
+            className="mb-4 text-xs font-medium text-muted transition-colors hover:text-ink"
+          >
+            ← Setlists
+          </button>
 
-          {/* Setlist ativo */}
+          {/* Setlist expandido */}
           {active && (
             <div className="min-w-0 flex-1">
               <div className="mb-4 flex items-center justify-between gap-3">
@@ -597,6 +590,24 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
         </Modal>
       )}
     </div>
+  );
+}
+
+// Card colapsado de um setlist: nome, contagem e mini nuvem dos
+// gêneros/estilos das músicas dele — clicar abre a view completa.
+function SetlistCard({ repertoire, onOpen }: { repertoire: Repertoire; onOpen: () => void }) {
+  const songCount = repertoire.songs.filter((s) => (s.itemType ?? 'song') === 'song').length;
+  return (
+    <button
+      onClick={onOpen}
+      className="flex flex-col items-start gap-2.5 rounded-xl border border-line bg-raised p-4 text-left transition-colors hover:border-[color-mix(in_oklch,var(--ml-accent)_30%,transparent)] hover:bg-surface"
+    >
+      <div className="flex w-full items-center justify-between gap-2">
+        <span className="truncate text-sm font-semibold text-ink">{repertoire.name}</span>
+        <span className="shrink-0 font-mono text-[11px] text-faint">{songCount} {songCount === 1 ? 'música' : 'músicas'}</span>
+      </div>
+      <StyleCloud songs={repertoire.songs} />
+    </button>
   );
 }
 
