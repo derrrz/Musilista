@@ -19,6 +19,9 @@ function caminhoPermitido(segmentos: string[]): boolean {
   if (!segmentos.every((s) => SEGMENTO_VALIDO.test(s))) return false;
   if (segmentos[0] === 'groups') return true;
   if (segmentos[0] === 'mobile' && segmentos[1] === 'groups') return true;
+  // Leitura do conteúdo de uma música do acervo importado (só GET existe
+  // nessa rota hoje — sem risco de escrita mesmo liberando o prefixo inteiro).
+  if (segmentos[0] === 'imported-songs') return true;
   return false;
 }
 

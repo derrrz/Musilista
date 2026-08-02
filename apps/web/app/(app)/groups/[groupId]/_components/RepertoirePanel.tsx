@@ -404,6 +404,12 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
                             {def.type !== 'song' && s.body && (
                               <div className="line-clamp-2 whitespace-pre-line text-xs text-muted">{s.body}</div>
                             )}
+                            {def.type === 'song' && s.body && (
+                              <details className="mt-1">
+                                <summary className="cursor-pointer text-[11px] font-medium text-accent">Ver cifra</summary>
+                                <pre className="mt-1 max-h-72 overflow-auto whitespace-pre rounded-md bg-surface p-2.5 font-mono text-[11px] leading-snug text-ink">{s.body}</pre>
+                              </details>
+                            )}
                           </div>
                           {s.songKey && (
                             <span className="shrink-0 rounded-md bg-blue-400/15 px-2 py-0.5 font-mono text-[11px] font-bold text-blue-400">
