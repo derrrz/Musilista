@@ -16,7 +16,7 @@ type Candidate = {
   artistSlug: string | null;
   titleSlug: string | null;
   votes: number;
-  votedByMe: boolean;
+  myLevel: number | null;
 };
 
 // URL canônica da cifra quando a sugestão bateu no acervo; sem slug (sugestão
@@ -37,11 +37,9 @@ type VotingRound = {
   id: string;
   title: string;
   status: 'open' | 'closed';
-  maxVotesPerMember: number;
   createdBy: string;
   resultRepertoireId: string | null;
   candidates: Candidate[];
-  myVotesUsed: number;
 };
 type SongResult = { id: string; title: string; artist: string; artistSlug: string | null; titleSlug: string | null };
 // Payload solto via drag-and-drop de um SetlistCard (RepertoirePanel) —
@@ -50,11 +48,47 @@ type DraggedSetlist = { repertoireId: string; name: string; songs: { id: string;
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
-function CandidateRow({
-  candidate, rank, leaderVotes, canVote, onToggle, pending,
+// 3 corações = nota de 1 a 3 pra essa música (não é "quantidade de votos
+// pra gastar" — cada música recebe uma nota independente das outras).
+// Clicar na nota já marcada retira o voto; clicar numa nota diferente troca.
+function LevelPicker({
+  myLevel, pending, roundOpen, onSetLevel,
 }: {
-  candidate: Candidate; rank: number; leaderVotes: number; canVote: boolean;
-  onToggle: () => void; pending: boolean;
+  myLevel: number | null; pending: boolean; roundOpen: boolean; onSetLevel: (level: number) => void;
+}) {
+  return (
+    <div className="flex shrink-0 items-center gap-0.5">
+      {[1, 2, 3].map((n) => {
+        const filled = myLevel !== null && n <= myLevel;
+        // com a rodada fechada, só o coração já marcado fica clicável (pra
+        // permitir retirar o voto, nunca pra dar nota nova)
+        const isDisabled = pending || (!roundOpen && n !== myLevel);
+        return (
+          <button
+            key={n}
+            type="button"
+            disabled={isDisabled}
+            onClick={() => onSetLevel(n)}
+            className={cn(
+              'flex h-8 w-8 items-center justify-center rounded-full transition-all active:scale-90 disabled:opacity-30',
+              filled ? 'text-accent' : 'text-line hover:text-muted',
+            )}
+            title={`Nota ${n}`}
+            aria-label={myLevel === n ? `Retirar nota ${n}` : `Dar nota ${n}`}
+          >
+            <IconHeart className={cn('h-3.5 w-3.5', filled && 'fill-current')} />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function CandidateRow({
+  candidate, rank, leaderVotes, roundOpen, onSetLevel, pending,
+}: {
+  candidate: Candidate; rank: number; leaderVotes: number; roundOpen: boolean;
+  onSetLevel: (level: number) => void; pending: boolean;
 }) {
   const pct = leaderVotes > 0 ? Math.round((candidate.votes / leaderVotes) * 100) : 0;
   const href = cifraHref(candidate);
@@ -70,7 +104,7 @@ function CandidateRow({
           ) : (
             <p className="truncate text-sm font-medium text-ink">{candidate.title}</p>
           )}
-          <span className="shrink-0 font-mono text-xs text-muted">{candidate.votes} {candidate.votes === 1 ? 'voto' : 'votos'}</span>
+          <span className="shrink-0 font-mono text-xs text-muted">{candidate.votes} {candidate.votes === 1 ? 'ponto' : 'pontos'}</span>
         </div>
         {candidate.artist && <p className="truncate text-xs text-muted">{candidate.artist}</p>}
         {!href && (
@@ -83,18 +117,7 @@ function CandidateRow({
           />
         </div>
       </div>
-      <button
-        type="button"
-        disabled={!canVote || pending}
-        onClick={onToggle}
-        className={cn(
-          'flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all active:scale-90 disabled:opacity-40',
-          candidate.votedByMe ? 'border-accent bg-accent/15 text-accent' : 'border-line text-muted hover:text-ink',
-        )}
-        aria-label={candidate.votedByMe ? 'Retirar voto' : 'Votar'}
-      >
-        <IconHeart className={cn('h-4 w-4', candidate.votedByMe && 'fill-current')} />
-      </button>
+      <LevelPicker myLevel={candidate.myLevel} pending={pending} roundOpen={roundOpen} onSetLevel={onSetLevel} />
     </div>
   );
 }
@@ -150,10 +173,14 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
     });
   }
 
-  function toggleVote(candidateId: string) {
+  function setLevel(candidateId: string, level: number) {
     setPendingId(candidateId);
     startTransition(async () => {
-      await fetch(`/api/groups/${groupId}/votes/${round.id}/candidates/${candidateId}`, { method: 'POST' });
+      await fetch(`/api/groups/${groupId}/votes/${round.id}/candidates/${candidateId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level }),
+      });
       onChange();
       setPendingId(null);
     });
@@ -234,8 +261,6 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
     });
   }
 
-  const votesLeft = round.maxVotesPerMember - round.myVotesUsed;
-
   return (
     <div
       onDragOver={handleDragOver}
@@ -256,7 +281,7 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
           <p className="text-sm font-semibold text-ink">{round.title}</p>
           <p className="text-xs text-muted">
             {round.status === 'open'
-              ? `Aberta · você tem ${votesLeft} de ${round.maxVotesPerMember} ${votesLeft === 1 ? 'voto' : 'votos'} sobrando`
+              ? 'Aberta · dê de 1 a 3 corações pra cada música'
               : 'Encerrada'}
           </p>
         </div>
@@ -278,9 +303,9 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
             candidate={c}
             rank={i}
             leaderVotes={leaderVotes}
-            canVote={round.status === 'open' && (c.votedByMe || votesLeft > 0)}
+            roundOpen={round.status === 'open'}
             pending={busy && pendingId === c.id}
-            onToggle={() => toggleVote(c.id)}
+            onSetLevel={(level) => setLevel(c.id, level)}
           />
         ))}
       </div>
@@ -395,7 +420,6 @@ export function VotingPanel({ groupId, canManage, myUserId }: { groupId: string;
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [newTitle, setNewTitle] = useState('');
-  const [newMaxVotes, setNewMaxVotes] = useState('3');
   const [pending, startTransition] = useTransition();
 
   const load = useCallback(async () => {
@@ -421,10 +445,10 @@ export function VotingPanel({ groupId, canManage, myUserId }: { groupId: string;
       const res = await fetch(`/api/groups/${groupId}/votes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTitle.trim(), maxVotesPerMember: Number(newMaxVotes) || 3 }),
+        body: JSON.stringify({ title: newTitle.trim() }),
       });
       if (res.ok) {
-        setNewTitle(''); setNewMaxVotes('3'); setShowNew(false);
+        setNewTitle(''); setShowNew(false);
         load();
       }
     });
@@ -460,17 +484,6 @@ export function VotingPanel({ groupId, canManage, myUserId }: { groupId: string;
               onChange={(e) => setNewTitle(e.target.value)}
               autoFocus
             />
-            <label className="flex items-center justify-between text-xs text-muted">
-              Votos por pessoa
-              <Input
-                type="number"
-                min={1}
-                max={10}
-                value={newMaxVotes}
-                onChange={(e) => setNewMaxVotes(e.target.value)}
-                className="h-8 w-16 text-center"
-              />
-            </label>
             <div className="flex justify-end gap-2 pt-1">
               <Button type="button" variant="ghost" size="sm" onClick={() => setShowNew(false)}>Cancelar</Button>
               <Button type="submit" size="sm" disabled={!newTitle.trim() || pending}>Criar votação</Button>

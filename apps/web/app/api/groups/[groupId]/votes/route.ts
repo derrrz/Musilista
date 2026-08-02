@@ -30,8 +30,9 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
       addedBy: votingCandidates.addedBy,
       artistSlug: importedSongs.artistSlug,
       titleSlug: importedSongs.titleSlug,
-      votes: sql<number>`count(${votingBallots.userId})::int`,
-      votedByMe: sql<boolean>`coalesce(bool_or(${votingBallots.userId} = ${userId}), false)`,
+      // placar = soma das notas (1-3) de todo mundo, não contagem de votos
+      votes: sql<number>`coalesce(sum(${votingBallots.level}), 0)::int`,
+      myLevel: sql<number | null>`max(case when ${votingBallots.userId} = ${userId} then ${votingBallots.level} end)`,
     })
     .from(votingCandidates)
     .leftJoin(votingBallots, eq(votingBallots.candidateId, votingCandidates.id))
@@ -48,11 +49,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 
   const result = rounds.map((r) => {
     const cands = (byRound.get(r.id) ?? []).sort((a, b) => b.votes - a.votes);
-    return {
-      ...r,
-      candidates: cands,
-      myVotesUsed: cands.filter((c) => c.votedByMe).length,
-    };
+    return { ...r, candidates: cands };
   });
 
   return NextResponse.json(result);
@@ -64,14 +61,12 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   if (membership instanceof NextResponse) return membership;
   const { userId } = membership;
 
-  const { title, maxVotesPerMember, candidates } = await req.json();
+  const { title, candidates } = await req.json();
   if (!title?.trim()) return NextResponse.json({ error: 'Título obrigatório' }, { status: 400 });
-
-  const maxVotes = Number.isInteger(maxVotesPerMember) && maxVotesPerMember > 0 ? maxVotesPerMember : 3;
 
   const [round] = await db
     .insert(votingRounds)
-    .values({ groupId, title: title.trim(), maxVotesPerMember: maxVotes, createdBy: userId })
+    .values({ groupId, title: title.trim(), createdBy: userId })
     .returning();
 
   let seededCandidates: { id: string; title: string; artist: string }[] = [];
@@ -93,7 +88,6 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 
   return NextResponse.json({
     ...round,
-    candidates: seededCandidates.map((c) => ({ ...c, addedBy: userId, votes: 0, votedByMe: false })),
-    myVotesUsed: 0,
+    candidates: seededCandidates.map((c) => ({ ...c, addedBy: userId, votes: 0, myLevel: null })),
   }, { status: 201 });
 }

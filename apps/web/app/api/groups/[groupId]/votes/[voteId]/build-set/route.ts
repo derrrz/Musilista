@@ -28,13 +28,14 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     .select({
       title: votingCandidates.title,
       artist: votingCandidates.artist,
-      votes: sql<number>`count(${votingBallots.userId})::int`,
+      // placar = soma das notas (1-3), mesmo cálculo do GET /votes
+      votes: sql<number>`coalesce(sum(${votingBallots.level}), 0)::int`,
     })
     .from(votingCandidates)
     .leftJoin(votingBallots, eq(votingBallots.candidateId, votingCandidates.id))
     .where(eq(votingCandidates.votingRoundId, voteId))
     .groupBy(votingCandidates.id)
-    .orderBy(desc(sql`count(${votingBallots.userId})`));
+    .orderBy(desc(sql`coalesce(sum(${votingBallots.level}), 0)`));
 
   const winners = (Number.isInteger(topN) && topN > 0 ? ranked.slice(0, topN) : ranked).filter((r) => r.votes > 0);
   if (winners.length === 0) {

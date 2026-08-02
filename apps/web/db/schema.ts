@@ -285,6 +285,7 @@ export const votingCandidates = pgTable("voting_candidates", {
 export const votingBallots = pgTable("voting_ballots", {
 	candidateId: uuid("candidate_id").notNull(),
 	userId: uuid("user_id").notNull(),
+	level: integer().default(1).notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	foreignKey({
