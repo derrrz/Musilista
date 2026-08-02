@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
@@ -22,6 +23,15 @@ type Candidate = {
 // digitada à mão) não tem cifra pra linkar.
 function cifraHref(c: Pick<Candidate, 'artistSlug' | 'titleSlug'>): string | null {
   return c.artistSlug && c.titleSlug ? `/${c.artistSlug}/${c.titleSlug}` : null;
+}
+
+// Sugestão manual (sem bater no acervo) dispara um feedback pro time avaliar
+// incluir a cifra — silencioso, não bloqueia nem alerta o usuário se falhar.
+function suggestCifraCreation(title: string, artist: string, pathname: string | null) {
+  const form = new FormData();
+  form.set('message', `Sugestão de cifra pro acervo: "${title}"${artist ? ` — ${artist}` : ''} (pedida numa votação de grupo, não encontrada na busca).`);
+  form.set('pageUrl', pathname ?? '');
+  fetch('/api/feedback', { method: 'POST', body: form }).catch(() => {});
 }
 type VotingRound = {
   id: string;
@@ -60,6 +70,9 @@ function CandidateRow({
           <span className="shrink-0 font-mono text-xs text-muted">{candidate.votes} {candidate.votes === 1 ? 'voto' : 'votos'}</span>
         </div>
         {candidate.artist && <p className="truncate text-xs text-muted">{candidate.artist}</p>}
+        {!href && (
+          <p className="truncate text-[11px] text-faint">🎸 Cifra ainda não existe no Musilista — já avisamos o time</p>
+        )}
         <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-raised">
           <div
             className="h-full rounded-full bg-accent/70 transition-all duration-500"
@@ -96,6 +109,7 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
   const [addError, setAddError] = useState<string | null>(null);
   const [busy, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pathname = usePathname();
 
   const sorted = [...round.candidates].sort((a, b) => b.votes - a.votes);
   const leaderVotes = sorted[0]?.votes ?? 0;
@@ -120,6 +134,7 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
         body: JSON.stringify({ title, artist, importedSongId }),
       });
       if (res.ok) {
+        if (!importedSongId) suggestCifraCreation(title, artist, pathname);
         setShowAdd(false); setQuery(''); setResults([]); setManualTitle(''); setManualArtist('');
         onChange();
       } else {
@@ -239,6 +254,11 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
                   </button>
                 ))}
               </div>
+            )}
+            {query.trim().length > 1 && results.length === 0 && (
+              <p className="text-[13px] text-faint">
+                Não achamos essa cifra no acervo do Musilista — pode sugerir com o texto abaixo mesmo assim.
+              </p>
             )}
             <p className="text-center text-[11px] text-faint">— ou digite manualmente —</p>
             <div className="flex gap-2">
