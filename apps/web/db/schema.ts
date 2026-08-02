@@ -327,6 +327,8 @@ export const repertoireSongs = pgTable("repertoire_songs", {
 	bpm: integer(),
 	durationSec: integer("duration_sec"),
 	segue: boolean().default(false).notNull(),
+	genero: text(),
+	estilos: text().array().default([]).notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.repertoireId],
@@ -458,6 +460,16 @@ export const feedback = pgTable("feedback", {
 export const appSettings = pgTable("app_settings", {
 	key: text().primaryKey().notNull(),
 	value: text().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+});
+
+// Rastreio próprio de gasto estimado do AI Gateway (classificação de
+// gênero/estilo), por mês — usado pro freio em app/_lib/aiUsage.ts, já que a
+// Vercel não expõe gasto em tempo real sem token de API separado.
+export const aiUsageMonthly = pgTable("ai_usage_monthly", {
+	month: text().primaryKey().notNull(),
+	estimatedCostMicros: integer("estimated_cost_micros").default(0).notNull(),
+	callCount: integer("call_count").default(0).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 });
 

@@ -4,6 +4,7 @@ import { groupMembers, repertoires, repertoireSongs } from '@/db/schema';
 import { eq, and, max, sql, inArray } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { isValidBlockType } from '@/app/_lib/setlistBlocks';
+import { classifySongGenre } from '@/app/_lib/songGenreClassifier';
 
 async function getMembership(groupId: string, userId: string) {
   const [m] = await db
@@ -39,6 +40,12 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 
   const position = (maxPos ?? -1) + 1;
 
+  // Classificação de gênero/estilo só faz sentido pra blocos de música com
+  // artista informado — nunca bloqueia a criação do item se falhar.
+  const { genero, estilos } = type === 'song' && artist?.trim()
+    ? await classifySongGenre({ title: title.trim(), artist: artist.trim() })
+    : { genero: null, estilos: [] };
+
   const [entry] = await db
     .insert(repertoireSongs)
     .values({
@@ -54,6 +61,8 @@ export async function POST(req: NextRequest, { params }: Ctx) {
       body: typeof body === 'string' && body.trim() ? body.trim() : null,
       durationSec: durationSec ? Number(durationSec) : null,
       segue: segue === true,
+      genero,
+      estilos,
     })
     .returning();
 

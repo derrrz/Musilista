@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { votingRounds, votingCandidates, votingBallots, repertoires, repertoireSongs } from '@/db/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { requireGroupMember, isManager } from '@/app/_lib/groupAuth';
+import { classifySongGenre } from '@/app/_lib/songGenreClassifier';
 
 type Ctx = { params: Promise<{ groupId: string; voteId: string }> };
 
@@ -46,6 +47,12 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     createdBy: userId,
   }).returning();
 
+  // Classificação caso a caso — em paralelo, isolada por música (uma falha
+  // não derruba as outras nem o build-set inteiro).
+  const classified = await Promise.all(
+    winners.map((w) => (w.artist ? classifySongGenre({ title: w.title, artist: w.artist }) : { genero: null, estilos: [] })),
+  );
+
   await db.insert(repertoireSongs).values(
     winners.map((w, i) => ({
       repertoireId: repertoire.id,
@@ -53,6 +60,8 @@ export async function POST(req: NextRequest, { params }: Ctx) {
       notes: w.artist ? `artist:${w.artist}` : null,
       position: i,
       itemType: 'song',
+      genero: classified[i].genero,
+      estilos: classified[i].estilos,
     })),
   );
 

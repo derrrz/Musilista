@@ -717,7 +717,9 @@ type BlobInfra =
 type CoverageStat = { covered: number; total: number };
 type MediaCoverage = { artists: CoverageStat; songs: CoverageStat } | null;
 
-type InfraData = { neonDev: NeonInfra; neonProd: NeonInfra; blob: BlobInfra; coverage: MediaCoverage };
+type AiGatewayInfra = { month: string; costMicros: number; callCount: number; capMicros: number } | null;
+
+type InfraData = { neonDev: NeonInfra; neonProd: NeonInfra; blob: BlobInfra; coverage: MediaCoverage; aiGateway: AiGatewayInfra };
 
 function fmtBytes(bytes: number): string {
   if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
@@ -888,6 +890,47 @@ function CoverageCard({ data }: { data: MediaCoverage }) {
   );
 }
 
+function AiGatewayCard({ data }: { data: AiGatewayInfra }) {
+  if (!data) {
+    return (
+      <Card className="flex flex-col gap-1 border-dashed p-4">
+        <CardTitle>Classificação de gênero/estilo (OpenAI)</CardTitle>
+        <CardDescription>Não foi possível calcular o gasto do mês agora.</CardDescription>
+      </Card>
+    );
+  }
+
+  const usd = data.costMicros / 1_000_000;
+  const capUsd = data.capMicros / 1_000_000;
+  const tripped = data.costMicros >= data.capMicros;
+
+  return (
+    <Card className="flex flex-col gap-3.5 p-4">
+      <div className="flex items-center justify-between gap-2">
+        <CardTitle>Classificação de gênero/estilo (OpenAI)</CardTitle>
+        {tripped && (
+          <span className="inline-flex items-center rounded-md border border-red-500 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-red-500">
+            Freio ativo
+          </span>
+        )}
+      </div>
+      <CardDescription>
+        Gasto estimado (OpenAI gpt-5-nano, chave própria — não passa pelo AI Gateway da Vercel) só das classificações de músicas adicionadas a setlists — rastreio próprio, não é o gasto oficial da OpenAI.
+      </CardDescription>
+      <QuotaRow
+        label={`Gasto estimado — ${data.month}`}
+        used={data.costMicros}
+        limit={data.capMicros}
+        usedLabel={`US$${usd.toFixed(3)} / US$${capUsd.toFixed(2)}`}
+      />
+      <div className="flex items-center justify-between border-t border-line pt-3 text-[11px] text-muted">
+        <span>{data.callCount} classificações este mês</span>
+        {tripped && <span className="text-red-400">Novas classificações pausadas até o próximo mês</span>}
+      </div>
+    </Card>
+  );
+}
+
 function InfraTab() {
   const [data, setData] = useState<InfraData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -914,6 +957,11 @@ function InfraTab() {
     if (pct(n.storageBytes, n.storageLimitBytes) >= 80) bannerAlerts.push(`${label}: storage perto do limite`);
   }
   if (data.blob.configured && data.blob.suspended) bannerAlerts.push('Vercel Blob: escrita suspensa');
+  if (data.aiGateway) {
+    const aiPct = pct(data.aiGateway.costMicros, data.aiGateway.capMicros);
+    if (aiPct >= 100) bannerAlerts.push('AI Gateway: freio ativo — classificação de gênero/estilo pausada até o próximo mês');
+    else if (aiPct >= 80) bannerAlerts.push('AI Gateway: gasto estimado perto do limite mensal');
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -939,6 +987,7 @@ function InfraTab() {
         <BlobCard data={data.blob} />
         <CoverageCard data={data.coverage} />
       </div>
+      <AiGatewayCard data={data.aiGateway} />
     </div>
   );
 }
