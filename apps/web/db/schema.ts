@@ -370,6 +370,15 @@ export const feedback = pgTable("feedback", {
 		}).onDelete("set null"),
 ]);
 
+// Chave-valor pra flags simples do produto (hoje só liga/desliga o widget de
+// feedback). Uma linha só, sem seed automático — a ausência de linha equivale
+// a "habilitado" (ver appSettings.ts), então o default já nasce ligado.
+export const appSettings = pgTable("app_settings", {
+	key: text().primaryKey().notNull(),
+	value: text().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+});
+
 export const eventRoles = pgTable("event_roles", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	eventId: uuid("event_id").notNull(),

@@ -273,6 +273,61 @@ const FEEDBACK_STATUS_LABEL: Record<string, string> = {
   new: 'Novo', seen: 'Visto', resolved: 'Resolvido',
 };
 
+function FeedbackToggle() {
+  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/settings')
+      .then((r) => r.json())
+      .then((d) => setEnabled(Boolean(d?.feedbackEnabled)))
+      .catch(() => setEnabled(true));
+  }, []);
+
+  async function toggle() {
+    if (enabled === null || saving) return;
+    const next = !enabled;
+    setSaving(true);
+    setEnabled(next); // otimista — reverte se a chamada falhar
+    const res = await fetch('/api/admin/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedbackEnabled: next }),
+    });
+    if (!res.ok) setEnabled(!next);
+    setSaving(false);
+  }
+
+  return (
+    <Card className="flex items-center justify-between gap-3 p-3.5">
+      <div>
+        <CardTitle>Widget de feedback</CardTitle>
+        <CardDescription>
+          {enabled === null ? 'Carregando…' : enabled ? 'Visível pra todo mundo no site.' : 'Escondido — ninguém vê o botão de feedback.'}
+        </CardDescription>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={enabled ?? false}
+        disabled={enabled === null || saving}
+        onClick={toggle}
+        className={cn(
+          'relative h-6 w-11 shrink-0 rounded-full border transition-colors disabled:opacity-50',
+          enabled ? 'border-accent bg-accent' : 'border-line bg-raised',
+        )}
+      >
+        <span
+          className={cn(
+            'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
+            enabled ? 'translate-x-[22px]' : 'translate-x-0.5',
+          )}
+        />
+      </button>
+    </Card>
+  );
+}
+
 function FeedbackTab() {
   const [items, setItems] = useState<AdminFeedback[]>([]);
   const [loading, setLoading] = useState(true);
@@ -315,6 +370,8 @@ function FeedbackTab() {
 
   return (
     <div className="flex flex-col gap-3">
+      <FeedbackToggle />
+
       <div className="flex flex-wrap gap-1.5">
         {(['new', 'seen', 'resolved', 'all'] as const).map((f) => (
           <button

@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { TrackPageview } from './_components/TrackPageview';
 import { ConsentAnalytics } from './_components/ConsentAnalytics';
 import { FeedbackWidget } from './_components/FeedbackWidget';
+import { feedbackEnabled } from './_lib/appSettings';
 import './globals.css';
 
 const spaceGrotesk = Space_Grotesk({
@@ -43,7 +44,8 @@ export const viewport = {
 // localStorage vence; sem preferência, segue o sistema.
 const themeInit = `try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){}`;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const showFeedback = await feedbackEnabled();
   return (
     <html
       lang="pt-BR"
@@ -56,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SessionProvider>
           {children}
-          <FeedbackWidget />
+          {showFeedback && <FeedbackWidget />}
         </SessionProvider>
         <Analytics />
         <TrackPageview />
