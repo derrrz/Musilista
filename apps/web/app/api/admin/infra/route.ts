@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser, isPrivilegedRole } from '@/app/_lib/authUser';
 import { neonDevStatus, neonProdStatus, blobStatus } from '@/app/_lib/infraStatus';
+import { mediaCoverage } from '@/app/_lib/mediaCoverage';
 
 export async function GET() {
   const user = await getAuthUser();
@@ -8,11 +9,12 @@ export async function GET() {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const [dev, prod, blob] = await Promise.all([
+  const [dev, prod, blob, coverage] = await Promise.all([
     neonDevStatus().catch(() => ({ configured: false as const })),
     neonProdStatus().catch(() => ({ configured: false as const })),
     blobStatus().catch(() => ({ configured: false as const })),
+    mediaCoverage().catch(() => null),
   ]);
 
-  return NextResponse.json({ neonDev: dev, neonProd: prod, blob });
+  return NextResponse.json({ neonDev: dev, neonProd: prod, blob, coverage });
 }

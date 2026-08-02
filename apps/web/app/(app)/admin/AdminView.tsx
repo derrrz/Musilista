@@ -714,7 +714,10 @@ type BlobInfra =
   | { configured: false }
   | { configured: true; suspended: boolean; checkedAt: string; error?: string };
 
-type InfraData = { neonDev: NeonInfra; neonProd: NeonInfra; blob: BlobInfra };
+type CoverageStat = { covered: number; total: number };
+type MediaCoverage = { artists: CoverageStat; songs: CoverageStat } | null;
+
+type InfraData = { neonDev: NeonInfra; neonProd: NeonInfra; blob: BlobInfra; coverage: MediaCoverage };
 
 function fmtBytes(bytes: number): string {
   if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
@@ -736,10 +739,14 @@ function daysLeft(iso: string): number {
   return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000));
 }
 
-function QuotaRow({ label, used, limit, usedLabel }: {
+function QuotaRow({ label, used, limit, usedLabel, invert }: {
   label: string; used: number; limit: number; usedLabel: string;
+  // Cotas: alto = ruim (vermelho). Cobertura: alto = bom (verde) — inverte o
+  // sentido da cor sem inventar outra escala.
+  invert?: boolean;
 }) {
   const p = pct(used, limit);
+  const colorPct = invert ? 100 - p : p;
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between text-xs">
@@ -747,7 +754,7 @@ function QuotaRow({ label, used, limit, usedLabel }: {
         <span className="font-mono text-ink">{usedLabel} <span className="text-faint">· {p}%</span></span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-raised">
-        <div className={cn('h-full rounded-full transition-all', barColor(p))} style={{ width: `${Math.min(100, p)}%` }} />
+        <div className={cn('h-full rounded-full transition-all', barColor(colorPct))} style={{ width: `${Math.min(100, p)}%` }} />
       </div>
     </div>
   );
@@ -847,6 +854,40 @@ function BlobCard({ data }: { data: BlobInfra }) {
   );
 }
 
+function CoverageCard({ data }: { data: MediaCoverage }) {
+  if (!data) {
+    return (
+      <Card className="flex flex-col gap-1 border-dashed p-4">
+        <CardTitle>Cobertura de imagens</CardTitle>
+        <CardDescription>Não foi possível calcular agora.</CardDescription>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="flex flex-col gap-3.5 p-4">
+      <CardTitle>Cobertura de imagens</CardTitle>
+      <CardDescription>
+        Quantas bandas/músicas do catálogo já têm foto ou capa cacheada (Deezer → Blob).
+      </CardDescription>
+      <QuotaRow
+        invert
+        label="Fotos de artista"
+        used={data.artists.covered}
+        limit={data.artists.total}
+        usedLabel={`${data.artists.covered} / ${data.artists.total} artistas`}
+      />
+      <QuotaRow
+        invert
+        label="Capas de música"
+        used={data.songs.covered}
+        limit={data.songs.total}
+        usedLabel={`${data.songs.covered} / ${data.songs.total} músicas`}
+      />
+    </Card>
+  );
+}
+
 function InfraTab() {
   const [data, setData] = useState<InfraData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -877,7 +918,7 @@ function InfraTab() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted">Cotas de Neon (Postgres) e Vercel Blob — atualiza a cada carregamento.</p>
+        <p className="text-xs text-muted">Cotas de Neon (Postgres), Vercel Blob e cobertura de imagens — atualiza a cada carregamento.</p>
         <Button variant="ghost" size="sm" onClick={() => { setLoading(true); load(); }}>Atualizar</Button>
       </div>
 
@@ -894,7 +935,10 @@ function InfraTab() {
         <NeonCard title="Neon · Dev" data={data.neonDev} />
         <NeonCard title="Neon · Produção" data={data.neonProd} />
       </div>
-      <BlobCard data={data.blob} />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <BlobCard data={data.blob} />
+        <CoverageCard data={data.coverage} />
+      </div>
     </div>
   );
 }

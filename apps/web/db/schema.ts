@@ -540,9 +540,16 @@ export const artistPhotos = pgTable("artist_photos", {
 	normalizedName: text("normalized_name").notNull(),
 	artistName: text("artist_name").notNull(),
 	blobUrl: text("blob_url"),
-	contentType: text("content_type").notNull(),
+	// nullable: fica sem valor enquanto a linha é só uma "reserva" da chave
+	// (ver claimedAt) — só é preenchido quando o upload pro Blob termina.
+	contentType: text("content_type"),
 	sourceUrl: text("source_url"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	// Quando essa linha foi reivindicada por uma requisição (não quando a
+	// imagem terminou de subir). Serve só pra destravar reservas órfãs de
+	// requisições que morreram no meio do caminho (timeout/crash) — ver
+	// app/api/artist-photo/route.ts.
+	claimedAt: timestamp("claimed_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	unique("artist_photos_normalized_name_unique").on(table.normalizedName),
 ]);
@@ -555,9 +562,10 @@ export const songCovers = pgTable("song_covers", {
 	title: text().notNull(),
 	artist: text().notNull(),
 	blobUrl: text("blob_url"),
-	contentType: text("content_type").notNull(),
+	contentType: text("content_type"),
 	sourceUrl: text("source_url"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	claimedAt: timestamp("claimed_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	unique("song_covers_normalized_key_unique").on(table.normalizedKey),
 ]);

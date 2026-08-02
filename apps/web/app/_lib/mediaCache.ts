@@ -20,3 +20,15 @@ export function blobRedirectResponse(url: string) {
 export function notFoundResponse() {
   return new NextResponse(null, { status: 404, headers: { 'Cache-Control': 'public, max-age=3600' } });
 }
+
+// Quem perde a corrida pela chave (ver comentário nas rotas song-cover e
+// artist-photo) ainda precisa mostrar alguma imagem — redireciona direto pra
+// fonte (Deezer) sem gastar operação nenhuma do Blob. Cache curto: a fonte
+// pode mudar e, em pouco tempo, a chave já deve estar cacheada no Blob pelo
+// dono da corrida.
+export function sourceRedirectResponse(url: string) {
+  return NextResponse.redirect(url, {
+    status: 307,
+    headers: { 'Cache-Control': 'public, max-age=3600' },
+  });
+}
