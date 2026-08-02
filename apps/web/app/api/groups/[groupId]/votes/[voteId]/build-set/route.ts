@@ -28,6 +28,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     .select({
       title: votingCandidates.title,
       artist: votingCandidates.artist,
+      body: votingCandidates.body,
       // placar = soma das notas (1-3), mesmo cálculo do GET /votes
       votes: sql<number>`coalesce(sum(${votingBallots.level}), 0)::int`,
     })
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
       repertoireId: repertoire.id,
       title: w.title,
       notes: w.artist ? `artist:${w.artist}` : null,
+      body: w.body,
       position: i,
       itemType: 'song',
       genero: classified[i].genero,

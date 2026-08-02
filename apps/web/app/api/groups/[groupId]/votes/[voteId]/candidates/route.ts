@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   if (!round) return NextResponse.json({ error: 'Votação não encontrada' }, { status: 404 });
   if (round.status !== 'open') return NextResponse.json({ error: 'Votação encerrada' }, { status: 400 });
 
-  const { title, artist, importedSongId } = await req.json();
+  const { title, artist, importedSongId, body } = await req.json();
   if (!title?.trim()) return NextResponse.json({ error: 'Título obrigatório' }, { status: 400 });
 
   const normTitle = normalize(title);
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     title: title.trim(),
     artist: (artist ?? '').trim(),
     importedSongId: song?.id,
+    body: typeof body === 'string' && body.trim() ? body.trim() : null,
     addedBy: userId,
   }).returning();
 
@@ -54,6 +55,6 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     artistSlug: song?.artistSlug ?? null,
     titleSlug: song?.titleSlug ?? null,
     votes: 0,
-    votedByMe: false,
+    myLevel: null,
   }, { status: 201 });
 }

@@ -27,6 +27,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
       votingRoundId: votingCandidates.votingRoundId,
       title: votingCandidates.title,
       artist: votingCandidates.artist,
+      body: votingCandidates.body,
       addedBy: votingCandidates.addedBy,
       artistSlug: importedSongs.artistSlug,
       titleSlug: importedSongs.titleSlug,

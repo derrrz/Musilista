@@ -1,0 +1,1 @@
+ALTER TABLE "voting_candidates" ADD COLUMN "body" text;

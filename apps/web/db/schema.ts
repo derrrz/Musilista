@@ -260,6 +260,10 @@ export const votingCandidates = pgTable("voting_candidates", {
 	title: text().notNull(),
 	artist: text().notNull(),
 	importedSongId: uuid("imported_song_id"),
+	// cifra em si — só preenchida quando a sugestão veio de um setlist
+	// (drag-and-drop) que já tinha o body; sugestão manual/busca no acervo
+	// não traz conteúdo, só o link (importedSongId).
+	body: text(),
 	addedBy: uuid("added_by"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [

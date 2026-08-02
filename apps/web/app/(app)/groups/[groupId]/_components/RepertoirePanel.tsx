@@ -604,7 +604,7 @@ function SetlistCard({ repertoire, onOpen }: { repertoire: Repertoire; onOpen: (
     const payload = {
       repertoireId: repertoire.id,
       name: repertoire.name,
-      songs: songs.map((s) => ({ id: s.id, title: s.title ?? '', artist: parseArtist(s.notes) })),
+      songs: songs.map((s) => ({ id: s.id, title: s.title ?? '', artist: parseArtist(s.notes), body: s.body })),
     };
     e.dataTransfer.setData('application/json', JSON.stringify(payload));
     e.dataTransfer.effectAllowed = 'copy';

@@ -13,6 +13,7 @@ type Candidate = {
   id: string;
   title: string;
   artist: string;
+  body: string | null;
   artistSlug: string | null;
   titleSlug: string | null;
   votes: number;
@@ -44,7 +45,7 @@ type VotingRound = {
 type SongResult = { id: string; title: string; artist: string; artistSlug: string | null; titleSlug: string | null };
 // Payload solto via drag-and-drop de um SetlistCard (RepertoirePanel) —
 // carregado no dataTransfer, não em estado React (componentes irmãos).
-type DraggedSetlist = { repertoireId: string; name: string; songs: { id: string; title: string; artist: string }[] };
+type DraggedSetlist = { repertoireId: string; name: string; songs: { id: string; title: string; artist: string; body: string | null }[] };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -107,7 +108,12 @@ function CandidateRow({
           <span className="shrink-0 font-mono text-xs text-muted">{candidate.votes} {candidate.votes === 1 ? 'ponto' : 'pontos'}</span>
         </div>
         {candidate.artist && <p className="truncate text-xs text-muted">{candidate.artist}</p>}
-        {!href && (
+        {candidate.body ? (
+          <details className="mt-1">
+            <summary className="cursor-pointer text-[11px] font-medium text-accent">Ver cifra</summary>
+            <pre className="mt-1 max-h-72 overflow-auto whitespace-pre rounded-md bg-raised p-2.5 font-mono text-[11px] leading-snug text-ink">{candidate.body}</pre>
+          </details>
+        ) : !href && (
           <p className="truncate text-[11px] text-faint">🎸 Cifra ainda não existe no Musilista — já avisamos o time</p>
         )}
         <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-raised">
@@ -253,7 +259,7 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
         fetch(`/api/groups/${groupId}/votes/${round.id}/candidates`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: s.title, artist: s.artist }),
+          body: JSON.stringify({ title: s.title, artist: s.artist, body: s.body }),
         }).catch(() => {}),
       ));
       setImportSource(null);
