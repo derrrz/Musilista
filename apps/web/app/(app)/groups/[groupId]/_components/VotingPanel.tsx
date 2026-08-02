@@ -44,6 +44,9 @@ type VotingRound = {
   myVotesUsed: number;
 };
 type SongResult = { id: string; title: string; artist: string; artistSlug: string | null; titleSlug: string | null };
+// Payload solto via drag-and-drop de um SetlistCard (RepertoirePanel) —
+// carregado no dataTransfer, não em estado React (componentes irmãos).
+type DraggedSetlist = { repertoireId: string; name: string; songs: { id: string; title: string; artist: string }[] };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -107,6 +110,9 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
   const [manualTitle, setManualTitle] = useState('');
   const [manualArtist, setManualArtist] = useState('');
   const [addError, setAddError] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [importSource, setImportSource] = useState<DraggedSetlist | null>(null);
+  const [selectedSongIds, setSelectedSongIds] = useState<Set<string>>(new Set());
   const [busy, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
@@ -175,10 +181,76 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
     });
   }
 
+  // Drag-and-drop de um SetlistCard: soltar abre o seletor, não importa
+  // direto — o usuário escolhe quais músicas quer mandar pra votação.
+  function handleDragOver(e: React.DragEvent) {
+    if (round.status !== 'open') return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    setDragOver(true);
+  }
+
+  function handleDragLeave() {
+    setDragOver(false);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    if (round.status !== 'open') return;
+    const raw = e.dataTransfer.getData('application/json');
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw) as DraggedSetlist;
+      if (!data.songs?.length) return;
+      setImportSource(data);
+      setSelectedSongIds(new Set(data.songs.map((s) => s.id)));
+    } catch {
+      // payload de outro tipo de drag — ignora
+    }
+  }
+
+  function toggleSongSelected(id: string) {
+    setSelectedSongIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function confirmImport() {
+    if (!importSource) return;
+    const songs = importSource.songs.filter((s) => selectedSongIds.has(s.id));
+    startTransition(async () => {
+      await Promise.all(songs.map((s) =>
+        fetch(`/api/groups/${groupId}/votes/${round.id}/candidates`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: s.title, artist: s.artist }),
+        }).catch(() => {}),
+      ));
+      setImportSource(null);
+      onChange();
+    });
+  }
+
   const votesLeft = round.maxVotesPerMember - round.myVotesUsed;
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-line bg-raised p-4">
+    <div
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={cn(
+        'relative flex flex-col gap-3 rounded-xl border p-4 transition-colors',
+        dragOver ? 'border-accent bg-accent/5' : 'border-line bg-raised',
+      )}
+    >
+      {dragOver && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl border-2 border-dashed border-accent bg-bg/90">
+          <p className="text-sm font-semibold text-accent">Solte pra importar músicas do setlist</p>
+        </div>
+      )}
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-semibold text-ink">{round.title}</p>
@@ -270,6 +342,45 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
               <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)}><IconClose className="h-3.5 w-3.5" /> Cancelar</Button>
               <Button size="sm" disabled={!manualTitle.trim() || busy} onClick={() => addCandidate(manualTitle.trim(), manualArtist.trim())}>
                 Adicionar
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {importSource && (
+        <Modal title={`Importar de "${importSource.name}"`} onClose={() => setImportSource(null)}>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted">{selectedSongIds.size} de {importSource.songs.length} selecionada(s)</p>
+              <button
+                type="button"
+                onClick={() => setSelectedSongIds(
+                  selectedSongIds.size === importSource.songs.length ? new Set() : new Set(importSource.songs.map((s) => s.id)),
+                )}
+                className="text-xs font-medium text-accent hover:underline"
+              >
+                {selectedSongIds.size === importSource.songs.length ? 'Desmarcar todas' : 'Selecionar todas'}
+              </button>
+            </div>
+            <div className="flex max-h-72 flex-col gap-0.5 overflow-y-auto">
+              {importSource.songs.map((s) => (
+                <label key={s.id} className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-surface">
+                  <input
+                    type="checkbox"
+                    checked={selectedSongIds.has(s.id)}
+                    onChange={() => toggleSongSelected(s.id)}
+                    className="h-4 w-4 shrink-0 accent-[var(--ml-accent)]"
+                  />
+                  <span className="truncate text-sm text-ink">{s.title}</span>
+                  {s.artist && <span className="shrink-0 text-xs text-muted">{s.artist}</span>}
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="ghost" size="sm" onClick={() => setImportSource(null)}>Cancelar</Button>
+              <Button size="sm" disabled={selectedSongIds.size === 0 || busy} onClick={confirmImport}>
+                Adicionar {selectedSongIds.size || ''} à votação
               </Button>
             </div>
           </div>

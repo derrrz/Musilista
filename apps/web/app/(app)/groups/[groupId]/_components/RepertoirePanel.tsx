@@ -594,17 +594,33 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
 }
 
 // Card colapsado de um setlist: nome, contagem e mini nuvem dos
-// gêneros/estilos das músicas dele — clicar abre a view completa.
+// gêneros/estilos das músicas dele — clicar abre a view completa. Também
+// arrastável: soltar num card de votação aberta abre um seletor pra
+// importar músicas desse setlist como candidatas.
 function SetlistCard({ repertoire, onOpen }: { repertoire: Repertoire; onOpen: () => void }) {
-  const songCount = repertoire.songs.filter((s) => (s.itemType ?? 'song') === 'song').length;
+  const songs = repertoire.songs.filter((s) => (s.itemType ?? 'song') === 'song');
+
+  function handleDragStart(e: React.DragEvent) {
+    const payload = {
+      repertoireId: repertoire.id,
+      name: repertoire.name,
+      songs: songs.map((s) => ({ id: s.id, title: s.title ?? '', artist: parseArtist(s.notes) })),
+    };
+    e.dataTransfer.setData('application/json', JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = 'copy';
+  }
+
   return (
     <button
+      draggable
+      onDragStart={handleDragStart}
       onClick={onOpen}
-      className="flex flex-col items-start gap-2.5 rounded-xl border border-line bg-raised p-4 text-left transition-colors hover:border-[color-mix(in_oklch,var(--ml-accent)_30%,transparent)] hover:bg-surface"
+      title="Clique pra abrir, ou arraste pra uma votação aberta"
+      className="flex cursor-grab flex-col items-start gap-2.5 rounded-xl border border-line bg-raised p-4 text-left transition-colors hover:border-[color-mix(in_oklch,var(--ml-accent)_30%,transparent)] hover:bg-surface active:cursor-grabbing"
     >
       <div className="flex w-full items-center justify-between gap-2">
         <span className="truncate text-sm font-semibold text-ink">{repertoire.name}</span>
-        <span className="shrink-0 font-mono text-[11px] text-faint">{songCount} {songCount === 1 ? 'música' : 'músicas'}</span>
+        <span className="shrink-0 font-mono text-[11px] text-faint">{songs.length} {songs.length === 1 ? 'música' : 'músicas'}</span>
       </div>
       <StyleCloud songs={repertoire.songs} />
     </button>
