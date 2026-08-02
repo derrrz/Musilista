@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { votingRounds, votingCandidates, votingBallots, importedSongs } from '@/db/schema';
-import { eq, and, desc, inArray, sql } from 'drizzle-orm';
+import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, importedSongs, groupMembers, users } from '@/db/schema';
+import { eq, desc, inArray, sql } from 'drizzle-orm';
 import { requireGroupMember } from '@/app/_lib/groupAuth';
 
 type Ctx = { params: Promise<{ groupId: string }> };
@@ -21,6 +21,14 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
   if (rounds.length === 0) return NextResponse.json([]);
 
   const roundIds = rounds.map((r) => r.id);
+
+  // placar = soma das notas (1-3) de membros + convidados — subqueries
+  // escalares (não join) pra não duplicar linha por causa do join duplo.
+  const votesExpr = sql<number>`
+    coalesce((select sum(${votingBallots.level}) from ${votingBallots} where ${votingBallots.candidateId} = ${votingCandidates.id}), 0)
+    + coalesce((select sum(${votingGuestBallots.level}) from ${votingGuestBallots} where ${votingGuestBallots.candidateId} = ${votingCandidates.id}), 0)
+  `;
+
   const candidates = await db
     .select({
       id: votingCandidates.id,
@@ -31,15 +39,12 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
       addedBy: votingCandidates.addedBy,
       artistSlug: importedSongs.artistSlug,
       titleSlug: importedSongs.titleSlug,
-      // placar = soma das notas (1-3) de todo mundo, não contagem de votos
-      votes: sql<number>`coalesce(sum(${votingBallots.level}), 0)::int`,
-      myLevel: sql<number | null>`max(case when ${votingBallots.userId} = ${userId} then ${votingBallots.level} end)`,
+      votes: votesExpr.mapWith(Number),
+      myLevel: sql<number | null>`(select ${votingBallots.level} from ${votingBallots} where ${votingBallots.candidateId} = ${votingCandidates.id} and ${votingBallots.userId} = ${userId})`,
     })
     .from(votingCandidates)
-    .leftJoin(votingBallots, eq(votingBallots.candidateId, votingCandidates.id))
     .leftJoin(importedSongs, eq(importedSongs.id, votingCandidates.importedSongId))
-    .where(inArray(votingCandidates.votingRoundId, roundIds))
-    .groupBy(votingCandidates.id, importedSongs.artistSlug, importedSongs.titleSlug);
+    .where(inArray(votingCandidates.votingRoundId, roundIds));
 
   const byRound = new Map<string, typeof candidates>();
   for (const c of candidates) {
@@ -48,9 +53,52 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     byRound.set(c.votingRoundId, list);
   }
 
+  // Painel de progresso: pra cada rodada, quanto cada membro do grupo (e
+  // cada convidado que já votou) já deu de pontos, sobre o máximo possível
+  // (candidatos × 3). Não revela em qual música a nota foi dada.
+  const members = await db
+    .select({ userId: groupMembers.userId, name: users.name, email: users.email })
+    .from(groupMembers)
+    .innerJoin(users, eq(users.id, groupMembers.userId))
+    .where(eq(groupMembers.groupId, groupId));
+
+  const memberGiven = await db
+    .select({
+      votingRoundId: votingCandidates.votingRoundId,
+      userId: votingBallots.userId,
+      given: sql<number>`sum(${votingBallots.level})`.mapWith(Number),
+    })
+    .from(votingBallots)
+    .innerJoin(votingCandidates, eq(votingCandidates.id, votingBallots.candidateId))
+    .where(inArray(votingCandidates.votingRoundId, roundIds))
+    .groupBy(votingCandidates.votingRoundId, votingBallots.userId);
+
+  const guestGiven = await db
+    .select({
+      votingRoundId: votingCandidates.votingRoundId,
+      guestId: votingGuestBallots.guestId,
+      guestName: sql<string>`max(${votingGuestBallots.guestName})`,
+      given: sql<number>`sum(${votingGuestBallots.level})`.mapWith(Number),
+    })
+    .from(votingGuestBallots)
+    .innerJoin(votingCandidates, eq(votingCandidates.id, votingGuestBallots.candidateId))
+    .where(inArray(votingCandidates.votingRoundId, roundIds))
+    .groupBy(votingCandidates.votingRoundId, votingGuestBallots.guestId);
+
   const result = rounds.map((r) => {
     const cands = (byRound.get(r.id) ?? []).sort((a, b) => b.votes - a.votes);
-    return { ...r, candidates: cands };
+    const max = cands.length * 3;
+    const participants = [
+      ...members.map((m) => ({
+        name: m.name || m.email,
+        given: memberGiven.find((g) => g.votingRoundId === r.id && g.userId === m.userId)?.given ?? 0,
+        max,
+      })),
+      ...guestGiven
+        .filter((g) => g.votingRoundId === r.id)
+        .map((g) => ({ name: g.guestName, given: g.given, max })),
+    ];
+    return { ...r, candidates: cands, participants };
   });
 
   return NextResponse.json(result);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { votingRounds, votingCandidates, votingBallots, repertoires, repertoireSongs } from '@/db/schema';
+import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, repertoires, repertoireSongs } from '@/db/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { requireGroupMember, isManager } from '@/app/_lib/groupAuth';
 import { classifySongGenre } from '@/app/_lib/songGenreClassifier';
@@ -24,19 +24,23 @@ export async function POST(req: NextRequest, { params }: Ctx) {
 
   const { name, topN } = await req.json().catch(() => ({}));
 
+  // placar = soma das notas (1-3) de membros + convidados, mesmo cálculo
+  // (scalar subqueries) do GET /votes
+  const votesExpr = sql<number>`
+    coalesce((select sum(${votingBallots.level}) from ${votingBallots} where ${votingBallots.candidateId} = ${votingCandidates.id}), 0)
+    + coalesce((select sum(${votingGuestBallots.level}) from ${votingGuestBallots} where ${votingGuestBallots.candidateId} = ${votingCandidates.id}), 0)
+  `;
+
   const ranked = await db
     .select({
       title: votingCandidates.title,
       artist: votingCandidates.artist,
       body: votingCandidates.body,
-      // placar = soma das notas (1-3), mesmo cálculo do GET /votes
-      votes: sql<number>`coalesce(sum(${votingBallots.level}), 0)::int`,
+      votes: votesExpr.mapWith(Number),
     })
     .from(votingCandidates)
-    .leftJoin(votingBallots, eq(votingBallots.candidateId, votingCandidates.id))
     .where(eq(votingCandidates.votingRoundId, voteId))
-    .groupBy(votingCandidates.id)
-    .orderBy(desc(sql`coalesce(sum(${votingBallots.level}), 0)`));
+    .orderBy(sql`${votesExpr} desc`);
 
   const winners = (Number.isInteger(topN) && topN > 0 ? ranked.slice(0, topN) : ranked).filter((r) => r.votes > 0);
   if (winners.length === 0) {

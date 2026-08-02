@@ -232,6 +232,9 @@ export const votingRounds = pgTable("voting_rounds", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	closedAt: timestamp("closed_at", { withTimezone: true, mode: 'string' }),
 	resultRepertoireId: uuid("result_repertoire_id"),
+	// token público pra convidar gente de fora a votar nessa rodada
+	// específica (padrão igual events.publicToken) — null = sem link ativo.
+	inviteToken: uuid("invite_token"),
 }, (table) => [
 	foreignKey({
 			columns: [table.groupId],
@@ -248,6 +251,7 @@ export const votingRounds = pgTable("voting_rounds", {
 			foreignColumns: [repertoires.id],
 			name: "voting_rounds_result_repertoire_id_fkey"
 		}).onDelete("set null"),
+	unique("voting_rounds_invite_token_unique").on(table.inviteToken),
 ]);
 
 // Uma música candidata dentro de uma rodada — sugerida por qualquer membro
@@ -303,6 +307,42 @@ export const votingBallots = pgTable("voting_ballots", {
 			name: "voting_ballots_user_id_users_id_fk"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.candidateId, table.userId], name: "voting_ballots_pkey" }),
+]);
+
+// Convite nomeado pra votação por link — o dono já sabe quem vai mandar
+// (ex: "Eder") e pré-preenche/trava o nome na página pública. usedAt marca
+// o primeiro voto desse convidado (pra mostrar badge "votou"/"ainda não").
+export const votingGuestInvites = pgTable("voting_guest_invites", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	votingRoundId: uuid("voting_round_id").notNull(),
+	name: text().notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	usedAt: timestamp("used_at", { withTimezone: true, mode: 'string' }),
+}, (table) => [
+	foreignKey({
+			columns: [table.votingRoundId],
+			foreignColumns: [votingRounds.id],
+			name: "voting_guest_invites_voting_round_id_fkey"
+		}).onDelete("cascade"),
+]);
+
+// Voto de convidado sem conta — tabela paralela a voting_ballots porque
+// guestId não é FK pra users (identidade só existe no localStorage do
+// navegador do convidado, gerada na hora, sem login).
+export const votingGuestBallots = pgTable("voting_guest_ballots", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	candidateId: uuid("candidate_id").notNull(),
+	guestId: uuid("guest_id").notNull(),
+	guestName: text("guest_name").notNull(),
+	level: integer().default(1).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.candidateId],
+			foreignColumns: [votingCandidates.id],
+			name: "voting_guest_ballots_candidate_id_fkey"
+		}).onDelete("cascade"),
+	unique("voting_guest_ballots_candidate_id_guest_id_unique").on(table.candidateId, table.guestId),
 ]);
 
 export const groupSongs = pgTable("group_songs", {
