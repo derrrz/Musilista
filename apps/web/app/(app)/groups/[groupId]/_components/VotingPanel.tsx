@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
@@ -11,9 +12,17 @@ type Candidate = {
   id: string;
   title: string;
   artist: string;
+  artistSlug: string | null;
+  titleSlug: string | null;
   votes: number;
   votedByMe: boolean;
 };
+
+// URL canônica da cifra quando a sugestão bateu no acervo; sem slug (sugestão
+// digitada à mão) não tem cifra pra linkar.
+function cifraHref(c: Pick<Candidate, 'artistSlug' | 'titleSlug'>): string | null {
+  return c.artistSlug && c.titleSlug ? `/${c.artistSlug}/${c.titleSlug}` : null;
+}
 type VotingRound = {
   id: string;
   title: string;
@@ -24,7 +33,7 @@ type VotingRound = {
   candidates: Candidate[];
   myVotesUsed: number;
 };
-type SongResult = { id: string; title: string; artist: string };
+type SongResult = { id: string; title: string; artist: string; artistSlug: string | null; titleSlug: string | null };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -35,12 +44,19 @@ function CandidateRow({
   onToggle: () => void; pending: boolean;
 }) {
   const pct = leaderVotes > 0 ? Math.round((candidate.votes / leaderVotes) * 100) : 0;
+  const href = cifraHref(candidate);
   return (
     <div className="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
       <span className="w-6 shrink-0 text-center text-base">{MEDALS[rank] ?? ''}</span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-sm font-medium text-ink">{candidate.title}</p>
+          {href ? (
+            <Link href={href} target="_blank" className="truncate text-sm font-medium text-ink underline-offset-2 hover:text-accent hover:underline">
+              {candidate.title}
+            </Link>
+          ) : (
+            <p className="truncate text-sm font-medium text-ink">{candidate.title}</p>
+          )}
           <span className="shrink-0 font-mono text-xs text-muted">{candidate.votes} {candidate.votes === 1 ? 'voto' : 'votos'}</span>
         </div>
         {candidate.artist && <p className="truncate text-xs text-muted">{candidate.artist}</p>}
@@ -95,13 +111,13 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
     }, 350);
   }
 
-  function addCandidate(title: string, artist: string) {
+  function addCandidate(title: string, artist: string, importedSongId?: string) {
     setAddError(null);
     startTransition(async () => {
       const res = await fetch(`/api/groups/${groupId}/votes/${round.id}/candidates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, artist }),
+        body: JSON.stringify({ title, artist, importedSongId }),
       });
       if (res.ok) {
         setShowAdd(false); setQuery(''); setResults([]); setManualTitle(''); setManualArtist('');
@@ -215,7 +231,7 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
                   <button
                     key={r.id}
                     type="button"
-                    onClick={() => addCandidate(r.title, r.artist)}
+                    onClick={() => addCandidate(r.title, r.artist, r.id)}
                     className="rounded-lg px-3 py-2 text-left text-sm hover:bg-surface"
                   >
                     <span className="text-ink">{r.title}</span>

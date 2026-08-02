@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { votingRounds, votingCandidates, votingBallots } from '@/db/schema';
+import { votingRounds, votingCandidates, votingBallots, importedSongs } from '@/db/schema';
 import { eq, and, desc, inArray, sql } from 'drizzle-orm';
 import { requireGroupMember } from '@/app/_lib/groupAuth';
 
@@ -28,13 +28,16 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
       title: votingCandidates.title,
       artist: votingCandidates.artist,
       addedBy: votingCandidates.addedBy,
+      artistSlug: importedSongs.artistSlug,
+      titleSlug: importedSongs.titleSlug,
       votes: sql<number>`count(${votingBallots.userId})::int`,
       votedByMe: sql<boolean>`coalesce(bool_or(${votingBallots.userId} = ${userId}), false)`,
     })
     .from(votingCandidates)
     .leftJoin(votingBallots, eq(votingBallots.candidateId, votingCandidates.id))
+    .leftJoin(importedSongs, eq(importedSongs.id, votingCandidates.importedSongId))
     .where(inArray(votingCandidates.votingRoundId, roundIds))
-    .groupBy(votingCandidates.id);
+    .groupBy(votingCandidates.id, importedSongs.artistSlug, importedSongs.titleSlug);
 
   const byRound = new Map<string, typeof candidates>();
   for (const c of candidates) {

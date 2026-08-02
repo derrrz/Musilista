@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { votingRounds, votingCandidates } from '@/db/schema';
+import { votingRounds, votingCandidates, importedSongs } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { requireGroupMember } from '@/app/_lib/groupAuth';
 import { normalize } from '@/app/_lib/mediaCache';
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   if (!round) return NextResponse.json({ error: 'Votação não encontrada' }, { status: 404 });
   if (round.status !== 'open') return NextResponse.json({ error: 'Votação encerrada' }, { status: 400 });
 
-  const { title, artist } = await req.json();
+  const { title, artist, importedSongId } = await req.json();
   if (!title?.trim()) return NextResponse.json({ error: 'Título obrigatório' }, { status: 400 });
 
   const normTitle = normalize(title);
@@ -32,12 +32,28 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     return NextResponse.json({ error: 'Essa música já está na lista' }, { status: 409 });
   }
 
+  // Se veio da busca no acervo, confirma que o id existe (senão ignora —
+  // segue como sugestão em texto livre, sem link pra cifra).
+  let song: { id: string; artistSlug: string | null; titleSlug: string | null } | undefined;
+  if (importedSongId) {
+    [song] = await db
+      .select({ id: importedSongs.id, artistSlug: importedSongs.artistSlug, titleSlug: importedSongs.titleSlug })
+      .from(importedSongs).where(eq(importedSongs.id, importedSongId)).limit(1);
+  }
+
   const [candidate] = await db.insert(votingCandidates).values({
     votingRoundId: voteId,
     title: title.trim(),
     artist: (artist ?? '').trim(),
+    importedSongId: song?.id,
     addedBy: userId,
   }).returning();
 
-  return NextResponse.json({ ...candidate, votes: 0, votedByMe: false }, { status: 201 });
+  return NextResponse.json({
+    ...candidate,
+    artistSlug: song?.artistSlug ?? null,
+    titleSlug: song?.titleSlug ?? null,
+    votes: 0,
+    votedByMe: false,
+  }, { status: 201 });
 }

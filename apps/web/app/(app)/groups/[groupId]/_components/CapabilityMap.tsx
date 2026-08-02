@@ -1,20 +1,22 @@
 import Link from 'next/link';
 import type { Capability } from './types';
 
-const CATEGORY_STYLE: Record<Capability['category'], { className: string; legend: string }> = {
-  function: { className: 'text-accent', legend: 'Funções' },
-  instrument: { className: 'text-blue-400', legend: 'Instrumentos' },
-  competency: { className: 'text-amber-400', legend: 'Competências' },
+const CATEGORY_STYLE: Record<Capability['category'], { className: string; legend: string; unit: string }> = {
+  function: { className: 'text-accent', legend: 'Funções', unit: 'membro' },
+  instrument: { className: 'text-blue-400', legend: 'Instrumentos', unit: 'membro' },
+  competency: { className: 'text-amber-400', legend: 'Competências', unit: 'membro' },
+  suggestion: { className: 'text-emerald-400', legend: 'Sugestões', unit: 'voto' },
 };
 
-// Nuvem de palavras das capacidades do grupo: quanto mais membros declaram
-// uma função/instrumento/competência no perfil, maior a palavra.
+// Nuvem de palavras do grupo: quanto mais membros declaram uma
+// função/instrumento/competência no perfil, ou quanto mais votos uma música
+// sugerida na votação recebe, maior a palavra.
 export function CapabilityMap({ capabilities }: { capabilities: Capability[] }) {
   if (capabilities.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-line bg-surface/50 px-6 py-10 text-center">
         <p className="text-sm text-muted">
-          O mapa do grupo nasce dos perfis dos membros — instrumentos, funções e competências.
+          O mapa do grupo nasce dos perfis dos membros — instrumentos, funções e competências — e das músicas mais votadas na votação.
         </p>
         <p className="mt-1 text-xs text-faint">
           Peça para cada um preencher o{' '}
@@ -35,11 +37,25 @@ export function CapabilityMap({ capabilities }: { capabilities: Capability[] }) 
         {capabilities.map((c) => {
           const scale = maxCount > 1 ? (c.count - 1) / (maxCount - 1) : 0;
           const fontSize = Math.round(13 + scale * 21);
-          return (
+          const style = CATEGORY_STYLE[c.category];
+          const title = `${c.label} — ${c.count} ${c.count === 1 ? style.unit : `${style.unit}s`}`;
+          const className = `${style.className} font-semibold leading-tight`;
+          return c.href ? (
+            <Link
+              key={`${c.category}|${c.label}`}
+              href={c.href}
+              target="_blank"
+              title={title}
+              className={`${className} underline-offset-4 hover:underline`}
+              style={{ fontSize, opacity: 0.6 + scale * 0.4 }}
+            >
+              {c.label}
+            </Link>
+          ) : (
             <span
               key={`${c.category}|${c.label}`}
-              title={`${c.label} — ${c.count} ${c.count === 1 ? 'membro' : 'membros'}`}
-              className={`${CATEGORY_STYLE[c.category].className} font-semibold leading-tight`}
+              title={title}
+              className={className}
               style={{ fontSize, opacity: 0.6 + scale * 0.4 }}
             >
               {c.label}

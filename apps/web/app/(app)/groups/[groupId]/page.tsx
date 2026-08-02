@@ -4,9 +4,11 @@ import { db } from '@/db';
 import {
   groups, groupMembers, events, eventRoles, eventAcknowledgments,
   users, repertoires, eventRepertoires, userProfiles,
+  votingRounds, votingCandidates, votingBallots, importedSongs,
 } from '@/db/schema';
-import { eq, and, count } from 'drizzle-orm';
+import { eq, and, count, sql } from 'drizzle-orm';
 import { GroupDetail } from './GroupDetail';
+import { normalize } from '@/app/_lib/mediaCache';
 import type { Capability } from './_components/types';
 
 // Agrega o que os membros declararam no perfil num mapa de capacidades do
@@ -29,6 +31,37 @@ function aggregateCapabilities(
   return [...tally.values()]
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
     .slice(0, 40);
+}
+
+// Sugestões de música da votação (rodadas abertas e fechadas) também entram
+// no mapa do grupo: count = total de votos recebidos, somando entre rodadas
+// quando a mesma música foi sugerida mais de uma vez (dedupe por acervo
+// quando bateu, senão por título+artista normalizado). Só entram sugestões
+// com pelo menos 1 voto — sem voto não expressa nada sobre o grupo ainda.
+function aggregateSuggestions(
+  rows: { title: string; artist: string; importedSongId: string | null; artistSlug: string | null; titleSlug: string | null; votes: number }[],
+): Capability[] {
+  const tally = new Map<string, Capability & { key: string }>();
+  for (const r of rows) {
+    if (r.votes <= 0) continue;
+    const key = r.importedSongId ?? `${normalize(r.title)}|${normalize(r.artist)}`;
+    const cur = tally.get(key);
+    if (cur) {
+      cur.count += r.votes;
+    } else {
+      tally.set(key, {
+        key,
+        label: r.title,
+        category: 'suggestion',
+        count: r.votes,
+        href: r.artistSlug && r.titleSlug ? `/${r.artistSlug}/${r.titleSlug}` : undefined,
+      });
+    }
+  }
+  return [...tally.values()]
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, 40)
+    .map(({ key: _key, ...c }) => c);
 }
 
 export default async function GroupPage({ params }: { params: Promise<{ groupId: string }> }) {
@@ -76,7 +109,23 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
     .where(eq(groupMembers.groupId, groupId))
     .orderBy(groupMembers.joinedAt);
 
-  const capabilities = aggregateCapabilities(members);
+  const suggestionRows = await db
+    .select({
+      title: votingCandidates.title,
+      artist: votingCandidates.artist,
+      importedSongId: votingCandidates.importedSongId,
+      artistSlug: importedSongs.artistSlug,
+      titleSlug: importedSongs.titleSlug,
+      votes: sql<number>`count(${votingBallots.userId})::int`,
+    })
+    .from(votingCandidates)
+    .innerJoin(votingRounds, eq(votingRounds.id, votingCandidates.votingRoundId))
+    .leftJoin(votingBallots, eq(votingBallots.candidateId, votingCandidates.id))
+    .leftJoin(importedSongs, eq(importedSongs.id, votingCandidates.importedSongId))
+    .where(eq(votingRounds.groupId, groupId))
+    .groupBy(votingCandidates.id, importedSongs.artistSlug, importedSongs.titleSlug);
+
+  const capabilities = [...aggregateCapabilities(members), ...aggregateSuggestions(suggestionRows)];
 
   const eventsRows = await db
     .select({

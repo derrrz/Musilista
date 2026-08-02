@@ -243,11 +243,14 @@ export const votingRounds = pgTable("voting_rounds", {
 
 // Uma música candidata dentro de uma rodada — sugerida por qualquer membro
 // (busca no mesmo acervo usado pelos setlists, ver /api/directory).
+// importedSongId fica NULL quando a sugestão foi digitada à mão (sem bater
+// no acervo) — nesse caso não há cifra pra linkar.
 export const votingCandidates = pgTable("voting_candidates", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	votingRoundId: uuid("voting_round_id").notNull(),
 	title: text().notNull(),
 	artist: text().notNull(),
+	importedSongId: uuid("imported_song_id"),
 	addedBy: uuid("added_by"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
@@ -256,6 +259,11 @@ export const votingCandidates = pgTable("voting_candidates", {
 			foreignColumns: [votingRounds.id],
 			name: "voting_candidates_voting_round_id_fkey"
 		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.importedSongId],
+			foreignColumns: [importedSongs.id],
+			name: "voting_candidates_imported_song_id_fkey"
+		}).onDelete("set null"),
 	foreignKey({
 			columns: [table.addedBy],
 			foreignColumns: [users.id],
