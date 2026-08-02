@@ -271,6 +271,183 @@ function InviteModal({ groupId, round, onClose }: { groupId: string; round: Voti
   );
 }
 
+// Um card por vez — nada de placar ou ranking à mostra (sem prévia de
+// resultado pra ninguém, igual o painel de progresso). Avança sozinho
+// depois de votar; "Pular" avança sem votar; "Voltar" só navega, não
+// desfaz voto.
+function SessionCard({
+  candidate, index, total, pending, editing, canBack, onSetLevel, onBack, onSkip,
+}: {
+  candidate: Candidate; index: number; total: number; pending: boolean; editing: boolean; canBack: boolean;
+  onSetLevel: (level: number) => void; onBack: () => void; onSkip: () => void;
+}) {
+  const href = cifraHref(candidate);
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <p className="mb-1 font-mono text-[11px] text-muted">
+          {editing ? 'Editando avaliação' : `Música ${index + 1} de ${total}`}
+        </p>
+        {!editing && (
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-raised">
+            <div
+              className="h-full rounded-full bg-accent/70 transition-all duration-300"
+              style={{ width: `${((index + 1) / total) * 100}%` }}
+            />
+          </div>
+        )}
+      </div>
+      <div className="rounded-xl border border-line bg-surface p-5 text-center">
+        {href ? (
+          <Link href={href} target="_blank" className="text-base font-semibold text-ink underline-offset-2 hover:text-accent hover:underline">
+            {candidate.title}
+          </Link>
+        ) : (
+          <p className="text-base font-semibold text-ink">{candidate.title}</p>
+        )}
+        {candidate.artist && <p className="text-sm text-muted">{candidate.artist}</p>}
+        {candidate.body ? (
+          <details className="mt-2 text-left">
+            <summary className="cursor-pointer text-[11px] font-medium text-accent">Ver cifra</summary>
+            <pre className="mt-1 max-h-56 overflow-auto whitespace-pre rounded-md bg-raised p-2.5 font-mono text-[11px] leading-snug text-ink">{candidate.body}</pre>
+          </details>
+        ) : !href && (
+          <p className="mt-2 text-[11px] text-faint">🎸 Cifra ainda não existe no Musilista</p>
+        )}
+        <div className="mt-4 flex justify-center">
+          <LevelPicker myLevel={candidate.myLevel} pending={pending} roundOpen onSetLevel={onSetLevel} />
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={onBack} disabled={!canBack || pending}>Voltar</Button>
+        {!editing && (
+          <Button variant="ghost" size="sm" onClick={onSkip} disabled={pending}>Pular por enquanto</Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SessionReview({
+  list, onEdit, onClose,
+}: { list: Candidate[]; onEdit: (index: number) => void; onClose: () => void }) {
+  const missing = list.filter((c) => c.myLevel == null);
+  return (
+    <div className="flex flex-col gap-3">
+      {missing.length > 0 ? (
+        <p className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs text-amber-500">
+          Faltam {missing.length} {missing.length === 1 ? 'música' : 'músicas'} sem nota.
+        </p>
+      ) : (
+        <p className="rounded-lg border border-accent/40 bg-accent/5 px-3 py-2 text-xs text-accent">
+          🎉 Você avaliou todas as músicas!
+        </p>
+      )}
+      <div className="flex max-h-80 flex-col gap-1 overflow-y-auto">
+        {list.map((c, i) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => onEdit(i)}
+            className={cn(
+              'flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left hover:bg-surface',
+              c.myLevel == null ? 'border-amber-400/30' : 'border-line',
+            )}
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm text-ink">{c.title}</p>
+              {c.artist && <p className="truncate text-xs text-muted">{c.artist}</p>}
+            </div>
+            {c.myLevel != null ? (
+              <div className="flex shrink-0 gap-0.5 text-accent">
+                {[1, 2, 3].map((n) => (
+                  <IconHeart key={n} className={cn('h-3 w-3', n <= c.myLevel! && 'fill-current')} />
+                ))}
+              </div>
+            ) : (
+              <span className="shrink-0 font-mono text-[10px] uppercase text-amber-500">Sem nota</span>
+            )}
+          </button>
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <Button size="sm" onClick={onClose}>{missing.length > 0 ? 'Fechar' : 'Concluir'}</Button>
+      </div>
+    </div>
+  );
+}
+
+// Sessão guiada — uma música por vez, sem mostrar placar. A ordem é fixada
+// na abertura (não muda se o placar mudar) pra não confundir quem tá no
+// meio da avaliação. Termina numa revisão onde dá pra voltar e trocar
+// qualquer nota antes de fechar.
+function VoteSessionModal({ round, groupId, onChange, onClose }: {
+  round: VotingRound; groupId: string; onChange: () => void; onClose: () => void;
+}) {
+  const [order] = useState(() => round.candidates.map((c) => c.id));
+  const byId = new Map(round.candidates.map((c) => [c.id, c]));
+  const list = order.map((id) => byId.get(id)).filter((c): c is Candidate => !!c);
+
+  const firstUnvoted = list.findIndex((c) => c.myLevel == null);
+  const [index, setIndex] = useState(firstUnvoted === -1 ? 0 : firstUnvoted);
+  const [mode, setMode] = useState<'voting' | 'review'>(firstUnvoted === -1 ? 'review' : 'voting');
+  const [editing, setEditing] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  const current = list[index];
+
+  function setLevel(level: number) {
+    if (!current) return;
+    startTransition(async () => {
+      await fetch(`/api/groups/${groupId}/votes/${round.id}/candidates/${current.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level }),
+      });
+      onChange();
+      advance();
+    });
+  }
+
+  function advance() {
+    if (editing) { setEditing(false); setMode('review'); return; }
+    if (index + 1 < list.length) setIndex(index + 1);
+    else setMode('review');
+  }
+
+  function back() {
+    if (index > 0) setIndex(index - 1);
+  }
+
+  function editFrom(i: number) {
+    setIndex(i);
+    setEditing(true);
+    setMode('voting');
+  }
+
+  if (list.length === 0) return null;
+
+  return (
+    <Modal title="Votação" onClose={onClose}>
+      {mode === 'voting' && current ? (
+        <SessionCard
+          candidate={current}
+          index={index}
+          total={list.length}
+          pending={pending}
+          editing={editing}
+          canBack={index > 0 && !editing}
+          onSetLevel={setLevel}
+          onBack={back}
+          onSkip={advance}
+        />
+      ) : (
+        <SessionReview list={list} onEdit={editFrom} onClose={onClose} />
+      )}
+    </Modal>
+  );
+}
+
 function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
   round: VotingRound; groupId: string; canManage: boolean; myUserId: string;
   onChange: () => void;
@@ -284,6 +461,7 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
   const [addError, setAddError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [showSession, setShowSession] = useState(false);
   const [importSource, setImportSource] = useState<DraggedSetlist | null>(null);
   const [selectedSongIds, setSelectedSongIds] = useState<Set<string>>(new Set());
   const [busy, startTransition] = useTransition();
@@ -293,6 +471,8 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
   const sorted = [...round.candidates].sort((a, b) => b.votes - a.votes);
   const leaderVotes = sorted[0]?.votes ?? 0;
   const canManageThis = canManage || round.createdBy === myUserId;
+  const sessionTotal = round.candidates.length;
+  const sessionDone = round.candidates.filter((c) => c.myLevel != null).length;
 
   function handleSearch(q: string) {
     setQuery(q);
@@ -442,25 +622,44 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
 
       <ProgressPanel participants={round.participants} />
 
-      {sorted.length === 0 && (
+      {round.candidates.length === 0 ? (
         <p className="rounded-lg border border-dashed border-line py-6 text-center text-xs text-muted">
           Nenhuma música sugerida ainda — seja o primeiro!
         </p>
+      ) : round.status === 'open' ? (
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-line bg-surface p-5 text-center">
+          <p className="text-sm text-ink">
+            {sessionDone === 0
+              ? `${sessionTotal} ${sessionTotal === 1 ? 'música' : 'músicas'} esperando sua nota.`
+              : sessionDone === sessionTotal
+                ? `Você avaliou todas as ${sessionTotal} músicas.`
+                : `Você já avaliou ${sessionDone} de ${sessionTotal} músicas.`}
+          </p>
+          <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-raised">
+            <div
+              className="h-full rounded-full bg-accent/70 transition-all duration-500"
+              style={{ width: `${sessionTotal > 0 ? (sessionDone / sessionTotal) * 100 : 0}%` }}
+            />
+          </div>
+          <Button size="sm" onClick={() => setShowSession(true)}>
+            {sessionDone === 0 ? 'Votar agora' : sessionDone === sessionTotal ? 'Revisar meus votos' : 'Continuar votação'}
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {sorted.map((c, i) => (
+            <CandidateRow
+              key={c.id}
+              candidate={c}
+              rank={i}
+              leaderVotes={leaderVotes}
+              roundOpen={round.status === 'open'}
+              pending={busy && pendingId === c.id}
+              onSetLevel={(level) => setLevel(c.id, level)}
+            />
+          ))}
+        </div>
       )}
-
-      <div className="flex flex-col gap-2">
-        {sorted.map((c, i) => (
-          <CandidateRow
-            key={c.id}
-            candidate={c}
-            rank={i}
-            leaderVotes={leaderVotes}
-            roundOpen={round.status === 'open'}
-            pending={busy && pendingId === c.id}
-            onSetLevel={(level) => setLevel(c.id, level)}
-          />
-        ))}
-      </div>
 
       <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
         {round.status === 'open' && (
@@ -480,7 +679,7 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
         {canManageThis && round.status === 'open' && (
           <Button size="sm" variant="ghost" onClick={close} disabled={busy}>Encerrar votação</Button>
         )}
-        {canManage && sorted.some((c) => c.votes > 0) && (
+        {canManage && round.candidates.some((c) => c.votes > 0) && (
           <Button size="sm" onClick={buildSet} disabled={busy}>Criar set com o resultado</Button>
         )}
         {canManageThis && (
@@ -532,6 +731,10 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
 
       {showInvite && (
         <InviteModal groupId={groupId} round={round} onClose={() => setShowInvite(false)} />
+      )}
+
+      {showSession && (
+        <VoteSessionModal round={round} groupId={groupId} onChange={onChange} onClose={() => setShowSession(false)} />
       )}
 
       {importSource && (

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, votingGuestInvites, groups, importedSongs } from '@/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, asc, sql } from 'drizzle-orm';
 
 type Ctx = { params: Promise<{ token: string }> };
 
@@ -56,7 +56,9 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     .from(votingCandidates)
     .leftJoin(importedSongs, eq(importedSongs.id, votingCandidates.importedSongId))
     .where(eq(votingCandidates.votingRoundId, row.id))
-    .orderBy(sql`${votesExpr} desc`);
+    // ordem estável (não pelo placar) — a sessão guiada usa essa ordem
+    // direto, sem embaralhar conforme os votos mudam.
+    .orderBy(asc(votingCandidates.createdAt));
 
   return NextResponse.json({
     round: { id: row.id, title: row.title, status: row.status },

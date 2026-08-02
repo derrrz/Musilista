@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, importedSongs, groupMembers, users } from '@/db/schema';
-import { eq, desc, inArray, sql } from 'drizzle-orm';
+import { eq, asc, desc, inArray, sql } from 'drizzle-orm';
 import { requireGroupMember } from '@/app/_lib/groupAuth';
 
 type Ctx = { params: Promise<{ groupId: string }> };
@@ -44,7 +44,10 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     })
     .from(votingCandidates)
     .leftJoin(importedSongs, eq(importedSongs.id, votingCandidates.importedSongId))
-    .where(inArray(votingCandidates.votingRoundId, roundIds));
+    .where(inArray(votingCandidates.votingRoundId, roundIds))
+    // ordem estável (não pelo placar) — a sessão guiada de votação usa essa
+    // ordem direto, sem embaralhar conforme os votos mudam.
+    .orderBy(asc(votingCandidates.createdAt));
 
   const byRound = new Map<string, typeof candidates>();
   for (const c of candidates) {

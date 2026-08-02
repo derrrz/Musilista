@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, votingGuestInvites, groups, importedSongs } from '@/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, asc, sql } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { LogoMark, Wordmark } from '@/components/brand/Logo';
 import { VotePanel } from './VotePanel';
@@ -39,7 +39,7 @@ async function getVoteRound(token: string) {
     .from(votingCandidates)
     .leftJoin(importedSongs, eq(importedSongs.id, votingCandidates.importedSongId))
     .where(eq(votingCandidates.votingRoundId, row.id))
-    .orderBy(sql`${votesExpr} desc`);
+    .orderBy(asc(votingCandidates.createdAt));
 
   return { row, candidates };
 }

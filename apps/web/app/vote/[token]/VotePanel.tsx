@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { cn } from '@/components/ui/cn';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { IconHeart } from '@/components/ui/icons';
 
 type Candidate = {
@@ -64,6 +65,175 @@ function LevelPicker({
   );
 }
 
+// Um card por vez, sem placar à mostra. Avança sozinho depois de votar;
+// "Pular" avança sem votar; "Voltar" só navega, não desfaz voto.
+function SessionCard({
+  candidate, index, total, pending, editing, canBack, onSetLevel, onBack, onSkip,
+}: {
+  candidate: Candidate; index: number; total: number; pending: boolean; editing: boolean; canBack: boolean;
+  onSetLevel: (level: number) => void; onBack: () => void; onSkip: () => void;
+}) {
+  const href = cifraHref(candidate);
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <p className="mb-1 font-mono text-[11px] text-muted">
+          {editing ? 'Editando avaliação' : `Música ${index + 1} de ${total}`}
+        </p>
+        {!editing && (
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-raised">
+            <div
+              className="h-full rounded-full bg-accent/70 transition-all duration-300"
+              style={{ width: `${((index + 1) / total) * 100}%` }}
+            />
+          </div>
+        )}
+      </div>
+      <div className="rounded-xl border border-line bg-surface p-5 text-center">
+        {href ? (
+          <Link href={href} target="_blank" className="text-base font-semibold text-ink underline-offset-2 hover:text-accent hover:underline">
+            {candidate.title}
+          </Link>
+        ) : (
+          <p className="text-base font-semibold text-ink">{candidate.title}</p>
+        )}
+        {candidate.artist && <p className="text-sm text-muted">{candidate.artist}</p>}
+        {candidate.body ? (
+          <details className="mt-2 text-left">
+            <summary className="cursor-pointer text-[11px] font-medium text-accent">Ver cifra</summary>
+            <pre className="mt-1 max-h-56 overflow-auto whitespace-pre rounded-md bg-raised p-2.5 font-mono text-[11px] leading-snug text-ink">{candidate.body}</pre>
+          </details>
+        ) : null}
+        <div className="mt-4 flex justify-center">
+          <LevelPicker myLevel={candidate.myLevel} pending={pending} roundOpen canVote onSetLevel={onSetLevel} />
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={onBack} disabled={!canBack || pending}>Voltar</Button>
+        {!editing && (
+          <Button variant="ghost" size="sm" onClick={onSkip} disabled={pending}>Pular por enquanto</Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SessionReview({
+  list, onEdit, onClose,
+}: { list: Candidate[]; onEdit: (index: number) => void; onClose: () => void }) {
+  const missing = list.filter((c) => c.myLevel == null);
+  return (
+    <div className="flex flex-col gap-3">
+      {missing.length > 0 ? (
+        <p className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs text-amber-500">
+          Faltam {missing.length} {missing.length === 1 ? 'música' : 'músicas'} sem nota.
+        </p>
+      ) : (
+        <p className="rounded-lg border border-accent/40 bg-accent/5 px-3 py-2 text-xs text-accent">
+          🎉 Você avaliou todas as músicas!
+        </p>
+      )}
+      <div className="flex max-h-80 flex-col gap-1 overflow-y-auto">
+        {list.map((c, i) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => onEdit(i)}
+            className={cn(
+              'flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left hover:bg-surface',
+              c.myLevel == null ? 'border-amber-400/30' : 'border-line',
+            )}
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm text-ink">{c.title}</p>
+              {c.artist && <p className="truncate text-xs text-muted">{c.artist}</p>}
+            </div>
+            {c.myLevel != null ? (
+              <div className="flex shrink-0 gap-0.5 text-accent">
+                {[1, 2, 3].map((n) => (
+                  <IconHeart key={n} className={cn('h-3 w-3', n <= c.myLevel! && 'fill-current')} />
+                ))}
+              </div>
+            ) : (
+              <span className="shrink-0 font-mono text-[10px] uppercase text-amber-500">Sem nota</span>
+            )}
+          </button>
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <Button size="sm" onClick={onClose}>{missing.length > 0 ? 'Fechar' : 'Concluir'}</Button>
+      </div>
+    </div>
+  );
+}
+
+// Sessão guiada — mesma lógica do lado do membro (VotingPanel.tsx), mas
+// duplicada aqui de propósito: o bundle público não deve depender da
+// árvore de componentes autenticada.
+function VoteSessionModal({ candidates, onVote, onClose }: {
+  candidates: Candidate[];
+  onVote: (candidateId: string, level: number) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [order] = useState(() => candidates.map((c) => c.id));
+  const byId = new Map(candidates.map((c) => [c.id, c]));
+  const list = order.map((id) => byId.get(id)).filter((c): c is Candidate => !!c);
+
+  const firstUnvoted = list.findIndex((c) => c.myLevel == null);
+  const [index, setIndex] = useState(firstUnvoted === -1 ? 0 : firstUnvoted);
+  const [mode, setMode] = useState<'voting' | 'review'>(firstUnvoted === -1 ? 'review' : 'voting');
+  const [editing, setEditing] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  const current = list[index];
+
+  function setLevel(level: number) {
+    if (!current) return;
+    startTransition(async () => {
+      await onVote(current.id, level);
+      advance();
+    });
+  }
+
+  function advance() {
+    if (editing) { setEditing(false); setMode('review'); return; }
+    if (index + 1 < list.length) setIndex(index + 1);
+    else setMode('review');
+  }
+
+  function back() {
+    if (index > 0) setIndex(index - 1);
+  }
+
+  function editFrom(i: number) {
+    setIndex(i);
+    setEditing(true);
+    setMode('voting');
+  }
+
+  if (list.length === 0) return null;
+
+  return (
+    <Modal title="Votação" onClose={onClose}>
+      {mode === 'voting' && current ? (
+        <SessionCard
+          candidate={current}
+          index={index}
+          total={list.length}
+          pending={pending}
+          editing={editing}
+          canBack={index > 0 && !editing}
+          onSetLevel={setLevel}
+          onBack={back}
+          onSkip={advance}
+        />
+      ) : (
+        <SessionReview list={list} onEdit={editFrom} onClose={onClose} />
+      )}
+    </Modal>
+  );
+}
+
 export function VotePanel({
   token, inviteId, invitedName, round, initialCandidates,
 }: {
@@ -80,6 +250,7 @@ export function VotePanel({
   const [guestId, setGuestId] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
+  const [showSession, setShowSession] = useState(false);
   const [busy, startTransition] = useTransition();
 
   useEffect(() => {
@@ -104,21 +275,25 @@ export function VotePanel({
     return () => clearInterval(id);
   }, [status, load]);
 
-  const sorted = [...candidates].sort((a, b) => b.votes - a.votes);
   const canVote = nameConfirmed && name.trim().length > 0 && !!guestId;
+  const total = candidates.length;
+  const done = candidates.filter((c) => c.myLevel != null).length;
 
-  function setLevel(candidateId: string, level: number) {
-    if (!guestId || !canVote) return;
+  function setLevel(candidateId: string, level: number): Promise<void> {
+    if (!guestId || !canVote) return Promise.resolve();
     setPendingId(candidateId);
-    startTransition(async () => {
-      await fetch(`/api/public/vote/${token}/candidates/${candidateId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guestId, guestName: name.trim(), level, inviteId }),
+    return new Promise<void>((resolve) => {
+      startTransition(async () => {
+        await fetch(`/api/public/vote/${token}/candidates/${candidateId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guestId, guestName: name.trim(), level, inviteId }),
+        });
+        setHasVoted(true);
+        await load();
+        setPendingId(null);
+        resolve();
       });
-      setHasVoted(true);
-      await load();
-      setPendingId(null);
     });
   }
 
@@ -144,51 +319,81 @@ export function VotePanel({
         <p className="text-xs text-muted">Votando como <span className="font-medium text-ink">{name}</span></p>
       )}
 
-      <p className="text-xs text-muted">
-        {status === 'open' ? 'Dê de 1 a 3 corações pra cada música.' : 'Essa votação foi encerrada.'}
-      </p>
-
-      {sorted.length === 0 && (
+      {candidates.length === 0 ? (
         <p className="rounded-lg border border-dashed border-line py-6 text-center text-xs text-muted">
           Nenhuma música na lista ainda.
         </p>
-      )}
-
-      <div className="flex flex-col gap-2">
-        {sorted.map((c) => {
-          const href = cifraHref(c);
-          return (
-            <div key={c.id} className="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  {href ? (
-                    <Link href={href} target="_blank" className="truncate text-sm font-medium text-ink underline-offset-2 hover:text-accent hover:underline">
-                      {c.title}
-                    </Link>
-                  ) : (
-                    <p className="truncate text-sm font-medium text-ink">{c.title}</p>
-                  )}
-                  <span className="shrink-0 font-mono text-xs text-muted">{c.votes} {c.votes === 1 ? 'ponto' : 'pontos'}</span>
-                </div>
-                {c.artist && <p className="truncate text-xs text-muted">{c.artist}</p>}
-                {c.body && (
-                  <details className="mt-1">
-                    <summary className="cursor-pointer text-[11px] font-medium text-accent">Ver cifra</summary>
-                    <pre className="mt-1 max-h-72 overflow-auto whitespace-pre rounded-md bg-raised p-2.5 font-mono text-[11px] leading-snug text-ink">{c.body}</pre>
-                  </details>
-                )}
-              </div>
-              <LevelPicker
-                myLevel={c.myLevel}
-                pending={busy && pendingId === c.id}
-                roundOpen={status === 'open'}
-                canVote={canVote}
-                onSetLevel={(level) => setLevel(c.id, level)}
+      ) : status === 'open' ? (
+        nameConfirmed ? (
+          <div className="flex flex-col items-center gap-3 rounded-lg border border-line bg-surface p-5 text-center">
+            <p className="text-sm text-ink">
+              {done === 0
+                ? `${total} ${total === 1 ? 'música' : 'músicas'} esperando sua nota.`
+                : done === total
+                  ? `Você avaliou todas as ${total} músicas.`
+                  : `Você já avaliou ${done} de ${total} músicas.`}
+            </p>
+            <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-raised">
+              <div
+                className="h-full rounded-full bg-accent/70 transition-all duration-500"
+                style={{ width: `${total > 0 ? (done / total) * 100 : 0}%` }}
               />
             </div>
-          );
-        })}
-      </div>
+            <Button size="sm" onClick={() => setShowSession(true)}>
+              {done === 0 ? 'Votar agora' : done === total ? 'Revisar meus votos' : 'Continuar votação'}
+            </Button>
+          </div>
+        ) : (
+          <p className="text-xs text-muted">Diga seu nome pra começar a votar.</p>
+        )
+      ) : (
+        <>
+          <p className="text-xs text-muted">Essa votação foi encerrada.</p>
+          <div className="flex flex-col gap-2">
+            {candidates.map((c) => {
+              const href = cifraHref(c);
+              return (
+                <div key={c.id} className="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      {href ? (
+                        <Link href={href} target="_blank" className="truncate text-sm font-medium text-ink underline-offset-2 hover:text-accent hover:underline">
+                          {c.title}
+                        </Link>
+                      ) : (
+                        <p className="truncate text-sm font-medium text-ink">{c.title}</p>
+                      )}
+                      <span className="shrink-0 font-mono text-xs text-muted">{c.votes} {c.votes === 1 ? 'ponto' : 'pontos'}</span>
+                    </div>
+                    {c.artist && <p className="truncate text-xs text-muted">{c.artist}</p>}
+                    {c.body && (
+                      <details className="mt-1">
+                        <summary className="cursor-pointer text-[11px] font-medium text-accent">Ver cifra</summary>
+                        <pre className="mt-1 max-h-72 overflow-auto whitespace-pre rounded-md bg-raised p-2.5 font-mono text-[11px] leading-snug text-ink">{c.body}</pre>
+                      </details>
+                    )}
+                  </div>
+                  <LevelPicker
+                    myLevel={c.myLevel}
+                    pending={busy && pendingId === c.id}
+                    roundOpen={false}
+                    canVote={canVote}
+                    onSetLevel={(level) => { setLevel(c.id, level); }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {showSession && (
+        <VoteSessionModal
+          candidates={candidates}
+          onVote={setLevel}
+          onClose={() => setShowSession(false)}
+        />
+      )}
 
       {hasVoted && (
         <div className="rounded-xl border border-accent/40 bg-accent/5 p-4 text-center">
