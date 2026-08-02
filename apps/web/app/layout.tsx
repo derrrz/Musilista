@@ -4,6 +4,7 @@ import { SessionProvider } from 'next-auth/react';
 import { Analytics } from '@vercel/analytics/next';
 import { TrackPageview } from './_components/TrackPageview';
 import { ConsentAnalytics } from './_components/ConsentAnalytics';
+import { FeedbackWidget } from './_components/FeedbackWidget';
 import './globals.css';
 
 const spaceGrotesk = Space_Grotesk({
@@ -53,7 +54,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {children}
+          <FeedbackWidget />
+        </SessionProvider>
         <Analytics />
         <TrackPageview />
         <ConsentAnalytics />

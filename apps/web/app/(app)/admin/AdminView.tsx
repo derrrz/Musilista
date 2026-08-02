@@ -5,18 +5,20 @@ import Link from 'next/link';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { cn } from '@/components/ui/cn';
 
-type Tab = 'users' | 'proposals' | 'tickets' | 'analytics';
+type Tab = 'users' | 'proposals' | 'tickets' | 'feedback' | 'analytics' | 'infra';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'users', label: 'Usuários' },
   { id: 'proposals', label: 'Propostas' },
   { id: 'tickets', label: 'Tickets' },
+  { id: 'feedback', label: 'Feedback' },
   { id: 'analytics', label: 'Analytics' },
+  { id: 'infra', label: 'Infra' },
 ];
 
 const ROLE_LABEL: Record<string, string> = {
@@ -47,7 +49,9 @@ export function AdminView({ myRole }: { myRole: string }) {
       {tab === 'users' && <UsersTab myRole={myRole} />}
       {tab === 'proposals' && <ProposalsTab />}
       {tab === 'tickets' && <TicketsTab />}
+      {tab === 'feedback' && <FeedbackTab />}
       {tab === 'analytics' && <AnalyticsTab />}
+      {tab === 'infra' && <InfraTab />}
     </div>
   );
 }
@@ -251,6 +255,126 @@ function TicketsTab() {
             </Badge>
           </Card>
         </Link>
+      ))}
+    </div>
+  );
+}
+
+// ── Feedback (beta) ───────────────────────────────────────────────────────────
+
+type AdminFeedback = {
+  id: string; message: string; email: string | null;
+  imageUrl: string | null; pageUrl: string | null; status: string;
+  createdAt: string; userName: string | null; userEmail: string | null;
+  userImage: string | null;
+};
+
+const FEEDBACK_STATUS_LABEL: Record<string, string> = {
+  new: 'Novo', seen: 'Visto', resolved: 'Resolvido',
+};
+
+function FeedbackTab() {
+  const [items, setItems] = useState<AdminFeedback[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'new' | 'seen' | 'resolved'>('new');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/feedback')
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d?.items)) setItems(d.items); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function changeStatus(id: string, status: string) {
+    setError(null);
+    const res = await fetch(`/api/admin/feedback/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (res.ok) {
+      setItems((prev) => prev.map((f) => (f.id === id ? { ...f, status } : f)));
+    } else {
+      setError('Erro ao alterar o status.');
+    }
+  }
+
+  async function remove(id: string) {
+    if (!confirm('Excluir este feedback? A imagem anexada também será apagada.')) return;
+    setError(null);
+    const res = await fetch(`/api/admin/feedback/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      setItems((prev) => prev.filter((f) => f.id !== id));
+    } else {
+      setError('Erro ao excluir.');
+    }
+  }
+
+  const visible = filter === 'all' ? items : items.filter((f) => f.status === filter);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-1.5">
+        {(['new', 'seen', 'resolved', 'all'] as const).map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setFilter(f)}
+            className={cn(
+              'rounded-lg border px-3 py-1 text-xs font-medium transition-colors',
+              filter === f
+                ? 'border-accent bg-[color-mix(in_oklch,var(--ml-accent)_15%,transparent)] text-accent'
+                : 'border-line bg-raised text-muted hover:text-ink',
+            )}
+          >
+            {f === 'all' ? 'Todos' : FEEDBACK_STATUS_LABEL[f]}
+          </button>
+        ))}
+      </div>
+
+      {error && <p className="text-sm text-red-400">{error}</p>}
+      {loading && <p className="font-mono text-xs text-muted">Carregando…</p>}
+      {!loading && visible.length === 0 && <p className="text-sm text-muted">Nenhum feedback aqui.</p>}
+
+      {visible.map((f) => (
+        <Card key={f.id} className="flex flex-col gap-3 p-3.5">
+          <div className="flex items-start gap-3">
+            {f.imageUrl && (
+              <a href={f.imageUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={f.imageUrl}
+                  alt="Anexo do feedback"
+                  className="h-16 w-16 rounded-lg border border-line object-cover transition-opacity hover:opacity-80"
+                />
+              </a>
+            )}
+            <p className="min-w-0 flex-1 text-sm whitespace-pre-wrap text-ink">{f.message}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+            <span className="truncate">
+              {f.userName ?? f.userEmail ?? (f.email ? `Anônimo · ${f.email}` : 'Anônimo')}
+            </span>
+            {f.pageUrl && <span className="truncate font-mono">{f.pageUrl}</span>}
+            <span>{new Date(f.createdAt).toLocaleString('pt-BR')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select
+              value={f.status}
+              onChange={(e) => changeStatus(f.id, e.target.value)}
+              className="h-8 w-36 text-xs"
+            >
+              {(['new', 'seen', 'resolved'] as const).map((s) => (
+                <option key={s} value={s}>{FEEDBACK_STATUS_LABEL[s]}</option>
+              ))}
+            </Select>
+            <div className="flex-1" />
+            <Button variant="ghost" size="sm" onClick={() => remove(f.id)} className="text-red-400 hover:text-red-300">
+              Excluir
+            </Button>
+          </div>
+        </Card>
       ))}
     </div>
   );
@@ -505,6 +629,215 @@ function AnalyticsTab() {
           ))}
         </Card>
       )}
+    </div>
+  );
+}
+
+// ── Infra (cotas Neon + Blob) ─────────────────────────────────────────────────
+
+type NeonInfra =
+  | { configured: false }
+  | {
+      configured: true;
+      name: string;
+      transferBytes: number;
+      transferLimitBytes: number;
+      storageBytes: number;
+      storageLimitBytes: number;
+      computeHours: number;
+      computeHoursLimit: number;
+      activeHours: number;
+      branchesLimit: number;
+      plan: string;
+      periodStart: string;
+      periodEnd: string;
+    };
+
+type BlobInfra =
+  | { configured: false }
+  | { configured: true; suspended: boolean; checkedAt: string; error?: string };
+
+type InfraData = { neonDev: NeonInfra; neonProd: NeonInfra; blob: BlobInfra };
+
+function fmtBytes(bytes: number): string {
+  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+  return `${(bytes / 1024 ** 2).toFixed(0)} MB`;
+}
+
+function pct(used: number, limit: number): number {
+  if (limit <= 0) return 0;
+  return Math.min(999, Math.round((used / limit) * 100));
+}
+
+function barColor(p: number): string {
+  if (p >= 100) return 'bg-red-500';
+  if (p >= 80) return 'bg-yellow-500';
+  return 'bg-green-500';
+}
+
+function daysLeft(iso: string): number {
+  return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000));
+}
+
+function QuotaRow({ label, used, limit, usedLabel }: {
+  label: string; used: number; limit: number; usedLabel: string;
+}) {
+  const p = pct(used, limit);
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted">{label}</span>
+        <span className="font-mono text-ink">{usedLabel} <span className="text-faint">· {p}%</span></span>
+      </div>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-raised">
+        <div className={cn('h-full rounded-full transition-all', barColor(p))} style={{ width: `${Math.min(100, p)}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function NeonCard({ title, data }: { title: string; data: NeonInfra }) {
+  if (!data.configured) {
+    return (
+      <Card className="flex flex-col gap-1 border-dashed p-4">
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>
+          Não monitorado ainda — falta configurar NEON_API_KEY / NEON_PROJECT_ID pra esse projeto.
+        </CardDescription>
+      </Card>
+    );
+  }
+
+  const alerts = [
+    pct(data.transferBytes, data.transferLimitBytes) >= 80,
+    pct(data.storageBytes, data.storageLimitBytes) >= 80,
+  ].filter(Boolean).length;
+
+  return (
+    <Card className="flex flex-col gap-3.5 p-4">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription className="font-mono text-[11px]">{data.name} · {data.plan}</CardDescription>
+        </div>
+        {alerts > 0 && (
+          <span className="inline-flex items-center rounded-md border border-yellow-500 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-yellow-500">
+            Atenção
+          </span>
+        )}
+      </div>
+
+      <QuotaRow
+        label="Transferência de dados"
+        used={data.transferBytes}
+        limit={data.transferLimitBytes}
+        usedLabel={`${fmtBytes(data.transferBytes)} / ${fmtBytes(data.transferLimitBytes)}`}
+      />
+      <QuotaRow
+        label="Storage"
+        used={data.storageBytes}
+        limit={data.storageLimitBytes}
+        usedLabel={`${fmtBytes(data.storageBytes)} / ${fmtBytes(data.storageLimitBytes)}`}
+      />
+      <QuotaRow
+        label="Compute time"
+        used={data.computeHours}
+        limit={data.computeHoursLimit}
+        usedLabel={`${data.computeHours.toFixed(1)}h / ${data.computeHoursLimit}h`}
+      />
+
+      <div className="flex items-center justify-between border-t border-line pt-3 text-[11px] text-muted">
+        <span>Branches: {data.branchesLimit} máx.</span>
+        <span>Reset em {daysLeft(data.periodEnd)}d ({new Date(data.periodEnd).toLocaleDateString('pt-BR')})</span>
+      </div>
+    </Card>
+  );
+}
+
+function BlobCard({ data }: { data: BlobInfra }) {
+  if (!data.configured) {
+    return (
+      <Card className="flex flex-col gap-1 border-dashed p-4">
+        <CardTitle>Vercel Blob</CardTitle>
+        <CardDescription>Não monitorado — falta BLOB_READ_WRITE_TOKEN.</CardDescription>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="flex flex-col gap-2.5 p-4">
+      <div className="flex items-center justify-between gap-2">
+        <CardTitle>Vercel Blob</CardTitle>
+        <span className={cn(
+          'inline-flex items-center rounded-md border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em]',
+          data.suspended ? 'border-red-500 text-red-500' : 'border-green-500 text-green-500',
+        )}>
+          {data.suspended ? 'Suspenso' : 'Ok'}
+        </span>
+      </div>
+      <CardDescription>
+        {data.suspended
+          ? 'Escrita bloqueada — cota de operações avançadas estourada. Novos uploads falham até resetar o ciclo ou fazer upgrade do plano.'
+          : 'Escrita funcionando normalmente.'}
+      </CardDescription>
+      <p className="text-[11px] text-faint">
+        Checado às {new Date(data.checkedAt).toLocaleTimeString('pt-BR')} · número exato de operações e reset do ciclo só aparecem no{' '}
+        <a href="https://vercel.com/dashboard" target="_blank" rel="noreferrer" className="text-accent hover:underline">
+          dashboard da Vercel
+        </a>.
+      </p>
+    </Card>
+  );
+}
+
+function InfraTab() {
+  const [data, setData] = useState<InfraData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(() => {
+    fetch('/api/admin/infra')
+      .then((r) => r.json())
+      .then((d) => setData(d))
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <p className="font-mono text-xs text-muted">Carregando…</p>;
+  if (error || !data) return <p className="text-sm text-muted">Não foi possível carregar o status de infra.</p>;
+
+  const bannerAlerts: string[] = [];
+  for (const [label, n] of [['Neon dev', data.neonDev], ['Neon prod', data.neonProd]] as const) {
+    if (!n.configured) continue;
+    if (pct(n.transferBytes, n.transferLimitBytes) >= 100) bannerAlerts.push(`${label}: transferência de dados estourada`);
+    else if (pct(n.transferBytes, n.transferLimitBytes) >= 80) bannerAlerts.push(`${label}: transferência de dados perto do limite`);
+    if (pct(n.storageBytes, n.storageLimitBytes) >= 80) bannerAlerts.push(`${label}: storage perto do limite`);
+  }
+  if (data.blob.configured && data.blob.suspended) bannerAlerts.push('Vercel Blob: escrita suspensa');
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted">Cotas de Neon (Postgres) e Vercel Blob — atualiza a cada carregamento.</p>
+        <Button variant="ghost" size="sm" onClick={() => { setLoading(true); load(); }}>Atualizar</Button>
+      </div>
+
+      {bannerAlerts.length > 0 && (
+        <Card className="flex flex-col gap-1.5 border-red-500/40 bg-red-500/5 p-3.5">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-red-400">Alertas</span>
+          {bannerAlerts.map((a) => (
+            <p key={a} className="text-xs text-red-300">⚠ {a}</p>
+          ))}
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <NeonCard title="Neon · Dev" data={data.neonDev} />
+        <NeonCard title="Neon · Produção" data={data.neonProd} />
+      </div>
+      <BlobCard data={data.blob} />
     </div>
   );
 }

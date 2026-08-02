@@ -348,6 +348,28 @@ export const ticketMessages = pgTable("ticket_messages", {
 		}).onDelete("cascade"),
 ]);
 
+// Feedback da fase beta: envio único (sem thread). userId nullable — anônimo
+// pode mandar texto; imagem só com login. Guarda só a URL do Blob, nunca bytes.
+export const feedback = pgTable("feedback", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	userId: uuid("user_id"),
+	email: text(),
+	message: text().notNull(),
+	imageUrl: text("image_url"),
+	pageUrl: text("page_url"),
+	userAgent: text("user_agent"),
+	ipHash: text("ip_hash"),
+	status: text().default('new').notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "feedback_user_id_fkey"
+		}).onDelete("set null"),
+]);
+
 export const eventRoles = pgTable("event_roles", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	eventId: uuid("event_id").notNull(),

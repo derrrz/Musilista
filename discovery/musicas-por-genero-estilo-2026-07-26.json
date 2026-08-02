@@ -1,0 +1,2818 @@
+[
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Barroco",
+    "artista": "J.S. Bach",
+    "musica": "Tocata e Fuga em Ré menor BWV 565",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Barroco",
+    "artista": "Vivaldi",
+    "musica": "As Quatro Estações - La Primavera",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Barroco",
+    "artista": "Handel",
+    "musica": "Hallelujah Chorus (O Messias)",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Clássico (período)",
+    "artista": "Mozart",
+    "musica": "Sinfonia nº 40",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Clássico (período)",
+    "artista": "Beethoven",
+    "musica": "Sinfonia nº 5",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Clássico (período)",
+    "artista": "Haydn",
+    "musica": "Sinfonia nº 94 Surpresa",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Romântico",
+    "artista": "Chopin",
+    "musica": "Noturno Op. 9 nº 2",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Romântico",
+    "artista": "Tchaikovsky",
+    "musica": "Abertura 1812",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Romântico",
+    "artista": "Brahms",
+    "musica": "Sinfonia nº 3",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Impressionismo musical",
+    "artista": "Debussy",
+    "musica": "Clair de Lune",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Impressionismo musical",
+    "artista": "Ravel",
+    "musica": "Boléro",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Dodecafonismo / atonalismo",
+    "artista": "Schoenberg",
+    "musica": "Pierrot Lunaire",
+    "nicho": true
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Dodecafonismo / atonalismo",
+    "artista": "Alban Berg",
+    "musica": "Wozzeck",
+    "nicho": true
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Minimalismo erudito",
+    "artista": "Steve Reich",
+    "musica": "Music for 18 Musicians",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Minimalismo erudito",
+    "artista": "Philip Glass",
+    "musica": "Einstein on the Beach",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Minimalismo erudito",
+    "artista": "John Adams",
+    "musica": "Short Ride in a Fast Machine",
+    "nicho": false
+  },
+  {
+    "familia": "Erudita ocidental",
+    "tipo": "estilo",
+    "nome": "Música espectral",
+    "artista": "Gérard Grisey",
+    "musica": "Partiels",
+    "nicho": true
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "genero",
+    "nome": "Jazz (New Orleans/tradicional)",
+    "artista": "Louis Armstrong",
+    "musica": "West End Blues",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "genero",
+    "nome": "Jazz (New Orleans/tradicional)",
+    "artista": "Louis Armstrong",
+    "musica": "What a Wonderful World",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "genero",
+    "nome": "Jazz (New Orleans/tradicional)",
+    "artista": "Sidney Bechet",
+    "musica": "Petite Fleur",
+    "nicho": true
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Swing / Big Band",
+    "artista": "Duke Ellington",
+    "musica": "Take the A Train",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Swing / Big Band",
+    "artista": "Glenn Miller",
+    "musica": "In the Mood",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Swing / Big Band",
+    "artista": "Benny Goodman",
+    "musica": "Sing Sing Sing",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Bebop",
+    "artista": "Charlie Parker",
+    "musica": "Ornithology",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Bebop",
+    "artista": "Dizzy Gillespie",
+    "musica": "A Night in Tunisia",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Bebop",
+    "artista": "Thelonious Monk",
+    "musica": "Round Midnight",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Cool Jazz",
+    "artista": "Miles Davis",
+    "musica": "So What",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Cool Jazz",
+    "artista": "Chet Baker",
+    "musica": "My Funny Valentine",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Cool Jazz",
+    "artista": "Dave Brubeck",
+    "musica": "Take Five",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Hard Bop",
+    "artista": "Art Blakey",
+    "musica": "Moanin'",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Hard Bop",
+    "artista": "Horace Silver",
+    "musica": "Song for My Father",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Free Jazz",
+    "artista": "Ornette Coleman",
+    "musica": "Lonely Woman",
+    "nicho": true
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Free Jazz",
+    "artista": "John Coltrane",
+    "musica": "Ascension",
+    "nicho": true
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Jazz Fusion",
+    "artista": "Weather Report",
+    "musica": "Birdland",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Jazz Fusion",
+    "artista": "Herbie Hancock",
+    "musica": "Chameleon",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Jazz Fusion",
+    "artista": "Return to Forever",
+    "musica": "Spain",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Smooth Jazz",
+    "artista": "Kenny G",
+    "musica": "Songbird",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Smooth Jazz",
+    "artista": "George Benson",
+    "musica": "Breezin'",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Gypsy Jazz",
+    "artista": "Django Reinhardt",
+    "musica": "Minor Swing",
+    "nicho": true
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Gypsy Jazz",
+    "artista": "Django Reinhardt",
+    "musica": "Nuages",
+    "nicho": true
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Modal Jazz",
+    "artista": "Miles Davis",
+    "musica": "Flamenco Sketches",
+    "nicho": false
+  },
+  {
+    "familia": "Jazz",
+    "tipo": "estilo",
+    "nome": "Modal Jazz",
+    "artista": "John Coltrane",
+    "musica": "My Favorite Things",
+    "nicho": false
+  },
+  {
+    "familia": "Blues",
+    "tipo": "genero",
+    "nome": "Blues",
+    "artista": "Robert Johnson",
+    "musica": "Cross Road Blues",
+    "nicho": false
+  },
+  {
+    "familia": "Blues",
+    "tipo": "genero",
+    "nome": "Blues",
+    "artista": "B.B. King",
+    "musica": "The Thrill Is Gone",
+    "nicho": false
+  },
+  {
+    "familia": "Blues",
+    "tipo": "genero",
+    "nome": "Blues",
+    "artista": "Muddy Waters",
+    "musica": "Mannish Boy",
+    "nicho": false
+  },
+  {
+    "familia": "Blues",
+    "tipo": "estilo",
+    "nome": "Chicago Blues",
+    "artista": "Muddy Waters",
+    "musica": "Hoochie Coochie Man",
+    "nicho": false
+  },
+  {
+    "familia": "Blues",
+    "tipo": "estilo",
+    "nome": "Chicago Blues",
+    "artista": "Howlin' Wolf",
+    "musica": "Smokestack Lightning",
+    "nicho": false
+  },
+  {
+    "familia": "Blues",
+    "tipo": "estilo",
+    "nome": "Blues Rock",
+    "artista": "Cream",
+    "musica": "Crossroads",
+    "nicho": false
+  },
+  {
+    "familia": "Blues",
+    "tipo": "estilo",
+    "nome": "Blues Rock",
+    "artista": "The Rolling Stones",
+    "musica": "Midnight Rambler",
+    "nicho": false
+  },
+  {
+    "familia": "Blues",
+    "tipo": "estilo",
+    "nome": "Blues Rock",
+    "artista": "Stevie Ray Vaughan",
+    "musica": "Pride and Joy",
+    "nicho": false
+  },
+  {
+    "familia": "Gospel",
+    "tipo": "genero",
+    "nome": "Gospel / Negro spiritual",
+    "artista": "Mahalia Jackson",
+    "musica": "Amazing Grace",
+    "nicho": false
+  },
+  {
+    "familia": "Gospel",
+    "tipo": "genero",
+    "nome": "Gospel / Negro spiritual",
+    "artista": "Mahalia Jackson",
+    "musica": "Precious Lord Take My Hand",
+    "nicho": false
+  },
+  {
+    "familia": "Gospel",
+    "tipo": "estilo",
+    "nome": "Gospel contemporâneo",
+    "artista": "Kirk Franklin",
+    "musica": "Stomp",
+    "nicho": false
+  },
+  {
+    "familia": "Gospel",
+    "tipo": "estilo",
+    "nome": "Gospel contemporâneo",
+    "artista": "CeCe Winans",
+    "musica": "Alabaster Box",
+    "nicho": false
+  },
+  {
+    "familia": "Gospel",
+    "tipo": "genero",
+    "nome": "Louvor e adoração (BR)",
+    "artista": "Aline Barros",
+    "musica": "Deus Cuida de Mim",
+    "nicho": false
+  },
+  {
+    "familia": "Gospel",
+    "tipo": "genero",
+    "nome": "Louvor e adoração (BR)",
+    "artista": "Fernandinho",
+    "musica": "Ressuscita-me",
+    "nicho": false
+  },
+  {
+    "familia": "Country",
+    "tipo": "genero",
+    "nome": "Country",
+    "artista": "Hank Williams",
+    "musica": "Honky Tonkin'",
+    "nicho": false
+  },
+  {
+    "familia": "Country",
+    "tipo": "genero",
+    "nome": "Country",
+    "artista": "Johnny Cash",
+    "musica": "Ring of Fire",
+    "nicho": false
+  },
+  {
+    "familia": "Country",
+    "tipo": "genero",
+    "nome": "Country",
+    "artista": "Dolly Parton",
+    "musica": "Jolene",
+    "nicho": false
+  },
+  {
+    "familia": "Country",
+    "tipo": "estilo",
+    "nome": "Bluegrass",
+    "artista": "Bill Monroe",
+    "musica": "Blue Moon of Kentucky",
+    "nicho": true
+  },
+  {
+    "familia": "Country",
+    "tipo": "estilo",
+    "nome": "Bluegrass",
+    "artista": "Flatt & Scruggs",
+    "musica": "Foggy Mountain Breakdown",
+    "nicho": true
+  },
+  {
+    "familia": "Country",
+    "tipo": "estilo",
+    "nome": "Country Pop",
+    "artista": "Shania Twain",
+    "musica": "Man! I Feel Like a Woman",
+    "nicho": false
+  },
+  {
+    "familia": "Country",
+    "tipo": "estilo",
+    "nome": "Country Pop",
+    "artista": "Taylor Swift",
+    "musica": "Love Story",
+    "nicho": false
+  },
+  {
+    "familia": "Country",
+    "tipo": "estilo",
+    "nome": "Outlaw Country",
+    "artista": "Willie Nelson",
+    "musica": "On the Road Again",
+    "nicho": true
+  },
+  {
+    "familia": "Country",
+    "tipo": "estilo",
+    "nome": "Outlaw Country",
+    "artista": "Waylon Jennings",
+    "musica": "Good Hearted Woman",
+    "nicho": true
+  },
+  {
+    "familia": "Country",
+    "tipo": "estilo",
+    "nome": "Americana / Alt-country",
+    "artista": "Wilco",
+    "musica": "Jesus Etc.",
+    "nicho": true
+  },
+  {
+    "familia": "Country",
+    "tipo": "estilo",
+    "nome": "Americana / Alt-country",
+    "artista": "Ryan Adams",
+    "musica": "Come Pick Me Up",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "genero",
+    "nome": "Rock and Roll",
+    "artista": "Chuck Berry",
+    "musica": "Johnny B. Goode",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "genero",
+    "nome": "Rock and Roll",
+    "artista": "Little Richard",
+    "musica": "Tutti Frutti",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "genero",
+    "nome": "Rock and Roll",
+    "artista": "Bill Haley",
+    "musica": "Rock Around the Clock",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rockabilly",
+    "artista": "Elvis Presley",
+    "musica": "That's All Right",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rockabilly",
+    "artista": "Carl Perkins",
+    "musica": "Blue Suede Shoes",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rock progressivo",
+    "artista": "Pink Floyd",
+    "musica": "Time",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rock progressivo",
+    "artista": "Yes",
+    "musica": "Roundabout",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rock progressivo",
+    "artista": "King Crimson",
+    "musica": "21st Century Schizoid Man",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Hard Rock",
+    "artista": "Led Zeppelin",
+    "musica": "Whole Lotta Love",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Hard Rock",
+    "artista": "Deep Purple",
+    "musica": "Smoke on the Water",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Hard Rock",
+    "artista": "AC/DC",
+    "musica": "Back in Black",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Glam Rock",
+    "artista": "David Bowie",
+    "musica": "Rebel Rebel",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Glam Rock",
+    "artista": "T. Rex",
+    "musica": "Get It On",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Pós-punk",
+    "artista": "Joy Division",
+    "musica": "Love Will Tear Us Apart",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Pós-punk",
+    "artista": "The Cure",
+    "musica": "A Forest",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "New Wave",
+    "artista": "Talking Heads",
+    "musica": "Once in a Lifetime",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "New Wave",
+    "artista": "Blondie",
+    "musica": "Heart of Glass",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Grunge",
+    "artista": "Nirvana",
+    "musica": "Smells Like Teen Spirit",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Grunge",
+    "artista": "Pearl Jam",
+    "musica": "Alive",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Grunge",
+    "artista": "Soundgarden",
+    "musica": "Black Hole Sun",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Indie Rock",
+    "artista": "Arctic Monkeys",
+    "musica": "Do I Wanna Know?",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Indie Rock",
+    "artista": "The Strokes",
+    "musica": "Last Nite",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Math Rock",
+    "artista": "Toe",
+    "musica": "Goodbye",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Math Rock",
+    "artista": "American Football",
+    "musica": "Never Meant",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Shoegaze",
+    "artista": "My Bloody Valentine",
+    "musica": "Only Shallow",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Shoegaze",
+    "artista": "Slowdive",
+    "musica": "Alison",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Krautrock",
+    "artista": "Can",
+    "musica": "Vitamin C",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Krautrock",
+    "artista": "Neu!",
+    "musica": "Hallogallo",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Surf Rock",
+    "artista": "The Ventures",
+    "musica": "Wipe Out",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Surf Rock",
+    "artista": "Dick Dale",
+    "musica": "Misirlou",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rock sinfônico",
+    "artista": "Evanescence",
+    "musica": "Bring Me to Life",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rock sinfônico",
+    "artista": "Within Temptation",
+    "musica": "Ice Queen",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Yacht Rock",
+    "artista": "Christopher Cross",
+    "musica": "Sailing",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Yacht Rock",
+    "artista": "Steely Dan",
+    "musica": "Rikki Don't Lose That Number",
+    "nicho": true
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rock alternativo",
+    "artista": "Radiohead",
+    "musica": "Creep",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "estilo",
+    "nome": "Rock alternativo",
+    "artista": "R.E.M.",
+    "musica": "Losing My Religion",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "genero",
+    "nome": "BRock (Rock Brasileiro anos 80)",
+    "artista": "Legião Urbana",
+    "musica": "Tempo Perdido",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "genero",
+    "nome": "BRock (Rock Brasileiro anos 80)",
+    "artista": "Titãs",
+    "musica": "Epitáfio",
+    "nicho": false
+  },
+  {
+    "familia": "Rock",
+    "tipo": "genero",
+    "nome": "BRock (Rock Brasileiro anos 80)",
+    "artista": "Capital Inicial",
+    "musica": "Fátima",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "genero",
+    "nome": "Heavy Metal",
+    "artista": "Black Sabbath",
+    "musica": "Paranoid",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "genero",
+    "nome": "Heavy Metal",
+    "artista": "Judas Priest",
+    "musica": "Breaking the Law",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "genero",
+    "nome": "Heavy Metal",
+    "artista": "Iron Maiden",
+    "musica": "The Trooper",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Thrash Metal",
+    "artista": "Metallica",
+    "musica": "Master of Puppets",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Thrash Metal",
+    "artista": "Slayer",
+    "musica": "Raining Blood",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Thrash Metal",
+    "artista": "Megadeth",
+    "musica": "Symphony of Destruction",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Death Metal",
+    "artista": "Death",
+    "musica": "Pull the Plug",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Death Metal",
+    "artista": "Cannibal Corpse",
+    "musica": "Hammer Smashed Face",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Black Metal",
+    "artista": "Mayhem",
+    "musica": "Freezing Moon",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Black Metal",
+    "artista": "Darkthrone",
+    "musica": "Transilvanian Hunger",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Doom Metal",
+    "artista": "Candlemass",
+    "musica": "Solitude",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Power Metal",
+    "artista": "Helloween",
+    "musica": "Eagle Fly Free",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Power Metal",
+    "artista": "Blind Guardian",
+    "musica": "Mirror Mirror",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Metalcore",
+    "artista": "Killswitch Engage",
+    "musica": "My Curse",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Metalcore",
+    "artista": "Bring Me the Horizon",
+    "musica": "Can You Feel My Heart",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Nu Metal",
+    "artista": "Linkin Park",
+    "musica": "Numb",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Nu Metal",
+    "artista": "Korn",
+    "musica": "Freak on a Leash",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Nu Metal",
+    "artista": "Limp Bizkit",
+    "musica": "Break Stuff",
+    "nicho": false
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Symphonic Metal",
+    "artista": "Nightwish",
+    "musica": "Nemo",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Symphonic Metal",
+    "artista": "Within Temptation",
+    "musica": "Angels",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Folk Metal",
+    "artista": "Korpiklaani",
+    "musica": "Vodka",
+    "nicho": true
+  },
+  {
+    "familia": "Metal",
+    "tipo": "estilo",
+    "nome": "Folk Metal",
+    "artista": "Eluveitie",
+    "musica": "Inis Mona",
+    "nicho": true
+  },
+  {
+    "familia": "Punk",
+    "tipo": "genero",
+    "nome": "Punk Rock",
+    "artista": "Ramones",
+    "musica": "Blitzkrieg Bop",
+    "nicho": false
+  },
+  {
+    "familia": "Punk",
+    "tipo": "genero",
+    "nome": "Punk Rock",
+    "artista": "Sex Pistols",
+    "musica": "Anarchy in the U.K.",
+    "nicho": false
+  },
+  {
+    "familia": "Punk",
+    "tipo": "genero",
+    "nome": "Punk Rock",
+    "artista": "The Clash",
+    "musica": "London Calling",
+    "nicho": false
+  },
+  {
+    "familia": "Punk",
+    "tipo": "estilo",
+    "nome": "Hardcore Punk",
+    "artista": "Black Flag",
+    "musica": "Rise Above",
+    "nicho": true
+  },
+  {
+    "familia": "Punk",
+    "tipo": "estilo",
+    "nome": "Hardcore Punk",
+    "artista": "Minor Threat",
+    "musica": "Straight Edge",
+    "nicho": true
+  },
+  {
+    "familia": "Punk",
+    "tipo": "estilo",
+    "nome": "Pop Punk",
+    "artista": "Blink-182",
+    "musica": "All the Small Things",
+    "nicho": false
+  },
+  {
+    "familia": "Punk",
+    "tipo": "estilo",
+    "nome": "Pop Punk",
+    "artista": "Green Day",
+    "musica": "Basket Case",
+    "nicho": false
+  },
+  {
+    "familia": "Punk",
+    "tipo": "estilo",
+    "nome": "Emo",
+    "artista": "My Chemical Romance",
+    "musica": "Welcome to the Black Parade",
+    "nicho": false
+  },
+  {
+    "familia": "Punk",
+    "tipo": "estilo",
+    "nome": "Emo",
+    "artista": "Dashboard Confessional",
+    "musica": "Hands Down",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "genero",
+    "nome": "Pop",
+    "artista": "Frank Sinatra",
+    "musica": "My Way",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "genero",
+    "nome": "Pop",
+    "artista": "Whitney Houston",
+    "musica": "I Wanna Dance with Somebody",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Teen Pop",
+    "artista": "Britney Spears",
+    "musica": "...Baby One More Time",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Teen Pop",
+    "artista": "Backstreet Boys",
+    "musica": "I Want It That Way",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Synth-pop",
+    "artista": "Depeche Mode",
+    "musica": "Enjoy the Silence",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Synth-pop",
+    "artista": "a-ha",
+    "musica": "Take On Me",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Dance-pop",
+    "artista": "Lady Gaga",
+    "musica": "Poker Face",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Dance-pop",
+    "artista": "Madonna",
+    "musica": "Like a Prayer",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "City Pop",
+    "artista": "Mariya Takeuchi",
+    "musica": "Plastic Love",
+    "nicho": true
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "City Pop",
+    "artista": "Tatsuro Yamashita",
+    "musica": "Ride on Time",
+    "nicho": true
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Europop",
+    "artista": "ABBA",
+    "musica": "Dancing Queen",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Europop",
+    "artista": "Aqua",
+    "musica": "Barbie Girl",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Schlager",
+    "artista": "Helene Fischer",
+    "musica": "Atemlos durch die Nacht",
+    "nicho": true
+  },
+  {
+    "familia": "Pop",
+    "tipo": "genero",
+    "nome": "K-pop",
+    "artista": "BTS",
+    "musica": "Dynamite",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "genero",
+    "nome": "K-pop",
+    "artista": "BLACKPINK",
+    "musica": "DDU-DU DDU-DU",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "genero",
+    "nome": "K-pop",
+    "artista": "PSY",
+    "musica": "Gangnam Style",
+    "nicho": false
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Bubblegum Pop",
+    "artista": "The 1910 Fruitgum Company",
+    "musica": "Simon Says",
+    "nicho": true
+  },
+  {
+    "familia": "Pop",
+    "tipo": "estilo",
+    "nome": "Bubblegum Pop",
+    "artista": "The Archies",
+    "musica": "Sugar Sugar",
+    "nicho": true
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Soul",
+    "artista": "Aretha Franklin",
+    "musica": "Respect",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Soul",
+    "artista": "Otis Redding",
+    "musica": "(Sittin' On) The Dock of the Bay",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Soul",
+    "artista": "Sam Cooke",
+    "musica": "A Change Is Gonna Come",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "estilo",
+    "nome": "Motown Sound",
+    "artista": "The Supremes",
+    "musica": "Baby Love",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "estilo",
+    "nome": "Motown Sound",
+    "artista": "Marvin Gaye",
+    "musica": "I Heard It Through the Grapevine",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Funk (EUA)",
+    "artista": "James Brown",
+    "musica": "Get Up (I Feel Like Being a Sex Machine)",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Funk (EUA)",
+    "artista": "Parliament",
+    "musica": "Give Up the Funk",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Funk (EUA)",
+    "artista": "Sly and the Family Stone",
+    "musica": "Dance to the Music",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Disco",
+    "artista": "Bee Gees",
+    "musica": "Stayin' Alive",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Disco",
+    "artista": "Donna Summer",
+    "musica": "I Feel Love",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "Disco",
+    "artista": "Chic",
+    "musica": "Le Freak",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "estilo",
+    "nome": "New Jack Swing",
+    "artista": "Bobby Brown",
+    "musica": "My Prerogative",
+    "nicho": true
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "estilo",
+    "nome": "New Jack Swing",
+    "artista": "Bell Biv DeVoe",
+    "musica": "Poison",
+    "nicho": true
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "R&B contemporâneo",
+    "artista": "Beyoncé",
+    "musica": "Halo",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "genero",
+    "nome": "R&B contemporâneo",
+    "artista": "Usher",
+    "musica": "Yeah!",
+    "nicho": false
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "estilo",
+    "nome": "Neo Soul",
+    "artista": "Erykah Badu",
+    "musica": "On & On",
+    "nicho": true
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "estilo",
+    "nome": "Neo Soul",
+    "artista": "D'Angelo",
+    "musica": "Untitled (How Does It Feel)",
+    "nicho": true
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "estilo",
+    "nome": "Quiet Storm",
+    "artista": "Sade",
+    "musica": "Smooth Operator",
+    "nicho": true
+  },
+  {
+    "familia": "Soul/Funk/R&B (EUA)",
+    "tipo": "estilo",
+    "nome": "Quiet Storm",
+    "artista": "Anita Baker",
+    "musica": "Sweet Love",
+    "nicho": true
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "genero",
+    "nome": "Hip Hop / Rap",
+    "artista": "Sugarhill Gang",
+    "musica": "Rapper's Delight",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "genero",
+    "nome": "Hip Hop / Rap",
+    "artista": "Run-D.M.C.",
+    "musica": "Walk This Way",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "Gangsta Rap",
+    "artista": "N.W.A",
+    "musica": "Straight Outta Compton",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "Gangsta Rap",
+    "artista": "Ice-T",
+    "musica": "6 'N the Mornin'",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "Boom Bap",
+    "artista": "Nas",
+    "musica": "N.Y. State of Mind",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "Boom Bap",
+    "artista": "A Tribe Called Quest",
+    "musica": "Can I Kick It?",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "G-Funk",
+    "artista": "Dr. Dre",
+    "musica": "Nuthin' but a 'G' Thang",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "G-Funk",
+    "artista": "Snoop Dogg",
+    "musica": "Gin and Juice",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "Trap",
+    "artista": "Migos",
+    "musica": "Bad and Boujee",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "Trap",
+    "artista": "Future",
+    "musica": "Mask Off",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "Drill",
+    "artista": "Pop Smoke",
+    "musica": "Dior",
+    "nicho": true
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "estilo",
+    "nome": "Drill",
+    "artista": "Chief Keef",
+    "musica": "I Don't Like",
+    "nicho": true
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "genero",
+    "nome": "Rap nacional (BR)",
+    "artista": "Racionais MC's",
+    "musica": "Diário de um Detento",
+    "nicho": false
+  },
+  {
+    "familia": "Hip Hop / Rap",
+    "tipo": "genero",
+    "nome": "Rap nacional (BR)",
+    "artista": "Emicida",
+    "musica": "Boa Esperança",
+    "nicho": false
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "genero",
+    "nome": "House",
+    "artista": "Daft Punk",
+    "musica": "One More Time",
+    "nicho": false
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "genero",
+    "nome": "House",
+    "artista": "Frankie Knuckles",
+    "musica": "Your Love",
+    "nicho": false
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Techno",
+    "artista": "Jeff Mills",
+    "musica": "The Bells",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Techno",
+    "artista": "Carl Cox",
+    "musica": "I Want You (Forever)",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Trance",
+    "artista": "Above & Beyond",
+    "musica": "Sun & Moon",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Trance",
+    "artista": "Armin van Buuren",
+    "musica": "This Is What It Feels Like",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Drum and Bass",
+    "artista": "Goldie",
+    "musica": "Inner City Life",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Drum and Bass",
+    "artista": "Roni Size",
+    "musica": "Brown Paper Bag",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Dubstep",
+    "artista": "Skrillex",
+    "musica": "Scary Monsters and Nice Sprites",
+    "nicho": false
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Dubstep",
+    "artista": "Burial",
+    "musica": "Archangel",
+    "nicho": false
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Ambient",
+    "artista": "Brian Eno",
+    "musica": "Music for Airports",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "IDM",
+    "artista": "Aphex Twin",
+    "musica": "Windowlicker",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "IDM",
+    "artista": "Boards of Canada",
+    "musica": "Roygbiv",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Synthwave",
+    "artista": "Kavinsky",
+    "musica": "Nightcall",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Synthwave",
+    "artista": "The Midnight",
+    "musica": "Sunset",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "EDM de festival",
+    "artista": "Avicii",
+    "musica": "Levels",
+    "nicho": false
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "EDM de festival",
+    "artista": "Calvin Harris",
+    "musica": "Summer",
+    "nicho": false
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Eurodance",
+    "artista": "Vengaboys",
+    "musica": "Boom Boom Boom Boom!!",
+    "nicho": true
+  },
+  {
+    "familia": "Eletrônica",
+    "tipo": "estilo",
+    "nome": "Eurodance",
+    "artista": "Haddaway",
+    "musica": "What Is Love",
+    "nicho": true
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Reggae",
+    "artista": "Bob Marley",
+    "musica": "No Woman No Cry",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Reggae",
+    "artista": "Bob Marley",
+    "musica": "Three Little Birds",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Reggae",
+    "artista": "Jimmy Cliff",
+    "musica": "The Harder They Come",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "estilo",
+    "nome": "Ska",
+    "artista": "Toots and the Maytals",
+    "musica": "54-46 Was My Number",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "estilo",
+    "nome": "Ska",
+    "artista": "The Specials",
+    "musica": "A Message to You Rudy",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "estilo",
+    "nome": "Rocksteady",
+    "artista": "Alton Ellis",
+    "musica": "Rocksteady",
+    "nicho": true
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "estilo",
+    "nome": "Rocksteady",
+    "artista": "Desmond Dekker",
+    "musica": "007 (Shanty Town)",
+    "nicho": true
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "estilo",
+    "nome": "Dub",
+    "artista": "King Tubby",
+    "musica": "King Tubby Meets the Rockers Uptown",
+    "nicho": true
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "estilo",
+    "nome": "Dub",
+    "artista": "Lee Scratch Perry",
+    "musica": "Chase the Devil",
+    "nicho": true
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Dancehall",
+    "artista": "Sean Paul",
+    "musica": "Temperature",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Dancehall",
+    "artista": "Shaggy",
+    "musica": "It Wasn't Me",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Reggaetón",
+    "artista": "Daddy Yankee",
+    "musica": "Gasolina",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Reggaetón",
+    "artista": "Don Omar",
+    "musica": "Danza Kuduro",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "estilo",
+    "nome": "Soca",
+    "artista": "Machel Montano",
+    "musica": "Ministry of Road",
+    "nicho": true
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Calypso",
+    "artista": "Harry Belafonte",
+    "musica": "Day-O (The Banana Boat Song)",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Calypso",
+    "artista": "Mighty Sparrow",
+    "musica": "Jean and Dinah",
+    "nicho": false
+  },
+  {
+    "familia": "Reggae e Caribe",
+    "tipo": "genero",
+    "nome": "Zouk",
+    "artista": "Kassav'",
+    "musica": "Zouk La Sé Sèl Médikaman Nou Ni",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Tango",
+    "artista": "Carlos Gardel",
+    "musica": "Volver",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Tango",
+    "artista": "Ástor Piazzolla",
+    "musica": "Libertango",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Salsa",
+    "artista": "Celia Cruz",
+    "musica": "La Vida Es Un Carnaval",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Salsa",
+    "artista": "Héctor Lavoe",
+    "musica": "El Cantante",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Salsa",
+    "artista": "Marc Anthony",
+    "musica": "Vivir Mi Vida",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Merengue",
+    "artista": "Juan Luis Guerra",
+    "musica": "Ojalá Que Llueva Café",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Merengue",
+    "artista": "Wilfrido Vargas",
+    "musica": "El Baile del Perrito",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Bachata",
+    "artista": "Romeo Santos",
+    "musica": "Propuesta Indecente",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Bachata",
+    "artista": "Juan Luis Guerra",
+    "musica": "Bachata Rosa",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Cumbia",
+    "artista": "Trad.",
+    "musica": "La Pollera Colorá",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Cumbia",
+    "artista": "Los Ángeles Azules",
+    "musica": "Cómo Te Voy a Olvidar",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Vallenato",
+    "artista": "Carlos Vives",
+    "musica": "La Gota Fría",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Ranchera",
+    "artista": "Vicente Fernández",
+    "musica": "El Rey",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Ranchera",
+    "artista": "Alejandro Fernández",
+    "musica": "Si Tú Supieras",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Mariachi (formato instrumental)",
+    "artista": "Trad.",
+    "musica": "Cielito Lindo",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Mariachi (formato instrumental)",
+    "artista": "Trad.",
+    "musica": "El Son de la Negra",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Bolero",
+    "artista": "Consuelo Velázquez",
+    "musica": "Bésame Mucho",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Bolero",
+    "artista": "Los Panchos",
+    "musica": "Sabor a Mí",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Nueva Canción",
+    "artista": "Mercedes Sosa",
+    "musica": "Gracias a la Vida",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Nueva Canção",
+    "artista": "Víctor Jara",
+    "musica": "Te Recuerdo Amanda",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Cueca",
+    "artista": "Trad.",
+    "musica": "Cueca chilena tradicional",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Mambo",
+    "artista": "Pérez Prado",
+    "musica": "Mambo No. 5",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Latin Jazz",
+    "artista": "Tito Puente",
+    "musica": "Oye Como Va",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "estilo",
+    "nome": "Latin Jazz",
+    "artista": "Buena Vista Social Club",
+    "musica": "Chan Chan",
+    "nicho": false
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Corridos Tumbados",
+    "artista": "Peso Pluma",
+    "musica": "Ella Baila Sola",
+    "nicho": true
+  },
+  {
+    "familia": "América Latina (hispânica)",
+    "tipo": "genero",
+    "nome": "Corridos Tumbados",
+    "artista": "Natanael Cano",
+    "musica": "AMG",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Samba",
+    "artista": "Cartola",
+    "musica": "As Rosas Não Falam",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Samba",
+    "artista": "Noel Rosa",
+    "musica": "Conversa de Botequim",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Samba",
+    "artista": "Clara Nunes",
+    "musica": "Guerreira",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Samba-enredo",
+    "artista": "Estação Primeira de Mangueira",
+    "musica": "História para Ninar Gente Grande",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Samba de breque",
+    "artista": "Moreira da Silva",
+    "musica": "Acertei no Milhar",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Samba rock",
+    "artista": "Jorge Ben Jor",
+    "musica": "Mas Que Nada",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Samba rock",
+    "artista": "Jorge Ben Jor",
+    "musica": "Taj Mahal",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Pagode",
+    "artista": "Zeca Pagodinho",
+    "musica": "Deixa a Vida Me Levar",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Pagode",
+    "artista": "Fundo de Quintal",
+    "musica": "Verdade",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Bossa Nova",
+    "artista": "João Gilberto/Tom Jobim",
+    "musica": "Garota de Ipanema",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Bossa Nova",
+    "artista": "João Gilberto",
+    "musica": "Chega de Saudade",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Bossa Nova",
+    "artista": "Tom Jobim",
+    "musica": "Wave",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "MPB",
+    "artista": "Chico Buarque",
+    "musica": "Construção",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "MPB",
+    "artista": "Milton Nascimento",
+    "musica": "Travessia",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "MPB",
+    "artista": "Elis Regina",
+    "musica": "Águas de Março",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Tropicália",
+    "artista": "Caetano Veloso",
+    "musica": "Tropicália",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Tropicália",
+    "artista": "Gilberto Gil",
+    "musica": "Domingo no Parque",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Choro",
+    "artista": "Pixinguinha",
+    "musica": "Carinhoso",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Choro",
+    "artista": "Jacob do Bandolim",
+    "musica": "Doce de Coco",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Frevo",
+    "artista": "Trad.",
+    "musica": "Evocação nº 1",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Frevo",
+    "artista": "Spok Frevo Orquestra",
+    "musica": "Frevo Mulher",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Maracatu",
+    "artista": "Maracatu Nação Estrela Brilhante",
+    "musica": "Toada tradicional",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Forró (pé-de-serra)",
+    "artista": "Luiz Gonzaga",
+    "musica": "Asa Branca",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Forró (pé-de-serra)",
+    "artista": "Luiz Gonzaga",
+    "musica": "Qui Nem Jiló",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Piseiro",
+    "artista": "Zé Vaqueiro",
+    "musica": "Base Forte",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Piseiro",
+    "artista": "João Gomes",
+    "musica": "Meu Pedaço de Pecado",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Sertanejo raiz",
+    "artista": "Tonico e Tinoco",
+    "musica": "Chico Mineiro",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Sertanejo universitário",
+    "artista": "Jorge & Mateus",
+    "musica": "Os Anjos Cantam",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Sertanejo universitário",
+    "artista": "Henrique & Juliano",
+    "musica": "Pode Chorar",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Sertanejo sofrência",
+    "artista": "Marília Mendonça",
+    "musica": "Infiel",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Sertanejo sofrência",
+    "artista": "Marília Mendonça",
+    "musica": "Todo Mundo Vai Sofrer",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Axé",
+    "artista": "Daniela Mercury",
+    "musica": "Swing da Cor",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Axé",
+    "artista": "Ivete Sangalo",
+    "musica": "Festa",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Axé",
+    "artista": "Chiclete com Banana",
+    "musica": "Kikimba",
+    "nicho": false
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Brega",
+    "artista": "Reginaldo Rossi",
+    "musica": "Menina Veneno",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Tecnobrega",
+    "artista": "Gaby Amarantos",
+    "musica": "Ex Mai Love",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Funk carioca",
+    "artista": "Cidinho & Doca",
+    "musica": "Rap da Felicidade",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "genero",
+    "nome": "Funk carioca",
+    "artista": "MC Marcinho",
+    "musica": "Glamurosa",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Funk ostentação",
+    "artista": "MC Guimê",
+    "musica": "Só Love",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Funk ostentação",
+    "artista": "MC Daleste",
+    "musica": "Tá Tranquilo Tá Favorável",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Manguebeat",
+    "artista": "Chico Science & Nação Zumbi",
+    "musica": "A Cidade",
+    "nicho": true
+  },
+  {
+    "familia": "Música brasileira",
+    "tipo": "estilo",
+    "nome": "Manguebeat",
+    "artista": "Chico Science & Nação Zumbi",
+    "musica": "Maracatu Atômico",
+    "nicho": true
+  },
+  {
+    "familia": "África",
+    "tipo": "genero",
+    "nome": "Afrobeat",
+    "artista": "Fela Kuti",
+    "musica": "Zombie",
+    "nicho": false
+  },
+  {
+    "familia": "África",
+    "tipo": "genero",
+    "nome": "Afrobeat",
+    "artista": "Fela Kuti",
+    "musica": "Water No Get Enemy",
+    "nicho": false
+  },
+  {
+    "familia": "África",
+    "tipo": "genero",
+    "nome": "Afrobeats",
+    "artista": "Burna Boy",
+    "musica": "Last Last",
+    "nicho": false
+  },
+  {
+    "familia": "África",
+    "tipo": "genero",
+    "nome": "Afrobeats",
+    "artista": "Wizkid",
+    "musica": "Essence",
+    "nicho": false
+  },
+  {
+    "familia": "África",
+    "tipo": "genero",
+    "nome": "Afrobeats",
+    "artista": "Davido",
+    "musica": "Fall",
+    "nicho": false
+  },
+  {
+    "familia": "África",
+    "tipo": "estilo",
+    "nome": "Highlife",
+    "artista": "E.T. Mensah",
+    "musica": "All for You",
+    "nicho": true
+  },
+  {
+    "familia": "África",
+    "tipo": "estilo",
+    "nome": "Soukous",
+    "artista": "Franco & TPOK Jazz",
+    "musica": "Mario",
+    "nicho": true
+  },
+  {
+    "familia": "África",
+    "tipo": "genero",
+    "nome": "Mbalax",
+    "artista": "Youssou N'Dour",
+    "musica": "7 Seconds",
+    "nicho": true
+  },
+  {
+    "familia": "África",
+    "tipo": "genero",
+    "nome": "Amapiano",
+    "artista": "Kabza De Small",
+    "musica": "Sponono",
+    "nicho": false
+  },
+  {
+    "familia": "África",
+    "tipo": "genero",
+    "nome": "Amapiano",
+    "artista": "Tyla",
+    "musica": "Water",
+    "nicho": false
+  },
+  {
+    "familia": "África",
+    "tipo": "estilo",
+    "nome": "Gqom",
+    "artista": "Distruction Boyz",
+    "musica": "Omunye",
+    "nicho": true
+  },
+  {
+    "familia": "África",
+    "tipo": "estilo",
+    "nome": "Bikutsi",
+    "artista": "Les Têtes Brulées",
+    "musica": "Faixa representativa",
+    "nicho": true
+  },
+  {
+    "familia": "África",
+    "tipo": "estilo",
+    "nome": "Taarab",
+    "artista": "Siti binti Saad",
+    "musica": "Registro histórico representativo",
+    "nicho": true
+  },
+  {
+    "familia": "Oriente Médio e Norte da África",
+    "tipo": "genero",
+    "nome": "Raï",
+    "artista": "Cheb Khaled",
+    "musica": "Aïcha",
+    "nicho": false
+  },
+  {
+    "familia": "Oriente Médio e Norte da África",
+    "tipo": "genero",
+    "nome": "Raï",
+    "artista": "Cheb Khaled",
+    "musica": "Didi",
+    "nicho": false
+  },
+  {
+    "familia": "Oriente Médio e Norte da África",
+    "tipo": "estilo",
+    "nome": "Dabke",
+    "artista": "Trad.",
+    "musica": "Dabke tradicional levantina",
+    "nicho": true
+  },
+  {
+    "familia": "Oriente Médio e Norte da África",
+    "tipo": "genero",
+    "nome": "Maqam clássico árabe",
+    "artista": "Umm Kulthum",
+    "musica": "Enta Omri",
+    "nicho": true
+  },
+  {
+    "familia": "Oriente Médio e Norte da África",
+    "tipo": "genero",
+    "nome": "Maqam clássico árabe",
+    "artista": "Fairuz",
+    "musica": "Li Beirut",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "genero",
+    "nome": "Filmi / Bollywood",
+    "artista": "A.R. Rahman",
+    "musica": "Jai Ho",
+    "nicho": false
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "genero",
+    "nome": "Filmi / Bollywood",
+    "artista": "A.R. Rahman",
+    "musica": "Chaiyya Chaiyya",
+    "nicho": false
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "estilo",
+    "nome": "Bhangra",
+    "artista": "Daler Mehndi",
+    "musica": "Tunak Tunak Tun",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "genero",
+    "nome": "Clássico Hindustani",
+    "artista": "Ravi Shankar",
+    "musica": "Raga Jog",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "genero",
+    "nome": "Clássico Carnático",
+    "artista": "M.S. Subbulakshmi",
+    "musica": "Registro representativo",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "estilo",
+    "nome": "Qawwali",
+    "artista": "Nusrat Fateh Ali Khan",
+    "musica": "Allah Hoo",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "estilo",
+    "nome": "Qawwali",
+    "artista": "Nusrat Fateh Ali Khan",
+    "musica": "Mustt Mustt",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "genero",
+    "nome": "Dangdut",
+    "artista": "Rhoma Irama",
+    "musica": "Begadang",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Sul e Sudeste",
+    "tipo": "genero",
+    "nome": "Luk Thung",
+    "artista": "Pumpuang Duangjan",
+    "musica": "Registro representativo",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Leste",
+    "tipo": "genero",
+    "nome": "J-pop",
+    "artista": "YOASOBI",
+    "musica": "Idol",
+    "nicho": false
+  },
+  {
+    "familia": "Ásia - Leste",
+    "tipo": "genero",
+    "nome": "J-pop",
+    "artista": "Ado",
+    "musica": "Usseewa",
+    "nicho": false
+  },
+  {
+    "familia": "Ásia - Leste",
+    "tipo": "estilo",
+    "nome": "Enka",
+    "artista": "Hibari Misora",
+    "musica": "Kawa no Nagare no Yō ni",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Leste",
+    "tipo": "estilo",
+    "nome": "Anison",
+    "artista": "Yoko Takahashi",
+    "musica": "A Cruel Angel's Thesis",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Leste",
+    "tipo": "estilo",
+    "nome": "Trot",
+    "artista": "Song Ga-in",
+    "musica": "Registro representativo",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Leste",
+    "tipo": "genero",
+    "nome": "Mandopop",
+    "artista": "Jay Chou",
+    "musica": "Qing Hua Ci",
+    "nicho": true
+  },
+  {
+    "familia": "Ásia - Leste",
+    "tipo": "genero",
+    "nome": "Cantopop",
+    "artista": "Leslie Cheung",
+    "musica": "Monica",
+    "nicho": true
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "genero",
+    "nome": "Fado",
+    "artista": "Amália Rodrigues",
+    "musica": "Uma Casa Portuguesa",
+    "nicho": false
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "genero",
+    "nome": "Fado",
+    "artista": "Amália Rodrigues",
+    "musica": "Lágrima",
+    "nicho": false
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "genero",
+    "nome": "Flamenco",
+    "artista": "Paco de Lucía",
+    "musica": "Entre Dos Aguas",
+    "nicho": false
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "genero",
+    "nome": "Flamenco",
+    "artista": "Camarón de la Isla",
+    "musica": "Como el Agua",
+    "nicho": false
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "genero",
+    "nome": "Chanson française",
+    "artista": "Édith Piaf",
+    "musica": "La Vie en Rose",
+    "nicho": false
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "genero",
+    "nome": "Chanson française",
+    "artista": "Édith Piaf",
+    "musica": "Non je ne regrette rien",
+    "nicho": false
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "estilo",
+    "nome": "Balkan Brass",
+    "artista": "Fanfare Ciocărlia",
+    "musica": "Asfalt Tango",
+    "nicho": true
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "estilo",
+    "nome": "Klezmer",
+    "artista": "The Klezmatics",
+    "musica": "Faixa representativa",
+    "nicho": true
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "genero",
+    "nome": "Música celta",
+    "artista": "The Chieftains",
+    "musica": "Have I Told You Lately",
+    "nicho": false
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "genero",
+    "nome": "Música celta",
+    "artista": "Enya",
+    "musica": "Only Time",
+    "nicho": false
+  },
+  {
+    "familia": "Europa não-anglófona",
+    "tipo": "estilo",
+    "nome": "Rebetiko",
+    "artista": "Markos Vamvakaris",
+    "musica": "Registro representativo",
+    "nicho": true
+  },
+  {
+    "familia": "Oceania e Pacífico",
+    "tipo": "estilo",
+    "nome": "Música aborígene australiana",
+    "artista": "Trad.",
+    "musica": "Registro tradicional representativo",
+    "nicho": true
+  },
+  {
+    "familia": "Oceania e Pacífico",
+    "tipo": "genero",
+    "nome": "Música havaiana / polinésia",
+    "artista": "Israel Kamakawiwoʻole",
+    "musica": "Somewhere Over the Rainbow / What a Wonderful World",
+    "nicho": true
+  },
+  {
+    "familia": "Experimental e transversais",
+    "tipo": "estilo",
+    "nome": "Musique concrète",
+    "artista": "Pierre Schaeffer",
+    "musica": "Étude aux chemins de fer",
+    "nicho": true
+  },
+  {
+    "familia": "Experimental e transversais",
+    "tipo": "genero",
+    "nome": "New Age",
+    "artista": "Yanni",
+    "musica": "Live at the Acropolis",
+    "nicho": true
+  },
+  {
+    "familia": "Experimental e transversais",
+    "tipo": "genero",
+    "nome": "New Age",
+    "artista": "Enya",
+    "musica": "Orinoco Flow",
+    "nicho": true
+  },
+  {
+    "familia": "Experimental e transversais",
+    "tipo": "estilo",
+    "nome": "Noise",
+    "artista": "Merzbow",
+    "musica": "Pulse Demon",
+    "nicho": true
+  },
+  {
+    "familia": "Experimental e transversais",
+    "tipo": "estilo",
+    "nome": "Vaporwave",
+    "artista": "Macintosh Plus",
+    "musica": "リサフランク420 / 現代のコンピュー",
+    "nicho": true
+  },
+  {
+    "familia": "Experimental e transversais",
+    "tipo": "estilo",
+    "nome": "Lo-fi",
+    "artista": "ChilledCow",
+    "musica": "lofi hip hop radio - beats to relax/study to",
+    "nicho": false
+  },
+  {
+    "familia": "Trilhas sonoras",
+    "tipo": "genero",
+    "nome": "Trilha orquestral de cinema",
+    "artista": "John Williams",
+    "musica": "Star Wars (Main Theme)",
+    "nicho": false
+  },
+  {
+    "familia": "Trilhas sonoras",
+    "tipo": "genero",
+    "nome": "Trilha orquestral de cinema",
+    "artista": "Hans Zimmer",
+    "musica": "Time (Inception)",
+    "nicho": false
+  },
+  {
+    "familia": "Trilhas sonoras",
+    "tipo": "genero",
+    "nome": "Musical de teatro (Broadway)",
+    "artista": "Wicked",
+    "musica": "Defying Gravity",
+    "nicho": false
+  },
+  {
+    "familia": "Trilhas sonoras",
+    "tipo": "genero",
+    "nome": "Musical de teatro (Broadway)",
+    "artista": "Rent",
+    "musica": "Seasons of Love",
+    "nicho": false
+  },
+  {
+    "familia": "Trilhas sonoras",
+    "tipo": "estilo",
+    "nome": "Música de videogame",
+    "artista": "Koji Kondo",
+    "musica": "Tema do Super Mario Bros.",
+    "nicho": true
+  },
+  {
+    "familia": "Trilhas sonoras",
+    "tipo": "estilo",
+    "nome": "Música de videogame",
+    "artista": "Nobuo Uematsu",
+    "musica": "One-Winged Angel (Final Fantasy VII)",
+    "nicho": true
+  },
+  {
+    "familia": "Trilhas sonoras",
+    "tipo": "estilo",
+    "nome": "Jingle publicitário",
+    "artista": "Genérico",
+    "musica": "Jingle publicitário representativo",
+    "nicho": true
+  }
+]

@@ -1,0 +1,353 @@
+familia,tipo,nome,artista,musica,nicho
+Erudita ocidental,estilo,Barroco,J.S. Bach,Tocata e Fuga em Ré menor BWV 565,
+Erudita ocidental,estilo,Barroco,Vivaldi,As Quatro Estações - La Primavera,
+Erudita ocidental,estilo,Barroco,Handel,Hallelujah Chorus (O Messias),
+Erudita ocidental,estilo,Clássico (período),Mozart,Sinfonia nº 40,
+Erudita ocidental,estilo,Clássico (período),Beethoven,Sinfonia nº 5,
+Erudita ocidental,estilo,Clássico (período),Haydn,Sinfonia nº 94 Surpresa,
+Erudita ocidental,estilo,Romântico,Chopin,Noturno Op. 9 nº 2,
+Erudita ocidental,estilo,Romântico,Tchaikovsky,Abertura 1812,
+Erudita ocidental,estilo,Romântico,Brahms,Sinfonia nº 3,
+Erudita ocidental,estilo,Impressionismo musical,Debussy,Clair de Lune,
+Erudita ocidental,estilo,Impressionismo musical,Ravel,Boléro,
+Erudita ocidental,estilo,Dodecafonismo / atonalismo,Schoenberg,Pierrot Lunaire,sim
+Erudita ocidental,estilo,Dodecafonismo / atonalismo,Alban Berg,Wozzeck,sim
+Erudita ocidental,estilo,Minimalismo erudito,Steve Reich,Music for 18 Musicians,
+Erudita ocidental,estilo,Minimalismo erudito,Philip Glass,Einstein on the Beach,
+Erudita ocidental,estilo,Minimalismo erudito,John Adams,Short Ride in a Fast Machine,
+Erudita ocidental,estilo,Música espectral,Gérard Grisey,Partiels,sim
+Jazz,genero,Jazz (New Orleans/tradicional),Louis Armstrong,West End Blues,
+Jazz,genero,Jazz (New Orleans/tradicional),Louis Armstrong,What a Wonderful World,
+Jazz,genero,Jazz (New Orleans/tradicional),Sidney Bechet,Petite Fleur,sim
+Jazz,estilo,Swing / Big Band,Duke Ellington,Take the A Train,
+Jazz,estilo,Swing / Big Band,Glenn Miller,In the Mood,
+Jazz,estilo,Swing / Big Band,Benny Goodman,Sing Sing Sing,
+Jazz,estilo,Bebop,Charlie Parker,Ornithology,
+Jazz,estilo,Bebop,Dizzy Gillespie,A Night in Tunisia,
+Jazz,estilo,Bebop,Thelonious Monk,Round Midnight,
+Jazz,estilo,Cool Jazz,Miles Davis,So What,
+Jazz,estilo,Cool Jazz,Chet Baker,My Funny Valentine,
+Jazz,estilo,Cool Jazz,Dave Brubeck,Take Five,
+Jazz,estilo,Hard Bop,Art Blakey,Moanin',
+Jazz,estilo,Hard Bop,Horace Silver,Song for My Father,
+Jazz,estilo,Free Jazz,Ornette Coleman,Lonely Woman,sim
+Jazz,estilo,Free Jazz,John Coltrane,Ascension,sim
+Jazz,estilo,Jazz Fusion,Weather Report,Birdland,
+Jazz,estilo,Jazz Fusion,Herbie Hancock,Chameleon,
+Jazz,estilo,Jazz Fusion,Return to Forever,Spain,
+Jazz,estilo,Smooth Jazz,Kenny G,Songbird,
+Jazz,estilo,Smooth Jazz,George Benson,Breezin',
+Jazz,estilo,Gypsy Jazz,Django Reinhardt,Minor Swing,sim
+Jazz,estilo,Gypsy Jazz,Django Reinhardt,Nuages,sim
+Jazz,estilo,Modal Jazz,Miles Davis,Flamenco Sketches,
+Jazz,estilo,Modal Jazz,John Coltrane,My Favorite Things,
+Blues,genero,Blues,Robert Johnson,Cross Road Blues,
+Blues,genero,Blues,B.B. King,The Thrill Is Gone,
+Blues,genero,Blues,Muddy Waters,Mannish Boy,
+Blues,estilo,Chicago Blues,Muddy Waters,Hoochie Coochie Man,
+Blues,estilo,Chicago Blues,Howlin' Wolf,Smokestack Lightning,
+Blues,estilo,Blues Rock,Cream,Crossroads,
+Blues,estilo,Blues Rock,The Rolling Stones,Midnight Rambler,
+Blues,estilo,Blues Rock,Stevie Ray Vaughan,Pride and Joy,
+Gospel,genero,Gospel / Negro spiritual,Mahalia Jackson,Amazing Grace,
+Gospel,genero,Gospel / Negro spiritual,Mahalia Jackson,Precious Lord Take My Hand,
+Gospel,estilo,Gospel contemporâneo,Kirk Franklin,Stomp,
+Gospel,estilo,Gospel contemporâneo,CeCe Winans,Alabaster Box,
+Gospel,genero,Louvor e adoração (BR),Aline Barros,Deus Cuida de Mim,
+Gospel,genero,Louvor e adoração (BR),Fernandinho,Ressuscita-me,
+Country,genero,Country,Hank Williams,Honky Tonkin',
+Country,genero,Country,Johnny Cash,Ring of Fire,
+Country,genero,Country,Dolly Parton,Jolene,
+Country,estilo,Bluegrass,Bill Monroe,Blue Moon of Kentucky,sim
+Country,estilo,Bluegrass,Flatt & Scruggs,Foggy Mountain Breakdown,sim
+Country,estilo,Country Pop,Shania Twain,Man! I Feel Like a Woman,
+Country,estilo,Country Pop,Taylor Swift,Love Story,
+Country,estilo,Outlaw Country,Willie Nelson,On the Road Again,sim
+Country,estilo,Outlaw Country,Waylon Jennings,Good Hearted Woman,sim
+Country,estilo,Americana / Alt-country,Wilco,Jesus Etc.,sim
+Country,estilo,Americana / Alt-country,Ryan Adams,Come Pick Me Up,sim
+Rock,genero,Rock and Roll,Chuck Berry,Johnny B. Goode,
+Rock,genero,Rock and Roll,Little Richard,Tutti Frutti,
+Rock,genero,Rock and Roll,Bill Haley,Rock Around the Clock,
+Rock,estilo,Rockabilly,Elvis Presley,That's All Right,
+Rock,estilo,Rockabilly,Carl Perkins,Blue Suede Shoes,
+Rock,estilo,Rock progressivo,Pink Floyd,Time,
+Rock,estilo,Rock progressivo,Yes,Roundabout,
+Rock,estilo,Rock progressivo,King Crimson,21st Century Schizoid Man,
+Rock,estilo,Hard Rock,Led Zeppelin,Whole Lotta Love,
+Rock,estilo,Hard Rock,Deep Purple,Smoke on the Water,
+Rock,estilo,Hard Rock,AC/DC,Back in Black,
+Rock,estilo,Glam Rock,David Bowie,Rebel Rebel,
+Rock,estilo,Glam Rock,T. Rex,Get It On,
+Rock,estilo,Pós-punk,Joy Division,Love Will Tear Us Apart,
+Rock,estilo,Pós-punk,The Cure,A Forest,
+Rock,estilo,New Wave,Talking Heads,Once in a Lifetime,
+Rock,estilo,New Wave,Blondie,Heart of Glass,
+Rock,estilo,Grunge,Nirvana,Smells Like Teen Spirit,
+Rock,estilo,Grunge,Pearl Jam,Alive,
+Rock,estilo,Grunge,Soundgarden,Black Hole Sun,
+Rock,estilo,Indie Rock,Arctic Monkeys,Do I Wanna Know?,
+Rock,estilo,Indie Rock,The Strokes,Last Nite,
+Rock,estilo,Math Rock,Toe,Goodbye,sim
+Rock,estilo,Math Rock,American Football,Never Meant,sim
+Rock,estilo,Shoegaze,My Bloody Valentine,Only Shallow,sim
+Rock,estilo,Shoegaze,Slowdive,Alison,sim
+Rock,estilo,Krautrock,Can,Vitamin C,sim
+Rock,estilo,Krautrock,Neu!,Hallogallo,sim
+Rock,estilo,Surf Rock,The Ventures,Wipe Out,sim
+Rock,estilo,Surf Rock,Dick Dale,Misirlou,sim
+Rock,estilo,Rock sinfônico,Evanescence,Bring Me to Life,
+Rock,estilo,Rock sinfônico,Within Temptation,Ice Queen,
+Rock,estilo,Yacht Rock,Christopher Cross,Sailing,sim
+Rock,estilo,Yacht Rock,Steely Dan,Rikki Don't Lose That Number,sim
+Rock,estilo,Rock alternativo,Radiohead,Creep,
+Rock,estilo,Rock alternativo,R.E.M.,Losing My Religion,
+Rock,genero,BRock (Rock Brasileiro anos 80),Legião Urbana,Tempo Perdido,
+Rock,genero,BRock (Rock Brasileiro anos 80),Titãs,Epitáfio,
+Rock,genero,BRock (Rock Brasileiro anos 80),Capital Inicial,Fátima,
+Metal,genero,Heavy Metal,Black Sabbath,Paranoid,
+Metal,genero,Heavy Metal,Judas Priest,Breaking the Law,
+Metal,genero,Heavy Metal,Iron Maiden,The Trooper,
+Metal,estilo,Thrash Metal,Metallica,Master of Puppets,
+Metal,estilo,Thrash Metal,Slayer,Raining Blood,
+Metal,estilo,Thrash Metal,Megadeth,Symphony of Destruction,
+Metal,estilo,Death Metal,Death,Pull the Plug,sim
+Metal,estilo,Death Metal,Cannibal Corpse,Hammer Smashed Face,sim
+Metal,estilo,Black Metal,Mayhem,Freezing Moon,sim
+Metal,estilo,Black Metal,Darkthrone,Transilvanian Hunger,sim
+Metal,estilo,Doom Metal,Candlemass,Solitude,sim
+Metal,estilo,Power Metal,Helloween,Eagle Fly Free,sim
+Metal,estilo,Power Metal,Blind Guardian,Mirror Mirror,sim
+Metal,estilo,Metalcore,Killswitch Engage,My Curse,
+Metal,estilo,Metalcore,Bring Me the Horizon,Can You Feel My Heart,
+Metal,estilo,Nu Metal,Linkin Park,Numb,
+Metal,estilo,Nu Metal,Korn,Freak on a Leash,
+Metal,estilo,Nu Metal,Limp Bizkit,Break Stuff,
+Metal,estilo,Symphonic Metal,Nightwish,Nemo,sim
+Metal,estilo,Symphonic Metal,Within Temptation,Angels,sim
+Metal,estilo,Folk Metal,Korpiklaani,Vodka,sim
+Metal,estilo,Folk Metal,Eluveitie,Inis Mona,sim
+Punk,genero,Punk Rock,Ramones,Blitzkrieg Bop,
+Punk,genero,Punk Rock,Sex Pistols,Anarchy in the U.K.,
+Punk,genero,Punk Rock,The Clash,London Calling,
+Punk,estilo,Hardcore Punk,Black Flag,Rise Above,sim
+Punk,estilo,Hardcore Punk,Minor Threat,Straight Edge,sim
+Punk,estilo,Pop Punk,Blink-182,All the Small Things,
+Punk,estilo,Pop Punk,Green Day,Basket Case,
+Punk,estilo,Emo,My Chemical Romance,Welcome to the Black Parade,
+Punk,estilo,Emo,Dashboard Confessional,Hands Down,
+Pop,genero,Pop,Frank Sinatra,My Way,
+Pop,genero,Pop,Whitney Houston,I Wanna Dance with Somebody,
+Pop,estilo,Teen Pop,Britney Spears,...Baby One More Time,
+Pop,estilo,Teen Pop,Backstreet Boys,I Want It That Way,
+Pop,estilo,Synth-pop,Depeche Mode,Enjoy the Silence,
+Pop,estilo,Synth-pop,a-ha,Take On Me,
+Pop,estilo,Dance-pop,Lady Gaga,Poker Face,
+Pop,estilo,Dance-pop,Madonna,Like a Prayer,
+Pop,estilo,City Pop,Mariya Takeuchi,Plastic Love,sim
+Pop,estilo,City Pop,Tatsuro Yamashita,Ride on Time,sim
+Pop,estilo,Europop,ABBA,Dancing Queen,
+Pop,estilo,Europop,Aqua,Barbie Girl,
+Pop,estilo,Schlager,Helene Fischer,Atemlos durch die Nacht,sim
+Pop,genero,K-pop,BTS,Dynamite,
+Pop,genero,K-pop,BLACKPINK,DDU-DU DDU-DU,
+Pop,genero,K-pop,PSY,Gangnam Style,
+Pop,estilo,Bubblegum Pop,The 1910 Fruitgum Company,Simon Says,sim
+Pop,estilo,Bubblegum Pop,The Archies,Sugar Sugar,sim
+Soul/Funk/R&B (EUA),genero,Soul,Aretha Franklin,Respect,
+Soul/Funk/R&B (EUA),genero,Soul,Otis Redding,(Sittin' On) The Dock of the Bay,
+Soul/Funk/R&B (EUA),genero,Soul,Sam Cooke,A Change Is Gonna Come,
+Soul/Funk/R&B (EUA),estilo,Motown Sound,The Supremes,Baby Love,
+Soul/Funk/R&B (EUA),estilo,Motown Sound,Marvin Gaye,I Heard It Through the Grapevine,
+Soul/Funk/R&B (EUA),genero,Funk (EUA),James Brown,Get Up (I Feel Like Being a Sex Machine),
+Soul/Funk/R&B (EUA),genero,Funk (EUA),Parliament,Give Up the Funk,
+Soul/Funk/R&B (EUA),genero,Funk (EUA),Sly and the Family Stone,Dance to the Music,
+Soul/Funk/R&B (EUA),genero,Disco,Bee Gees,Stayin' Alive,
+Soul/Funk/R&B (EUA),genero,Disco,Donna Summer,I Feel Love,
+Soul/Funk/R&B (EUA),genero,Disco,Chic,Le Freak,
+Soul/Funk/R&B (EUA),estilo,New Jack Swing,Bobby Brown,My Prerogative,sim
+Soul/Funk/R&B (EUA),estilo,New Jack Swing,Bell Biv DeVoe,Poison,sim
+Soul/Funk/R&B (EUA),genero,R&B contemporâneo,Beyoncé,Halo,
+Soul/Funk/R&B (EUA),genero,R&B contemporâneo,Usher,Yeah!,
+Soul/Funk/R&B (EUA),estilo,Neo Soul,Erykah Badu,On & On,sim
+Soul/Funk/R&B (EUA),estilo,Neo Soul,D'Angelo,Untitled (How Does It Feel),sim
+Soul/Funk/R&B (EUA),estilo,Quiet Storm,Sade,Smooth Operator,sim
+Soul/Funk/R&B (EUA),estilo,Quiet Storm,Anita Baker,Sweet Love,sim
+Hip Hop / Rap,genero,Hip Hop / Rap,Sugarhill Gang,Rapper's Delight,
+Hip Hop / Rap,genero,Hip Hop / Rap,Run-D.M.C.,Walk This Way,
+Hip Hop / Rap,estilo,Gangsta Rap,N.W.A,Straight Outta Compton,
+Hip Hop / Rap,estilo,Gangsta Rap,Ice-T,6 'N the Mornin',
+Hip Hop / Rap,estilo,Boom Bap,Nas,N.Y. State of Mind,
+Hip Hop / Rap,estilo,Boom Bap,A Tribe Called Quest,Can I Kick It?,
+Hip Hop / Rap,estilo,G-Funk,Dr. Dre,Nuthin' but a 'G' Thang,
+Hip Hop / Rap,estilo,G-Funk,Snoop Dogg,Gin and Juice,
+Hip Hop / Rap,estilo,Trap,Migos,Bad and Boujee,
+Hip Hop / Rap,estilo,Trap,Future,Mask Off,
+Hip Hop / Rap,estilo,Drill,Pop Smoke,Dior,sim
+Hip Hop / Rap,estilo,Drill,Chief Keef,I Don't Like,sim
+Hip Hop / Rap,genero,Rap nacional (BR),Racionais MC's,Diário de um Detento,
+Hip Hop / Rap,genero,Rap nacional (BR),Emicida,Boa Esperança,
+Eletrônica,genero,House,Daft Punk,One More Time,
+Eletrônica,genero,House,Frankie Knuckles,Your Love,
+Eletrônica,estilo,Techno,Jeff Mills,The Bells,sim
+Eletrônica,estilo,Techno,Carl Cox,I Want You (Forever),sim
+Eletrônica,estilo,Trance,Above & Beyond,Sun & Moon,sim
+Eletrônica,estilo,Trance,Armin van Buuren,This Is What It Feels Like,sim
+Eletrônica,estilo,Drum and Bass,Goldie,Inner City Life,sim
+Eletrônica,estilo,Drum and Bass,Roni Size,Brown Paper Bag,sim
+Eletrônica,estilo,Dubstep,Skrillex,Scary Monsters and Nice Sprites,
+Eletrônica,estilo,Dubstep,Burial,Archangel,
+Eletrônica,estilo,Ambient,Brian Eno,Music for Airports,sim
+Eletrônica,estilo,IDM,Aphex Twin,Windowlicker,sim
+Eletrônica,estilo,IDM,Boards of Canada,Roygbiv,sim
+Eletrônica,estilo,Synthwave,Kavinsky,Nightcall,sim
+Eletrônica,estilo,Synthwave,The Midnight,Sunset,sim
+Eletrônica,estilo,EDM de festival,Avicii,Levels,
+Eletrônica,estilo,EDM de festival,Calvin Harris,Summer,
+Eletrônica,estilo,Eurodance,Vengaboys,Boom Boom Boom Boom!!,sim
+Eletrônica,estilo,Eurodance,Haddaway,What Is Love,sim
+Reggae e Caribe,genero,Reggae,Bob Marley,No Woman No Cry,
+Reggae e Caribe,genero,Reggae,Bob Marley,Three Little Birds,
+Reggae e Caribe,genero,Reggae,Jimmy Cliff,The Harder They Come,
+Reggae e Caribe,estilo,Ska,Toots and the Maytals,54-46 Was My Number,
+Reggae e Caribe,estilo,Ska,The Specials,A Message to You Rudy,
+Reggae e Caribe,estilo,Rocksteady,Alton Ellis,Rocksteady,sim
+Reggae e Caribe,estilo,Rocksteady,Desmond Dekker,007 (Shanty Town),sim
+Reggae e Caribe,estilo,Dub,King Tubby,King Tubby Meets the Rockers Uptown,sim
+Reggae e Caribe,estilo,Dub,Lee Scratch Perry,Chase the Devil,sim
+Reggae e Caribe,genero,Dancehall,Sean Paul,Temperature,
+Reggae e Caribe,genero,Dancehall,Shaggy,It Wasn't Me,
+Reggae e Caribe,genero,Reggaetón,Daddy Yankee,Gasolina,
+Reggae e Caribe,genero,Reggaetón,Don Omar,Danza Kuduro,
+Reggae e Caribe,estilo,Soca,Machel Montano,Ministry of Road,sim
+Reggae e Caribe,genero,Calypso,Harry Belafonte,Day-O (The Banana Boat Song),
+Reggae e Caribe,genero,Calypso,Mighty Sparrow,Jean and Dinah,
+Reggae e Caribe,genero,Zouk,Kassav',Zouk La Sé Sèl Médikaman Nou Ni,sim
+América Latina (hispânica),genero,Tango,Carlos Gardel,Volver,
+América Latina (hispânica),genero,Tango,Ástor Piazzolla,Libertango,
+América Latina (hispânica),genero,Salsa,Celia Cruz,La Vida Es Un Carnaval,
+América Latina (hispânica),genero,Salsa,Héctor Lavoe,El Cantante,
+América Latina (hispânica),genero,Salsa,Marc Anthony,Vivir Mi Vida,
+América Latina (hispânica),genero,Merengue,Juan Luis Guerra,Ojalá Que Llueva Café,
+América Latina (hispânica),genero,Merengue,Wilfrido Vargas,El Baile del Perrito,
+América Latina (hispânica),genero,Bachata,Romeo Santos,Propuesta Indecente,
+América Latina (hispânica),genero,Bachata,Juan Luis Guerra,Bachata Rosa,
+América Latina (hispânica),genero,Cumbia,Trad.,La Pollera Colorá,
+América Latina (hispânica),genero,Cumbia,Los Ángeles Azules,Cómo Te Voy a Olvidar,
+América Latina (hispânica),estilo,Vallenato,Carlos Vives,La Gota Fría,sim
+América Latina (hispânica),genero,Ranchera,Vicente Fernández,El Rey,
+América Latina (hispânica),genero,Ranchera,Alejandro Fernández,Si Tú Supieras,
+América Latina (hispânica),estilo,Mariachi (formato instrumental),Trad.,Cielito Lindo,sim
+América Latina (hispânica),estilo,Mariachi (formato instrumental),Trad.,El Son de la Negra,sim
+América Latina (hispânica),genero,Bolero,Consuelo Velázquez,Bésame Mucho,
+América Latina (hispânica),genero,Bolero,Los Panchos,Sabor a Mí,
+América Latina (hispânica),estilo,Nueva Canción,Mercedes Sosa,Gracias a la Vida,sim
+América Latina (hispânica),estilo,Nueva Canção,Víctor Jara,Te Recuerdo Amanda,sim
+América Latina (hispânica),estilo,Cueca,Trad.,Cueca chilena tradicional,sim
+América Latina (hispânica),estilo,Mambo,Pérez Prado,Mambo No. 5,sim
+América Latina (hispânica),estilo,Latin Jazz,Tito Puente,Oye Como Va,
+América Latina (hispânica),estilo,Latin Jazz,Buena Vista Social Club,Chan Chan,
+América Latina (hispânica),genero,Corridos Tumbados,Peso Pluma,Ella Baila Sola,sim
+América Latina (hispânica),genero,Corridos Tumbados,Natanael Cano,AMG,sim
+Música brasileira,genero,Samba,Cartola,As Rosas Não Falam,
+Música brasileira,genero,Samba,Noel Rosa,Conversa de Botequim,
+Música brasileira,genero,Samba,Clara Nunes,Guerreira,
+Música brasileira,estilo,Samba-enredo,Estação Primeira de Mangueira,História para Ninar Gente Grande,sim
+Música brasileira,estilo,Samba de breque,Moreira da Silva,Acertei no Milhar,sim
+Música brasileira,estilo,Samba rock,Jorge Ben Jor,Mas Que Nada,
+Música brasileira,estilo,Samba rock,Jorge Ben Jor,Taj Mahal,
+Música brasileira,genero,Pagode,Zeca Pagodinho,Deixa a Vida Me Levar,
+Música brasileira,genero,Pagode,Fundo de Quintal,Verdade,
+Música brasileira,genero,Bossa Nova,João Gilberto/Tom Jobim,Garota de Ipanema,
+Música brasileira,genero,Bossa Nova,João Gilberto,Chega de Saudade,
+Música brasileira,genero,Bossa Nova,Tom Jobim,Wave,
+Música brasileira,genero,MPB,Chico Buarque,Construção,
+Música brasileira,genero,MPB,Milton Nascimento,Travessia,
+Música brasileira,genero,MPB,Elis Regina,Águas de Março,
+Música brasileira,estilo,Tropicália,Caetano Veloso,Tropicália,sim
+Música brasileira,estilo,Tropicália,Gilberto Gil,Domingo no Parque,sim
+Música brasileira,genero,Choro,Pixinguinha,Carinhoso,
+Música brasileira,genero,Choro,Jacob do Bandolim,Doce de Coco,
+Música brasileira,genero,Frevo,Trad.,Evocação nº 1,
+Música brasileira,genero,Frevo,Spok Frevo Orquestra,Frevo Mulher,sim
+Música brasileira,estilo,Maracatu,Maracatu Nação Estrela Brilhante,Toada tradicional,sim
+Música brasileira,genero,Forró (pé-de-serra),Luiz Gonzaga,Asa Branca,
+Música brasileira,genero,Forró (pé-de-serra),Luiz Gonzaga,Qui Nem Jiló,
+Música brasileira,estilo,Piseiro,Zé Vaqueiro,Base Forte,sim
+Música brasileira,estilo,Piseiro,João Gomes,Meu Pedaço de Pecado,sim
+Música brasileira,estilo,Sertanejo raiz,Tonico e Tinoco,Chico Mineiro,sim
+Música brasileira,genero,Sertanejo universitário,Jorge & Mateus,Os Anjos Cantam,
+Música brasileira,genero,Sertanejo universitário,Henrique & Juliano,Pode Chorar,
+Música brasileira,estilo,Sertanejo sofrência,Marília Mendonça,Infiel,
+Música brasileira,estilo,Sertanejo sofrência,Marília Mendonça,Todo Mundo Vai Sofrer,
+Música brasileira,genero,Axé,Daniela Mercury,Swing da Cor,
+Música brasileira,genero,Axé,Ivete Sangalo,Festa,
+Música brasileira,genero,Axé,Chiclete com Banana,Kikimba,
+Música brasileira,estilo,Brega,Reginaldo Rossi,Menina Veneno,sim
+Música brasileira,estilo,Tecnobrega,Gaby Amarantos,Ex Mai Love,sim
+Música brasileira,genero,Funk carioca,Cidinho & Doca,Rap da Felicidade,sim
+Música brasileira,genero,Funk carioca,MC Marcinho,Glamurosa,sim
+Música brasileira,estilo,Funk ostentação,MC Guimê,Só Love,sim
+Música brasileira,estilo,Funk ostentação,MC Daleste,Tá Tranquilo Tá Favorável,sim
+Música brasileira,estilo,Manguebeat,Chico Science & Nação Zumbi,A Cidade,sim
+Música brasileira,estilo,Manguebeat,Chico Science & Nação Zumbi,Maracatu Atômico,sim
+África,genero,Afrobeat,Fela Kuti,Zombie,
+África,genero,Afrobeat,Fela Kuti,Water No Get Enemy,
+África,genero,Afrobeats,Burna Boy,Last Last,
+África,genero,Afrobeats,Wizkid,Essence,
+África,genero,Afrobeats,Davido,Fall,
+África,estilo,Highlife,E.T. Mensah,All for You,sim
+África,estilo,Soukous,Franco & TPOK Jazz,Mario,sim
+África,genero,Mbalax,Youssou N'Dour,7 Seconds,sim
+África,genero,Amapiano,Kabza De Small,Sponono,
+África,genero,Amapiano,Tyla,Water,
+África,estilo,Gqom,Distruction Boyz,Omunye,sim
+África,estilo,Bikutsi,Les Têtes Brulées,Faixa representativa,sim
+África,estilo,Taarab,Siti binti Saad,Registro histórico representativo,sim
+Oriente Médio e Norte da África,genero,Raï,Cheb Khaled,Aïcha,
+Oriente Médio e Norte da África,genero,Raï,Cheb Khaled,Didi,
+Oriente Médio e Norte da África,estilo,Dabke,Trad.,Dabke tradicional levantina,sim
+Oriente Médio e Norte da África,genero,Maqam clássico árabe,Umm Kulthum,Enta Omri,sim
+Oriente Médio e Norte da África,genero,Maqam clássico árabe,Fairuz,Li Beirut,sim
+Ásia - Sul e Sudeste,genero,Filmi / Bollywood,A.R. Rahman,Jai Ho,
+Ásia - Sul e Sudeste,genero,Filmi / Bollywood,A.R. Rahman,Chaiyya Chaiyya,
+Ásia - Sul e Sudeste,estilo,Bhangra,Daler Mehndi,Tunak Tunak Tun,sim
+Ásia - Sul e Sudeste,genero,Clássico Hindustani,Ravi Shankar,Raga Jog,sim
+Ásia - Sul e Sudeste,genero,Clássico Carnático,M.S. Subbulakshmi,Registro representativo,sim
+Ásia - Sul e Sudeste,estilo,Qawwali,Nusrat Fateh Ali Khan,Allah Hoo,sim
+Ásia - Sul e Sudeste,estilo,Qawwali,Nusrat Fateh Ali Khan,Mustt Mustt,sim
+Ásia - Sul e Sudeste,genero,Dangdut,Rhoma Irama,Begadang,sim
+Ásia - Sul e Sudeste,genero,Luk Thung,Pumpuang Duangjan,Registro representativo,sim
+Ásia - Leste,genero,J-pop,YOASOBI,Idol,
+Ásia - Leste,genero,J-pop,Ado,Usseewa,
+Ásia - Leste,estilo,Enka,Hibari Misora,Kawa no Nagare no Yō ni,sim
+Ásia - Leste,estilo,Anison,Yoko Takahashi,A Cruel Angel's Thesis,sim
+Ásia - Leste,estilo,Trot,Song Ga-in,Registro representativo,sim
+Ásia - Leste,genero,Mandopop,Jay Chou,Qing Hua Ci,sim
+Ásia - Leste,genero,Cantopop,Leslie Cheung,Monica,sim
+Europa não-anglófona,genero,Fado,Amália Rodrigues,Uma Casa Portuguesa,
+Europa não-anglófona,genero,Fado,Amália Rodrigues,Lágrima,
+Europa não-anglófona,genero,Flamenco,Paco de Lucía,Entre Dos Aguas,
+Europa não-anglófona,genero,Flamenco,Camarón de la Isla,Como el Agua,
+Europa não-anglófona,genero,Chanson française,Édith Piaf,La Vie en Rose,
+Europa não-anglófona,genero,Chanson française,Édith Piaf,Non je ne regrette rien,
+Europa não-anglófona,estilo,Balkan Brass,Fanfare Ciocărlia,Asfalt Tango,sim
+Europa não-anglófona,estilo,Klezmer,The Klezmatics,Faixa representativa,sim
+Europa não-anglófona,genero,Música celta,The Chieftains,Have I Told You Lately,
+Europa não-anglófona,genero,Música celta,Enya,Only Time,
+Europa não-anglófona,estilo,Rebetiko,Markos Vamvakaris,Registro representativo,sim
+Oceania e Pacífico,estilo,Música aborígene australiana,Trad.,Registro tradicional representativo,sim
+Oceania e Pacífico,genero,Música havaiana / polinésia,Israel Kamakawiwoʻole,Somewhere Over the Rainbow / What a Wonderful World,sim
+Experimental e transversais,estilo,Musique concrète,Pierre Schaeffer,Étude aux chemins de fer,sim
+Experimental e transversais,genero,New Age,Yanni,Live at the Acropolis,sim
+Experimental e transversais,genero,New Age,Enya,Orinoco Flow,sim
+Experimental e transversais,estilo,Noise,Merzbow,Pulse Demon,sim
+Experimental e transversais,estilo,Vaporwave,Macintosh Plus,リサフランク420 / 現代のコンピュー,sim
+Experimental e transversais,estilo,Lo-fi,ChilledCow,lofi hip hop radio - beats to relax/study to,
+Trilhas sonoras,genero,Trilha orquestral de cinema,John Williams,Star Wars (Main Theme),
+Trilhas sonoras,genero,Trilha orquestral de cinema,Hans Zimmer,Time (Inception),
+Trilhas sonoras,genero,Musical de teatro (Broadway),Wicked,Defying Gravity,
+Trilhas sonoras,genero,Musical de teatro (Broadway),Rent,Seasons of Love,
+Trilhas sonoras,estilo,Música de videogame,Koji Kondo,Tema do Super Mario Bros.,sim
+Trilhas sonoras,estilo,Música de videogame,Nobuo Uematsu,One-Winged Angel (Final Fantasy VII),sim
+Trilhas sonoras,estilo,Jingle publicitário,Genérico,Jingle publicitário representativo,sim
