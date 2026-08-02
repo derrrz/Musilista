@@ -13,11 +13,11 @@ import type { Capability, Group, GroupEvent, Member } from './_components/types'
 // A página do grupo é a "segunda home" da banda: identidade no topo,
 // mapa de capacidades, agenda, setlists e membros em seções verticais.
 const SECTIONS = [
-  { id: 'agenda', label: 'Agenda' },
+  { id: 'membros', label: 'Membros' },
+  { id: 'referencias', label: 'Referências' },
   { id: 'setlists', label: 'Setlists' },
   { id: 'votacao', label: 'Votação' },
-  { id: 'referencias', label: 'Referências' },
-  { id: 'membros', label: 'Membros' },
+  { id: 'agenda', label: 'Agenda' },
 ];
 
 function SectionHeading({ id, title, action }: { id: string; title: string; action?: React.ReactNode }) {
@@ -66,6 +66,26 @@ export function GroupDetail({
       </nav>
 
       <section>
+        <SectionHeading id="membros" title="Membros" />
+        <MembersPanel members={members} />
+      </section>
+
+      <section>
+        <SectionHeading id="referencias" title="Referências da banda" />
+        <ReferencesPanel groupId={group.id} myUserId={myUserId} canManage={canManage} />
+      </section>
+
+      <section>
+        <SectionHeading id="setlists" title="Setlists" />
+        <RepertoirePanel groupId={group.id} canManage={canManage} />
+      </section>
+
+      <section>
+        <SectionHeading id="votacao" title="Votação do set" />
+        <VotingPanel groupId={group.id} canManage={canManage} myUserId={myUserId} />
+      </section>
+
+      <section>
         <SectionHeading
           id="agenda"
           title="Agenda"
@@ -87,26 +107,6 @@ export function GroupDetail({
         ) : (
           events.map((ev) => <EventCard key={ev.id} event={ev} groupId={group.id} canManage={canManage} />)
         )}
-      </section>
-
-      <section>
-        <SectionHeading id="setlists" title="Setlists" />
-        <RepertoirePanel groupId={group.id} canManage={canManage} />
-      </section>
-
-      <section>
-        <SectionHeading id="votacao" title="Votação do set" />
-        <VotingPanel groupId={group.id} canManage={canManage} myUserId={myUserId} />
-      </section>
-
-      <section>
-        <SectionHeading id="referencias" title="Referências da banda" />
-        <ReferencesPanel groupId={group.id} myUserId={myUserId} canManage={canManage} />
-      </section>
-
-      <section>
-        <SectionHeading id="membros" title="Membros" />
-        <MembersPanel members={members} />
       </section>
     </div>
   );
