@@ -52,6 +52,15 @@
   --color-solo: var(--ml-solo);
   --font-ui: var(--font-ui-next), 'Space Grotesk', system-ui, sans-serif;
   --font-mono: var(--font-mono-next), 'JetBrains Mono', ui-monospace, monospace;
+  --animate-heart-pulse: heart-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Pop de escala ao passar o mouse num coração de nota (LevelPicker) — dá
+   feedback de "isso aqui vai acender" antes de clicar. */
+@keyframes heart-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1.1); }
 }
 
 body {

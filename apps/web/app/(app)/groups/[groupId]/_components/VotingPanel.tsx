@@ -56,15 +56,30 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 // 3 corações = nota de 1 a 3 pra essa música (não é "quantidade de votos
 // pra gastar" — cada música recebe uma nota independente das outras).
 // Clicar na nota já marcada retira o voto; clicar numa nota diferente troca.
+// Intensidade cresce com a nota — não é só "cheio/vazio", o coração 1 é
+// mais apagado que o 3, pra bater com a ideia de "quanto mais alto,
+// mais forte".
+const HEART_TINT: Record<number, string> = {
+  1: 'text-accent/55',
+  2: 'text-accent/78',
+  3: 'text-accent',
+};
+
 function LevelPicker({
   myLevel, pending, roundOpen, onSetLevel,
 }: {
   myLevel: number | null; pending: boolean; roundOpen: boolean; onSetLevel: (level: number) => void;
 }) {
+  // Prévia no hover: passar o mouse acende os corações até ali (como um
+  // rating de estrelas), com um pulso de escala pra ficar óbvio o que vai
+  // acontecer antes de clicar.
+  const [hoverLevel, setHoverLevel] = useState<number | null>(null);
+  const effective = hoverLevel ?? myLevel;
   return (
-    <div className="flex shrink-0 items-center gap-0.5">
+    <div className="flex shrink-0 items-center gap-0.5" onMouseLeave={() => setHoverLevel(null)}>
       {[1, 2, 3].map((n) => {
-        const filled = myLevel !== null && n <= myLevel;
+        const filled = effective !== null && n <= effective;
+        const isPreview = hoverLevel !== null && n <= hoverLevel;
         // com a rodada fechada, só o coração já marcado fica clicável (pra
         // permitir retirar o voto, nunca pra dar nota nova)
         const isDisabled = pending || (!roundOpen && n !== myLevel);
@@ -74,14 +89,21 @@ function LevelPicker({
             type="button"
             disabled={isDisabled}
             onClick={() => onSetLevel(n)}
+            onMouseEnter={() => !isDisabled && setHoverLevel(n)}
             className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-full transition-all active:scale-90 disabled:opacity-30',
-              filled ? 'text-accent' : 'text-line hover:text-muted',
+              'flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150 active:scale-90 disabled:opacity-30',
+              filled ? HEART_TINT[n] : 'text-line hover:text-muted',
             )}
             title={`Nota ${n}`}
             aria-label={myLevel === n ? `Retirar nota ${n}` : `Dar nota ${n}`}
           >
-            <IconHeart className={cn('h-3.5 w-3.5', filled && 'fill-current')} />
+            <IconHeart
+              className={cn(
+                'h-3.5 w-3.5 transition-transform duration-150',
+                filled && 'fill-current',
+                isPreview ? 'scale-125 animate-heart-pulse' : 'scale-100',
+              )}
+            />
           </button>
         );
       })}
