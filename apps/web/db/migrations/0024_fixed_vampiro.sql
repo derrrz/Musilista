@@ -1,0 +1,1 @@
+DROP TABLE "voting_guest_invites" CASCADE;

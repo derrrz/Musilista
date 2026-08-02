@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
-import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, votingGuestInvites, groups, importedSongs } from '@/db/schema';
+import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, groups, importedSongs } from '@/db/schema';
 import { eq, asc, sql } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { LogoMark, Wordmark } from '@/components/brand/Logo';
@@ -44,13 +44,6 @@ async function getVoteRound(token: string) {
   return { row, candidates };
 }
 
-async function getInvitedName(inviteId: string | undefined, roundId: string) {
-  if (!inviteId) return null;
-  const [invite] = await db.select({ name: votingGuestInvites.name }).from(votingGuestInvites)
-    .where(eq(votingGuestInvites.id, inviteId)).limit(1);
-  return invite?.name ?? null;
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -67,17 +60,12 @@ export async function generateMetadata({
 
 export default async function VotePublicPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ invite?: string }>;
 }) {
   const { token } = await params;
-  const { invite: inviteId } = await searchParams;
   const data = await getVoteRound(token);
   if (!data) notFound();
-
-  const invitedName = await getInvitedName(inviteId, data.row.id);
 
   return (
     <main className="min-h-screen bg-bg pb-20 text-ink">
@@ -96,8 +84,6 @@ export default async function VotePublicPage({
 
         <VotePanel
           token={token}
-          inviteId={inviteId ?? null}
-          invitedName={invitedName}
           round={{ id: data.row.id, status: data.row.status as 'open' | 'closed' }}
           initialCandidates={data.candidates}
         />

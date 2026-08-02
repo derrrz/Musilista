@@ -30,6 +30,12 @@ function getGuestId(): string {
   return id;
 }
 
+// Nome lembrado por link (não global) — assim quem reabre o mesmo convite
+// não precisa digitar de novo, mas um convite diferente não herda o nome.
+function guestNameKey(token: string) {
+  return `musilista_guest_name_${token}`;
+}
+
 function cifraHref(c: Pick<Candidate, 'artistSlug' | 'titleSlug'>): string | null {
   return c.artistSlug && c.titleSlug ? `/${c.artistSlug}/${c.titleSlug}` : null;
 }
@@ -235,27 +241,29 @@ function VoteSessionModal({ candidates, onVote, onClose }: {
 }
 
 export function VotePanel({
-  token, inviteId, invitedName, round, initialCandidates,
+  token, round, initialCandidates,
 }: {
   token: string;
-  inviteId: string | null;
-  invitedName: string | null;
   round: { id: string; status: 'open' | 'closed' };
   initialCandidates: Candidate[];
 }) {
   const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [status, setStatus] = useState(round.status);
-  const [name, setName] = useState(invitedName ?? '');
-  const [nameConfirmed, setNameConfirmed] = useState(!!invitedName);
+  const [name, setName] = useState('');
+  const [nameConfirmed, setNameConfirmed] = useState(false);
   const [guestId, setGuestId] = useState<string | null>(null);
-  const [pendingId, setPendingId] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [showSession, setShowSession] = useState(false);
-  const [busy, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     setGuestId(getGuestId());
-  }, []);
+    const savedName = localStorage.getItem(guestNameKey(token));
+    if (savedName) {
+      setName(savedName);
+      setNameConfirmed(true);
+    }
+  }, [token]);
 
   const load = useCallback(async () => {
     if (!guestId) return;
@@ -279,19 +287,23 @@ export function VotePanel({
   const total = candidates.length;
   const done = candidates.filter((c) => c.myLevel != null).length;
 
+  function confirmName() {
+    if (!name.trim()) return;
+    localStorage.setItem(guestNameKey(token), name.trim());
+    setNameConfirmed(true);
+  }
+
   function setLevel(candidateId: string, level: number): Promise<void> {
     if (!guestId || !canVote) return Promise.resolve();
-    setPendingId(candidateId);
     return new Promise<void>((resolve) => {
       startTransition(async () => {
         await fetch(`/api/public/vote/${token}/candidates/${candidateId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ guestId, guestName: name.trim(), level, inviteId }),
+          body: JSON.stringify({ guestId, guestName: name.trim(), level }),
         });
         setHasVoted(true);
         await load();
-        setPendingId(null);
         resolve();
       });
     });
@@ -299,91 +311,58 @@ export function VotePanel({
 
   return (
     <div className="flex flex-col gap-4">
-      {!nameConfirmed && (
-        <div className="rounded-xl border border-line bg-surface p-4">
-          <p className="mb-2 text-sm font-medium text-ink">Como você se chama?</p>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Seu nome"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
-              onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) setNameConfirmed(true); }}
-            />
-            <Button size="sm" disabled={!name.trim()} onClick={() => setNameConfirmed(true)}>Entrar</Button>
-          </div>
-        </div>
-      )}
-
-      {nameConfirmed && invitedName && (
-        <p className="text-xs text-muted">Votando como <span className="font-medium text-ink">{name}</span></p>
-      )}
-
-      {candidates.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-line py-6 text-center text-xs text-muted">
-          Nenhuma música na lista ainda.
+      {status === 'closed' ? (
+        <p className="rounded-lg border border-dashed border-line py-8 text-center text-sm text-muted">
+          Essa votação já foi encerrada — esse link não aceita mais votos.
         </p>
-      ) : status === 'open' ? (
-        nameConfirmed ? (
-          <div className="flex flex-col items-center gap-3 rounded-lg border border-line bg-surface p-5 text-center">
-            <p className="text-sm text-ink">
-              {done === 0
-                ? `${total} ${total === 1 ? 'música' : 'músicas'} esperando sua nota.`
-                : done === total
-                  ? `Você avaliou todas as ${total} músicas.`
-                  : `Você já avaliou ${done} de ${total} músicas.`}
-            </p>
-            <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-raised">
-              <div
-                className="h-full rounded-full bg-accent/70 transition-all duration-500"
-                style={{ width: `${total > 0 ? (done / total) * 100 : 0}%` }}
-              />
-            </div>
-            <Button size="sm" onClick={() => setShowSession(true)}>
-              {done === 0 ? 'Votar agora' : done === total ? 'Revisar meus votos' : 'Continuar votação'}
-            </Button>
-          </div>
-        ) : (
-          <p className="text-xs text-muted">Diga seu nome pra começar a votar.</p>
-        )
       ) : (
         <>
-          <p className="text-xs text-muted">Essa votação foi encerrada.</p>
-          <div className="flex flex-col gap-2">
-            {candidates.map((c) => {
-              const href = cifraHref(c);
-              return (
-                <div key={c.id} className="flex items-center gap-3 rounded-lg border border-line bg-surface p-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      {href ? (
-                        <Link href={href} target="_blank" className="truncate text-sm font-medium text-ink underline-offset-2 hover:text-accent hover:underline">
-                          {c.title}
-                        </Link>
-                      ) : (
-                        <p className="truncate text-sm font-medium text-ink">{c.title}</p>
-                      )}
-                      <span className="shrink-0 font-mono text-xs text-muted">{c.votes} {c.votes === 1 ? 'ponto' : 'pontos'}</span>
-                    </div>
-                    {c.artist && <p className="truncate text-xs text-muted">{c.artist}</p>}
-                    {c.body && (
-                      <details className="mt-1">
-                        <summary className="cursor-pointer text-[11px] font-medium text-accent">Ver cifra</summary>
-                        <pre className="mt-1 max-h-72 overflow-auto whitespace-pre rounded-md bg-raised p-2.5 font-mono text-[11px] leading-snug text-ink">{c.body}</pre>
-                      </details>
-                    )}
-                  </div>
-                  <LevelPicker
-                    myLevel={c.myLevel}
-                    pending={busy && pendingId === c.id}
-                    roundOpen={false}
-                    canVote={canVote}
-                    onSetLevel={(level) => { setLevel(c.id, level); }}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {!nameConfirmed && (
+            <div className="rounded-xl border border-line bg-surface p-4">
+              <p className="mb-2 text-sm font-medium text-ink">Como você se chama?</p>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Seu nome"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoFocus
+                  onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) confirmName(); }}
+                />
+                <Button size="sm" disabled={!name.trim()} onClick={confirmName}>Entrar</Button>
+              </div>
+            </div>
+          )}
+
+          {nameConfirmed && (
+            <p className="text-xs text-muted">Votando como <span className="font-medium text-ink">{name}</span></p>
+          )}
+
+          {candidates.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-line py-6 text-center text-xs text-muted">
+              Nenhuma música na lista ainda.
+            </p>
+          ) : nameConfirmed ? (
+            <div className="flex flex-col items-center gap-3 rounded-lg border border-line bg-surface p-5 text-center">
+              <p className="text-sm text-ink">
+                {done === 0
+                  ? `${total} ${total === 1 ? 'música' : 'músicas'} esperando sua nota.`
+                  : done === total
+                    ? `Você avaliou todas as ${total} músicas.`
+                    : `Você já avaliou ${done} de ${total} músicas.`}
+              </p>
+              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-raised">
+                <div
+                  className="h-full rounded-full bg-accent/70 transition-all duration-500"
+                  style={{ width: `${total > 0 ? (done / total) * 100 : 0}%` }}
+                />
+              </div>
+              <Button size="sm" onClick={() => setShowSession(true)}>
+                {done === 0 ? 'Votar agora' : done === total ? 'Revisar meus votos' : 'Continuar votação'}
+              </Button>
+            </div>
+          ) : (
+            <p className="text-xs text-muted">Diga seu nome pra começar a votar.</p>
+          )}
         </>
       )}
 

@@ -21,7 +21,6 @@ type Candidate = {
 };
 
 type Participant = { name: string | null; given: number; max: number };
-type GuestInvite = { id: string; name: string; usedAt: string | null; url: string | null };
 
 // URL canônica da cifra quando a sugestão bateu no acervo; sem slug (sugestão
 // digitada à mão) não tem cifra pra linkar.
@@ -162,25 +161,17 @@ function ProgressPanel({ participants }: { participants: Participant[] }) {
   );
 }
 
-// Modal do gerente pra convidar gente de fora — link genérico (qualquer um
-// com o link vota digitando o próprio nome) ou convite nomeado (nome já
-// pré-preenchido/travado na página pública). Convidado só acessa essa
-// rodada específica, nunca o grupo.
+// Modal do gerente pra convidar gente de fora — um único link por rodada,
+// sem precisar dizer nome de ninguém antes. Quem usar o link entra com o
+// próprio nome na hora de votar; se mais de uma pessoa usar o mesmo link,
+// os votos só acumulam (cada um com seu guestId), sem segregar por quem
+// "recebeu" o convite. Convidado só acessa essa rodada, nunca o grupo.
 function InviteModal({ groupId, round, onClose }: { groupId: string; round: VotingRound; onClose: () => void }) {
   const [genericUrl, setGenericUrl] = useState<string | null>(
     round.inviteToken && typeof window !== 'undefined' ? `${window.location.origin}/vote/${round.inviteToken}` : null,
   );
-  const [invites, setInvites] = useState<GuestInvite[]>([]);
-  const [name, setName] = useState('');
   const [copied, setCopied] = useState(false);
   const [busy, startTransition] = useTransition();
-
-  const loadInvites = useCallback(async () => {
-    const res = await fetch(`/api/groups/${groupId}/votes/${round.id}/guest-invites`);
-    if (res.ok) setInvites(await res.json());
-  }, [groupId, round.id]);
-
-  useEffect(() => { loadInvites(); }, [loadInvites]);
 
   function flashCopied() {
     setCopied(true);
@@ -205,67 +196,17 @@ function InviteModal({ groupId, round, onClose }: { groupId: string; round: Voti
     flashCopied();
   }
 
-  function createNamed(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim()) return;
-    startTransition(async () => {
-      const res = await fetch(`/api/groups/${groupId}/votes/${round.id}/guest-invites`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim() }),
-      });
-      if (res.ok) {
-        const invite = await res.json();
-        if (!genericUrl) setGenericUrl(invite.url.split('?invite=')[0]);
-        navigator.clipboard?.writeText(invite.url).catch(() => {});
-        setName('');
-        loadInvites();
-      }
-    });
-  }
-
   return (
     <Modal title="Convidar por link" onClose={onClose}>
-      <div className="flex flex-col gap-4">
-        <div>
-          <p className="mb-1.5 text-xs font-medium text-ink">Link genérico</p>
-          <p className="mb-2 text-[11px] text-faint">Quem tiver o link vota digitando o próprio nome — sem precisar de conta.</p>
-          <Button size="sm" variant="outline" onClick={genericUrl ? copyGeneric : generateGeneric} disabled={busy}>
-            <IconShare className="h-3.5 w-3.5" /> {copied ? 'Copiado!' : genericUrl ? 'Copiar link' : 'Gerar link'}
-          </Button>
-        </div>
-
-        <div className="border-t border-line pt-4">
-          <p className="mb-1.5 text-xs font-medium text-ink">Convite nomeado</p>
-          <p className="mb-2 text-[11px] text-faint">Já sabe quem vai mandar? O nome vem pré-preenchido e travado.</p>
-          <form onSubmit={createNamed} className="flex gap-2">
-            <Input placeholder="Nome do convidado" value={name} onChange={(e) => setName(e.target.value)} />
-            <Button type="submit" size="sm" disabled={!name.trim() || busy}>Gerar</Button>
-          </form>
-          {invites.length > 0 && (
-            <div className="mt-3 flex flex-col gap-1">
-              {invites.map((inv) => (
-                <div key={inv.id} className="flex items-center justify-between rounded-lg border border-line bg-surface px-2.5 py-1.5">
-                  <span className="text-xs text-ink">{inv.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className={cn('rounded-md px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase', inv.usedAt ? 'bg-accent/10 text-accent' : 'bg-raised text-faint')}>
-                      {inv.usedAt ? 'Votou' : 'Ainda não'}
-                    </span>
-                    {inv.url && (
-                      <button
-                        type="button"
-                        onClick={() => { navigator.clipboard?.writeText(inv.url!).catch(() => {}); }}
-                        className="text-[11px] font-medium text-accent hover:underline"
-                      >
-                        Copiar
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      <div className="flex flex-col gap-3">
+        <p className="text-[11px] text-faint">
+          Quem tiver o link vota digitando o próprio nome, sem precisar de conta. Se mais de uma
+          pessoa usar o mesmo link, os votos de cada uma são contados à parte. O link só funciona
+          enquanto a votação estiver aberta.
+        </p>
+        <Button size="sm" variant="outline" onClick={genericUrl ? copyGeneric : generateGeneric} disabled={busy}>
+          <IconShare className="h-3.5 w-3.5" /> {copied ? 'Copiado!' : genericUrl ? 'Copiar link' : 'Gerar link'}
+        </Button>
       </div>
     </Modal>
   );

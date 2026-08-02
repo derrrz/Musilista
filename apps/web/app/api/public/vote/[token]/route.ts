@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, votingGuestInvites, groups, importedSongs } from '@/db/schema';
+import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, groups, importedSongs } from '@/db/schema';
 import { eq, asc, sql } from 'drizzle-orm';
 
 type Ctx = { params: Promise<{ token: string }> };
@@ -11,7 +11,6 @@ type Ctx = { params: Promise<{ token: string }> };
 export async function GET(req: NextRequest, { params }: Ctx) {
   const { token } = await params;
   const guestId = req.nextUrl.searchParams.get('guestId');
-  const inviteId = req.nextUrl.searchParams.get('invite');
 
   const [row] = await db
     .select({
@@ -27,13 +26,6 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     .limit(1);
 
   if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-
-  let invitedName: string | null = null;
-  if (inviteId) {
-    const [invite] = await db.select({ name: votingGuestInvites.name }).from(votingGuestInvites)
-      .where(eq(votingGuestInvites.id, inviteId)).limit(1);
-    invitedName = invite?.name ?? null;
-  }
 
   const votesExpr = sql<number>`
     coalesce((select sum(${votingBallots.level}) from ${votingBallots} where ${votingBallots.candidateId} = ${votingCandidates.id}), 0)
@@ -63,7 +55,6 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   return NextResponse.json({
     round: { id: row.id, title: row.title, status: row.status },
     group: { name: row.groupName, image: row.groupImage },
-    invitedName,
     candidates,
   });
 }

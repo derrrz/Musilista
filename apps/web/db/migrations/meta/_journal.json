@@ -169,6 +169,13 @@
       "when": 1785708341371,
       "tag": "0023_woozy_satana",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1785711345115,
+      "tag": "0024_fixed_vampiro",
+      "breakpoints": true
     }
   ]
 }

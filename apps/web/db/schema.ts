@@ -309,23 +309,6 @@ export const votingBallots = pgTable("voting_ballots", {
 	primaryKey({ columns: [table.candidateId, table.userId], name: "voting_ballots_pkey" }),
 ]);
 
-// Convite nomeado pra votação por link — o dono já sabe quem vai mandar
-// (ex: "Eder") e pré-preenche/trava o nome na página pública. usedAt marca
-// o primeiro voto desse convidado (pra mostrar badge "votou"/"ainda não").
-export const votingGuestInvites = pgTable("voting_guest_invites", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	votingRoundId: uuid("voting_round_id").notNull(),
-	name: text().notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	usedAt: timestamp("used_at", { withTimezone: true, mode: 'string' }),
-}, (table) => [
-	foreignKey({
-			columns: [table.votingRoundId],
-			foreignColumns: [votingRounds.id],
-			name: "voting_guest_invites_voting_round_id_fkey"
-		}).onDelete("cascade"),
-]);
-
 // Voto de convidado sem conta — tabela paralela a voting_ballots porque
 // guestId não é FK pra users (identidade só existe no localStorage do
 // navegador do convidado, gerada na hora, sem login).

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { votingRounds, votingCandidates, votingGuestBallots, votingGuestInvites } from '@/db/schema';
+import { votingRounds, votingCandidates, votingGuestBallots } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 type Ctx = { params: Promise<{ token: string; candidateId: string }> };
@@ -11,7 +11,7 @@ type Ctx = { params: Promise<{ token: string; candidateId: string }> };
 export async function POST(req: NextRequest, { params }: Ctx) {
   const { token, candidateId } = await params;
 
-  const { guestId, guestName, level, inviteId } = await req.json().catch(() => ({}));
+  const { guestId, guestName, level } = await req.json().catch(() => ({}));
   if (typeof guestId !== 'string' || !guestId) return NextResponse.json({ error: 'guestId obrigatório' }, { status: 400 });
   if (typeof guestName !== 'string' || !guestName.trim()) return NextResponse.json({ error: 'Nome obrigatório' }, { status: 400 });
   if (![1, 2, 3].includes(level)) return NextResponse.json({ error: 'Nota inválida' }, { status: 400 });
@@ -40,11 +40,6 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   } else {
     await db.insert(votingGuestBallots).values({ candidateId, guestId, guestName: guestName.trim(), level })
       .onConflictDoNothing();
-  }
-
-  if (typeof inviteId === 'string' && inviteId) {
-    await db.update(votingGuestInvites).set({ usedAt: new Date().toISOString() })
-      .where(and(eq(votingGuestInvites.id, inviteId), eq(votingGuestInvites.votingRoundId, round.id)));
   }
 
   return NextResponse.json({ level });
