@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { RepertoirePanel } from './_components/RepertoirePanel';
+import { VotingPanel } from './_components/VotingPanel';
 import { EventCard } from './_components/EventCard';
 import { MembersPanel } from './_components/MembersPanel';
 import { GroupHero } from './_components/GroupHero';
@@ -14,6 +15,7 @@ import type { Capability, Group, GroupEvent, Member } from './_components/types'
 const SECTIONS = [
   { id: 'agenda', label: 'Agenda' },
   { id: 'setlists', label: 'Setlists' },
+  { id: 'votacao', label: 'Votação' },
   { id: 'referencias', label: 'Referências' },
   { id: 'membros', label: 'Membros' },
 ];
@@ -90,6 +92,11 @@ export function GroupDetail({
       <section>
         <SectionHeading id="setlists" title="Setlists" />
         <RepertoirePanel groupId={group.id} canManage={canManage} />
+      </section>
+
+      <section>
+        <SectionHeading id="votacao" title="Votação do set" />
+        <VotingPanel groupId={group.id} canManage={canManage} myUserId={myUserId} />
       </section>
 
       <section>

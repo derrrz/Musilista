@@ -113,6 +113,13 @@
       "when": 1785639508225,
       "tag": "0015_media_cache_claim_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1785641482926,
+      "tag": "0016_group_song_voting",
+      "breakpoints": true
     }
   ]
 }

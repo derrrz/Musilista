@@ -209,6 +209,80 @@ export const repertoires = pgTable("repertoires", {
 		}),
 ]);
 
+// Votação pra montar um set: qualquer membro abre uma rodada, sugere
+// músicas e vota (limite de votos por pessoa, pra forçar escolha em vez de
+// curtir tudo). Quem gerencia o grupo pode fechar a rodada e virar o
+// resultado num repertório de verdade (build-set) a qualquer momento.
+export const votingRounds = pgTable("voting_rounds", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	groupId: uuid("group_id").notNull(),
+	title: text().notNull(),
+	maxVotesPerMember: integer("max_votes_per_member").default(3).notNull(),
+	status: text().default('open').notNull(),
+	createdBy: uuid("created_by").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	closedAt: timestamp("closed_at", { withTimezone: true, mode: 'string' }),
+	resultRepertoireId: uuid("result_repertoire_id"),
+}, (table) => [
+	foreignKey({
+			columns: [table.groupId],
+			foreignColumns: [groups.id],
+			name: "voting_rounds_group_id_groups_id_fk"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.createdBy],
+			foreignColumns: [users.id],
+			name: "voting_rounds_created_by_users_id_fk"
+		}),
+	foreignKey({
+			columns: [table.resultRepertoireId],
+			foreignColumns: [repertoires.id],
+			name: "voting_rounds_result_repertoire_id_fkey"
+		}).onDelete("set null"),
+]);
+
+// Uma música candidata dentro de uma rodada — sugerida por qualquer membro
+// (busca no mesmo acervo usado pelos setlists, ver /api/directory).
+export const votingCandidates = pgTable("voting_candidates", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	votingRoundId: uuid("voting_round_id").notNull(),
+	title: text().notNull(),
+	artist: text().notNull(),
+	addedBy: uuid("added_by"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.votingRoundId],
+			foreignColumns: [votingRounds.id],
+			name: "voting_candidates_voting_round_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.addedBy],
+			foreignColumns: [users.id],
+			name: "voting_candidates_added_by_users_id_fk"
+		}).onDelete("set null"),
+]);
+
+// Um voto = uma linha (par candidato+pessoa). Contagem de votos usados por
+// pessoa numa rodada é feita via join até aqui — sem coluna redundante.
+export const votingBallots = pgTable("voting_ballots", {
+	candidateId: uuid("candidate_id").notNull(),
+	userId: uuid("user_id").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.candidateId],
+			foreignColumns: [votingCandidates.id],
+			name: "voting_ballots_candidate_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "voting_ballots_user_id_users_id_fk"
+		}).onDelete("cascade"),
+	primaryKey({ columns: [table.candidateId, table.userId], name: "voting_ballots_pkey" }),
+]);
+
 export const groupSongs = pgTable("group_songs", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	groupId: uuid("group_id").notNull(),
