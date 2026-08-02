@@ -5,6 +5,7 @@ import {
   groups, groupMembers, events, eventRoles, eventAcknowledgments,
   users, repertoires, eventRepertoires, userProfiles,
   votingRounds, votingCandidates, votingBallots, importedSongs,
+  repertoireSongs,
 } from '@/db/schema';
 import { eq, and, count, sql } from 'drizzle-orm';
 import { GroupDetail } from './GroupDetail';
@@ -62,6 +63,28 @@ function aggregateSuggestions(
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
     .slice(0, 40)
     .map(({ key: _key, ...c }) => c);
+}
+
+// Gênero/estilo das músicas do setlist também entram no mapa do grupo:
+// count = quantas músicas do repertório têm aquele gênero/estilo. Uma
+// música pode contribuir com vários estilos, mas só um gênero.
+function aggregateRepertoire(
+  rows: { genero: string | null; estilos: string[] | null }[],
+): Capability[] {
+  const tally = new Map<string, Capability>();
+  const add = (label: string, category: Capability['category']) => {
+    const key = `${category}|${label.toLowerCase()}`;
+    const cur = tally.get(key);
+    if (cur) cur.count++;
+    else tally.set(key, { label, category, count: 1 });
+  };
+  for (const r of rows) {
+    if (r.genero) add(r.genero, 'genero');
+    for (const e of r.estilos ?? []) add(e, 'estilo');
+  }
+  return [...tally.values()]
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, 40);
 }
 
 export default async function GroupPage({ params }: { params: Promise<{ groupId: string }> }) {
@@ -125,7 +148,17 @@ export default async function GroupPage({ params }: { params: Promise<{ groupId:
     .where(eq(votingRounds.groupId, groupId))
     .groupBy(votingCandidates.id, importedSongs.artistSlug, importedSongs.titleSlug);
 
-  const capabilities = [...aggregateCapabilities(members), ...aggregateSuggestions(suggestionRows)];
+  const repertoireGenreRows = await db
+    .select({ genero: repertoireSongs.genero, estilos: repertoireSongs.estilos })
+    .from(repertoireSongs)
+    .innerJoin(repertoires, eq(repertoires.id, repertoireSongs.repertoireId))
+    .where(eq(repertoires.groupId, groupId));
+
+  const capabilities = [
+    ...aggregateCapabilities(members),
+    ...aggregateSuggestions(suggestionRows),
+    ...aggregateRepertoire(repertoireGenreRows),
+  ];
 
   const eventsRows = await db
     .select({

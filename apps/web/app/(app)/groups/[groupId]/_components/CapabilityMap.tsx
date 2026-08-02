@@ -6,17 +6,20 @@ const CATEGORY_STYLE: Record<Capability['category'], { className: string; legend
   instrument: { className: 'text-blue-400', legend: 'Instrumentos', unit: 'membro' },
   competency: { className: 'text-amber-400', legend: 'Competências', unit: 'membro' },
   suggestion: { className: 'text-emerald-400', legend: 'Sugestões', unit: 'voto' },
+  genero: { className: 'text-rose-400', legend: 'Gêneros', unit: 'música' },
+  estilo: { className: 'text-cyan-400', legend: 'Estilos', unit: 'música' },
 };
 
 // Nuvem de palavras do grupo: quanto mais membros declaram uma
-// função/instrumento/competência no perfil, ou quanto mais votos uma música
-// sugerida na votação recebe, maior a palavra.
+// função/instrumento/competência no perfil, quanto mais votos uma música
+// sugerida na votação recebe, ou quanto mais músicas do repertório têm um
+// gênero/estilo, maior a palavra.
 export function CapabilityMap({ capabilities }: { capabilities: Capability[] }) {
   if (capabilities.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-line bg-surface/50 px-6 py-10 text-center">
         <p className="text-sm text-muted">
-          O mapa do grupo nasce dos perfis dos membros — instrumentos, funções e competências — e das músicas mais votadas na votação.
+          O mapa do grupo nasce dos perfis dos membros — instrumentos, funções e competências —, das músicas mais votadas na votação, e do gênero/estilo das músicas dos setlists.
         </p>
         <p className="mt-1 text-xs text-faint">
           Peça para cada um preencher o{' '}

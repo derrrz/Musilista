@@ -25,6 +25,8 @@ type SetlistBlock = {
   body: string | null;
   durationSec: number | null;
   segue: boolean | null;
+  genero: string | null;
+  estilos: string[] | null;
 };
 type Repertoire = {
   id: string;
@@ -400,6 +402,20 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
                             </div>
                             {def.type === 'song' && parseArtist(s.notes) && (
                               <div className="text-xs text-muted">{parseArtist(s.notes)}</div>
+                            )}
+                            {def.type === 'song' && (s.genero || (s.estilos && s.estilos.length > 0)) && (
+                              <div className="mt-1 flex flex-wrap items-center gap-1">
+                                {s.genero && (
+                                  <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                                    {s.genero}
+                                  </span>
+                                )}
+                                {s.estilos?.map((estilo) => (
+                                  <span key={estilo} className="rounded-full bg-surface px-2 py-0.5 text-[10px] text-muted">
+                                    {estilo}
+                                  </span>
+                                ))}
+                              </div>
                             )}
                             {def.type !== 'song' && s.body && (
                               <div className="line-clamp-2 whitespace-pre-line text-xs text-muted">{s.body}</div>

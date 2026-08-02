@@ -34,13 +34,15 @@ export type Member = {
   role: string;
 };
 
-// Uma capacidade agregada do grupo (derivada dos perfis dos membros, ou das
-// sugestões de música da votação): count = quantos membros declararam (perfil)
-// ou quantos votos recebeu (sugestão). href só existe pra sugestões que bateram
-// no acervo — linka pra cifra.
+// Uma capacidade agregada do grupo (derivada dos perfis dos membros, das
+// sugestões de música da votação, ou do gênero/estilo das músicas dos
+// setlists): count = quantos membros declararam (perfil), quantos votos
+// recebeu (sugestão), ou quantas músicas do repertório têm aquele
+// gênero/estilo. href só existe pra sugestões que bateram no acervo — linka
+// pra cifra.
 export type Capability = {
   label: string;
-  category: 'function' | 'instrument' | 'competency' | 'suggestion';
+  category: 'function' | 'instrument' | 'competency' | 'suggestion' | 'genero' | 'estilo';
   count: number;
   href?: string;
 };
