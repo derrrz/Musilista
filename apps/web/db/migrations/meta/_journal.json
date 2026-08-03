@@ -183,6 +183,13 @@
       "when": 1785713710116,
       "tag": "0025_supreme_piledriver",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1785715054427,
+      "tag": "0026_wandering_kinsey_walden",
+      "breakpoints": true
     }
   ]
 }

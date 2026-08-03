@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { IconHeart, IconPlay, IconPause } from '@/components/ui/icons';
+import { Avatar } from '@/components/ui/Avatar';
 
 type Candidate = {
   id: string;
@@ -40,26 +41,58 @@ function cifraHref(c: Pick<Candidate, 'artistSlug' | 'titleSlug'>): string | nul
   return c.artistSlug && c.titleSlug ? `/${c.artistSlug}/${c.titleSlug}` : null;
 }
 
+// Capa do álbum (Deezer) — sem capa, cai pra foto do artista; sem nenhuma
+// das duas, o Avatar mostra a inicial.
+function SongCoverThumb({ title, artist }: { title: string; artist: string }) {
+  const [coverFailed, setCoverFailed] = useState(false);
+  const coverUrl = `/api/song-cover?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
+  const artistPhotoUrl = `/api/artist-photo?name=${encodeURIComponent(artist)}`;
+  return (
+    <Avatar
+      name={artist || title}
+      src={coverFailed ? artistPhotoUrl : coverUrl}
+      onError={() => setCoverFailed(true)}
+      size="lg"
+      shape="square"
+    />
+  );
+}
+
 // Duplicado de propósito (mesmo componente existe em
 // _components/SongPreviewButton.tsx, pro lado autenticado) — o bundle
 // público não deve depender da árvore de componentes do app logado.
 let currentlyPlaying: HTMLAudioElement | null = null;
 
-function SongPreviewButton({ title, artist }: { title: string; artist: string }) {
-  const [previewUrl, setPreviewUrl] = useState<string | null | undefined>(undefined);
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+type PreviewStatus = 'loading' | 'found' | 'not-found';
+
+function useSongPreview(title: string, artist: string) {
+  const [status, setStatus] = useState<PreviewStatus>('loading');
+  const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setStatus('loading');
     fetch(`/api/song-preview?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`)
       .then((r) => (r.ok ? r.json() : { previewUrl: null }))
-      .then((data) => { if (!cancelled) setPreviewUrl(data.previewUrl ?? null); })
-      .catch(() => { if (!cancelled) setPreviewUrl(null); });
+      .then((data) => {
+        if (cancelled) return;
+        setUrl(data.previewUrl ?? null);
+        setStatus(data.previewUrl ? 'found' : 'not-found');
+      })
+      .catch(() => { if (!cancelled) { setUrl(null); setStatus('not-found'); } });
     return () => { cancelled = true; };
   }, [title, artist]);
 
+  return { status, url };
+}
+
+function SongPreviewButton({ title, artist }: { title: string; artist: string }) {
+  const { status, url } = useSongPreview(title, artist);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => () => {
+    audioRef.current?.pause();
     if (currentlyPlaying === audioRef.current) currentlyPlaying = null;
   }, []);
 
@@ -75,7 +108,20 @@ function SongPreviewButton({ title, artist }: { title: string; artist: string })
     audio.play().catch(() => {});
   }
 
-  if (!previewUrl) return null;
+  if (status === 'loading') {
+    return <span className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-raised" aria-hidden="true" />;
+  }
+
+  if (status === 'not-found') {
+    return (
+      <span
+        className="shrink-0 whitespace-nowrap rounded-full border border-dashed border-line px-2.5 py-1.5 font-mono text-[10px] text-faint"
+        title="Não achamos essa música no catálogo da Deezer"
+      >
+        🎧 sem prévia
+      </span>
+    );
+  }
 
   return (
     <>
@@ -83,17 +129,17 @@ function SongPreviewButton({ title, artist }: { title: string; artist: string })
         type="button"
         onClick={toggle}
         className={cn(
-          'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-muted transition-colors hover:border-accent hover:text-accent',
-          playing && 'border-accent text-accent',
+          'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-accent-ink shadow-sm transition-all active:scale-90 hover:opacity-90',
+          playing && 'ring-4 ring-accent/25',
         )}
         title={playing ? 'Pausar trecho' : 'Ouvir trecho (30s)'}
         aria-label={playing ? 'Pausar trecho' : 'Ouvir trecho'}
       >
-        {playing ? <IconPause className="h-3 w-3" /> : <IconPlay className="h-3 w-3" />}
+        {playing ? <IconPause className="h-4 w-4" /> : <IconPlay className="h-4 w-4" />}
       </button>
       <audio
         ref={audioRef}
-        src={previewUrl}
+        src={url!}
         preload="none"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
@@ -181,18 +227,21 @@ function SessionCard({
           </div>
         )}
       </div>
-      <div className="rounded-xl border border-line bg-surface p-5 text-center">
-        <div className="flex items-center justify-center gap-2">
-          {href ? (
-            <Link href={href} target="_blank" className="text-base font-semibold text-ink underline-offset-2 hover:text-accent hover:underline">
-              {candidate.title}
-            </Link>
-          ) : (
-            <p className="text-base font-semibold text-ink">{candidate.title}</p>
-          )}
-          <SongPreviewButton title={candidate.title} artist={candidate.artist} />
+      <div className="rounded-xl border border-line bg-surface p-5">
+        <div className="flex items-center gap-3">
+          <SongCoverThumb title={candidate.title} artist={candidate.artist} />
+          <div className="min-w-0 flex-1 text-left">
+            {href ? (
+              <Link href={href} target="_blank" className="text-base font-semibold text-ink underline-offset-2 hover:text-accent hover:underline">
+                {candidate.title}
+              </Link>
+            ) : (
+              <p className="text-base font-semibold text-ink">{candidate.title}</p>
+            )}
+            {candidate.artist && <p className="text-sm text-muted">{candidate.artist}</p>}
+          </div>
+          <SongPreviewButton key={candidate.id} title={candidate.title} artist={candidate.artist} />
         </div>
-        {candidate.artist && <p className="text-sm text-muted">{candidate.artist}</p>}
         {candidate.body ? (
           <details className="mt-2 text-left">
             <summary className="cursor-pointer text-[11px] font-medium text-accent">Ver cifra</summary>

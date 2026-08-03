@@ -6,27 +6,48 @@ import { IconPlay, IconPause } from '@/components/ui/icons';
 
 // Só um trecho toca por vez na página inteira — começar outro pausa o
 // anterior (útil na lista de repertório, onde várias músicas aparecem
-// juntas; na sessão de votação já é natural, só um card por vez).
+// juntas; na sessão de votação já é natural, só um card por vez, mas quem
+// troca de música leva o componente inteiro pra desmontar — ver `key` nos
+// usos de SessionCard — o que já pausa o áudio antigo sozinho).
 let currentlyPlaying: HTMLAudioElement | null = null;
 
-// Botão de "ouvir trecho" (30s, via Deezer, sem conta nem chave de API —
-// ver app/api/song-preview/route.ts). Fica invisível se a música não tiver
-// preview no catálogo deles (comum em faixa nacional/indie/autoral).
-export function SongPreviewButton({ title, artist, className }: { title: string; artist: string; className?: string }) {
-  const [previewUrl, setPreviewUrl] = useState<string | null | undefined>(undefined);
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+type Status = 'loading' | 'found' | 'not-found';
+
+function useSongPreview(title: string, artist: string) {
+  const [status, setStatus] = useState<Status>('loading');
+  const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setStatus('loading');
     fetch(`/api/song-preview?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`)
       .then((r) => (r.ok ? r.json() : { previewUrl: null }))
-      .then((data) => { if (!cancelled) setPreviewUrl(data.previewUrl ?? null); })
-      .catch(() => { if (!cancelled) setPreviewUrl(null); });
+      .then((data) => {
+        if (cancelled) return;
+        setUrl(data.previewUrl ?? null);
+        setStatus(data.previewUrl ? 'found' : 'not-found');
+      })
+      .catch(() => { if (!cancelled) { setUrl(null); setStatus('not-found'); } });
     return () => { cancelled = true; };
   }, [title, artist]);
 
+  return { status, url };
+}
+
+// Botão de "ouvir trecho" (30s, via Deezer, sem conta nem chave de API —
+// ver app/api/song-preview/route.ts). `compact` controla o estado "sem
+// prévia": na sessão de votação (mais espaço, uma música por vez) mostra um
+// aviso por extenso; em listas apertadas (setlist) só um ícone com tooltip.
+export function SongPreviewButton({ title, artist, compact = false }: { title: string; artist: string; compact?: boolean }) {
+  const { status, url } = useSongPreview(title, artist);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Some da tela (troca de música, fechou o card) sempre para o áudio —
+  // sem isso, quem votava enquanto o trecho tocava ouvia o som travar e o
+  // botão ficava preso em "pausado" sem tocar a próxima música.
   useEffect(() => () => {
+    audioRef.current?.pause();
     if (currentlyPlaying === audioRef.current) currentlyPlaying = null;
   }, []);
 
@@ -42,7 +63,27 @@ export function SongPreviewButton({ title, artist, className }: { title: string;
     audio.play().catch(() => {});
   }
 
-  if (!previewUrl) return null;
+  if (status === 'loading') {
+    return <span className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-raised" aria-hidden="true" />;
+  }
+
+  if (status === 'not-found') {
+    return compact ? (
+      <span
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-dashed border-line text-faint"
+        title="Não achamos essa música na Deezer pra tocar um trecho"
+      >
+        <IconPlay className="h-3.5 w-3.5 opacity-40" />
+      </span>
+    ) : (
+      <span
+        className="shrink-0 whitespace-nowrap rounded-full border border-dashed border-line px-2.5 py-1.5 font-mono text-[10px] text-faint"
+        title="Não achamos essa música no catálogo da Deezer"
+      >
+        🎧 sem prévia
+      </span>
+    );
+  }
 
   return (
     <>
@@ -50,18 +91,17 @@ export function SongPreviewButton({ title, artist, className }: { title: string;
         type="button"
         onClick={toggle}
         className={cn(
-          'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-muted transition-colors hover:border-accent hover:text-accent',
-          playing && 'border-accent text-accent',
-          className,
+          'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-accent-ink shadow-sm transition-all active:scale-90 hover:opacity-90',
+          playing && 'ring-4 ring-accent/25',
         )}
         title={playing ? 'Pausar trecho' : 'Ouvir trecho (30s)'}
         aria-label={playing ? 'Pausar trecho' : 'Ouvir trecho'}
       >
-        {playing ? <IconPause className="h-3 w-3" /> : <IconPlay className="h-3 w-3" />}
+        {playing ? <IconPause className="h-4 w-4" /> : <IconPlay className="h-4 w-4" />}
       </button>
       <audio
         ref={audioRef}
-        src={previewUrl}
+        src={url!}
         preload="none"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}

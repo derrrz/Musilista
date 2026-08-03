@@ -15,6 +15,7 @@ import { BLOCK_TYPES, blockDef, formatDuration, type BlockType } from '@/app/_li
 import type { IconProps } from '@/components/ui/icons';
 import { StyleCloud } from './StyleCloud';
 import { SongPreviewButton } from './SongPreviewButton';
+import { SongCoverThumb } from './SongCoverThumb';
 
 type SetlistBlock = {
   id: string;
@@ -387,6 +388,9 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
                               ? <span className="font-mono text-[11px] font-bold">{songNumber}</span>
                               : <Icon size={13} />}
                           </span>
+                          {def.type === 'song' && (
+                            <SongCoverThumb title={s.title ?? ''} artist={parseArtist(s.notes)} size="sm" />
+                          )}
                           <div className="min-w-0 flex-1">
                             <div className="flex items-baseline gap-2">
                               <span className="truncate text-sm font-semibold text-ink">{s.title}</span>
@@ -422,7 +426,7 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
                             )}
                           </div>
                           {def.type === 'song' && (
-                            <SongPreviewButton title={s.title ?? ''} artist={parseArtist(s.notes) ?? ''} />
+                            <SongPreviewButton key={s.id} title={s.title ?? ''} artist={parseArtist(s.notes)} compact />
                           )}
                           {s.songKey && (
                             <span className="shrink-0 rounded-md bg-blue-400/15 px-2 py-0.5 font-mono text-[11px] font-bold text-blue-400">

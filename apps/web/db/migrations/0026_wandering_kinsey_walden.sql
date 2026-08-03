@@ -1,0 +1,1 @@
+ALTER TABLE "song_previews" DROP COLUMN "preview_url";
