@@ -288,58 +288,12 @@ function SessionCard({
   );
 }
 
-function SessionReview({
-  list, onEdit, onClose,
-}: { list: Candidate[]; onEdit: (index: number) => void; onClose: () => void }) {
-  const missing = list.filter((c) => c.myLevel == null);
-  return (
-    <div className="flex flex-col gap-3">
-      {missing.length > 0 ? (
-        <p className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs text-amber-500">
-          Faltam {missing.length} {missing.length === 1 ? 'música' : 'músicas'} sem nota.
-        </p>
-      ) : (
-        <p className="rounded-lg border border-accent/40 bg-accent/5 px-3 py-2 text-xs text-accent">
-          🎉 Você avaliou todas as músicas!
-        </p>
-      )}
-      <div className="flex max-h-80 flex-col gap-1 overflow-y-auto">
-        {list.map((c, i) => (
-          <button
-            key={c.id}
-            type="button"
-            onClick={() => onEdit(i)}
-            className={cn(
-              'flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left hover:bg-surface',
-              c.myLevel == null ? 'border-amber-400/30' : 'border-line',
-            )}
-          >
-            <div className="min-w-0">
-              <p className="truncate text-sm text-ink">{c.title}</p>
-              {c.artist && <p className="truncate text-xs text-muted">{c.artist}</p>}
-            </div>
-            {c.myLevel != null ? (
-              <div className="flex shrink-0 gap-0.5 text-accent">
-                {[1, 2, 3].map((n) => (
-                  <IconHeart key={n} className={cn('h-3 w-3', n <= c.myLevel! && 'fill-current')} />
-                ))}
-              </div>
-            ) : (
-              <span className="shrink-0 font-mono text-[10px] uppercase text-amber-500">Sem nota</span>
-            )}
-          </button>
-        ))}
-      </div>
-      <div className="flex justify-end">
-        <Button size="sm" onClick={onClose}>{missing.length > 0 ? 'Fechar' : 'Concluir'}</Button>
-      </div>
-    </div>
-  );
-}
-
 // Sessão guiada — mesma lógica do lado do membro (VotingPanel.tsx), mas
 // duplicada aqui de propósito: o bundle público não deve depender da
 // árvore de componentes autenticada.
+// Sem revisão ao final — convidado (sem conta) vota uma vez e pronto; poder
+// voltar e trocar notas depois de terminar é reservado a quem tem login
+// (VotingPanel.tsx, lado do membro).
 function VoteSessionModal({ candidates, onVote, onClose }: {
   candidates: Candidate[];
   onVote: (candidateId: string, level: number) => Promise<void>;
@@ -351,8 +305,6 @@ function VoteSessionModal({ candidates, onVote, onClose }: {
 
   const firstUnvoted = list.findIndex((c) => c.myLevel == null);
   const [index, setIndex] = useState(firstUnvoted === -1 ? 0 : firstUnvoted);
-  const [mode, setMode] = useState<'voting' | 'review'>(firstUnvoted === -1 ? 'review' : 'voting');
-  const [editing, setEditing] = useState(false);
   const [pending, startTransition] = useTransition();
   // "Modo rádio": liga quando o usuário aperta play manualmente, some
   // quando pausa manualmente — não é state (não deve causar re-render),
@@ -370,42 +322,31 @@ function VoteSessionModal({ candidates, onVote, onClose }: {
   }
 
   function advance() {
-    if (editing) { setEditing(false); setMode('review'); return; }
     if (index + 1 < list.length) setIndex(index + 1);
-    else setMode('review');
+    else onClose();
   }
 
   function back() {
     if (index > 0) setIndex(index - 1);
   }
 
-  function editFrom(i: number) {
-    setIndex(i);
-    setEditing(true);
-    setMode('voting');
-  }
-
-  if (list.length === 0) return null;
+  if (list.length === 0 || !current) return null;
 
   return (
     <Modal title="Votação" onClose={onClose}>
-      {mode === 'voting' && current ? (
-        <SessionCard
-          candidate={current}
-          index={index}
-          total={list.length}
-          pending={pending}
-          editing={editing}
-          canBack={index > 0 && !editing}
-          onSetLevel={setLevel}
-          onBack={back}
-          onSkip={advance}
-          autoPlay={autoplayRef.current}
-          onPlayingChange={(playing) => { autoplayRef.current = playing; }}
-        />
-      ) : (
-        <SessionReview list={list} onEdit={editFrom} onClose={onClose} />
-      )}
+      <SessionCard
+        candidate={current}
+        index={index}
+        total={list.length}
+        pending={pending}
+        editing={false}
+        canBack={index > 0}
+        onSetLevel={setLevel}
+        onBack={back}
+        onSkip={advance}
+        autoPlay={autoplayRef.current}
+        onPlayingChange={(playing) => { autoplayRef.current = playing; }}
+      />
     </Modal>
   );
 }
@@ -526,9 +467,11 @@ export function VotePanel({
                   style={{ width: `${total > 0 ? (done / total) * 100 : 0}%` }}
                 />
               </div>
-              <Button size="sm" onClick={() => setShowSession(true)}>
-                {done === 0 ? 'Votar agora' : done === total ? 'Revisar meus votos' : 'Continuar votação'}
-              </Button>
+              {done < total && (
+                <Button size="sm" onClick={() => setShowSession(true)}>
+                  {done === 0 ? 'Votar agora' : 'Continuar votação'}
+                </Button>
+              )}
             </div>
           ) : (
             <p className="text-xs text-muted">Diga seu nome pra começar a votar.</p>
