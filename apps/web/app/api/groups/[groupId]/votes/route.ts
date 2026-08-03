@@ -98,10 +98,11 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
         name: m.name || m.email,
         given: memberGiven.find((g) => g.votingRoundId === r.id && g.userId === m.userId)?.given ?? 0,
         max,
+        guestId: null as string | null,
       })),
       ...guestGiven
         .filter((g) => g.votingRoundId === r.id)
-        .map((g) => ({ name: g.guestName, given: g.given, max })),
+        .map((g) => ({ name: g.guestName, given: g.given, max, guestId: g.guestId })),
     ];
     return { ...r, candidates: cands, participants };
   });

@@ -1,15 +1,18 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { db } from '@/db';
 import { votingRounds, votingCandidates, votingBallots, votingGuestBallots, groups, importedSongs } from '@/db/schema';
 import { eq, asc, sql } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { LogoMark, Wordmark } from '@/components/brand/Logo';
 import { VotePanel } from './VotePanel';
+import { auth } from '@/auth';
+import { getGroupRole } from '@/app/_lib/groupAuth';
 
 async function getVoteRound(token: string) {
   const [row] = await db
     .select({
       id: votingRounds.id,
+      groupId: votingRounds.groupId,
       title: votingRounds.title,
       status: votingRounds.status,
       groupName: groups.name,
@@ -66,6 +69,14 @@ export default async function VotePublicPage({
   const { token } = await params;
   const data = await getVoteRound(token);
   if (!data) notFound();
+
+  // Quem já é do grupo não precisa votar como convidado anônimo — manda
+  // direto pra votação autenticada (evita voto duplicado sob outro nome).
+  const session = await auth();
+  if (session?.user?.id) {
+    const role = await getGroupRole(session.user.id, data.row.groupId);
+    if (role) redirect(`/groups/${data.row.groupId}`);
+  }
 
   return (
     <main className="min-h-screen bg-bg pb-20 text-ink">

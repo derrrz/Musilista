@@ -22,7 +22,7 @@ type Candidate = {
   myLevel: number | null;
 };
 
-type Participant = { name: string | null; given: number; max: number };
+type Participant = { name: string | null; given: number; max: number; guestId: string | null };
 
 // URL canônica da cifra quando a sugestão bateu no acervo; sem slug (sugestão
 // digitada à mão) não tem cifra pra linkar.
@@ -159,7 +159,27 @@ function CandidateRow({
 // Quem já votou e quanto — só participação (quantas músicas já avaliadas
 // sobre o total), nunca em qual música cada nota foi dada. Visível pra
 // todo mundo, inclusive quem administra o grupo.
-function ProgressPanel({ participants }: { participants: Participant[] }) {
+// Convidados (guestId preenchido) podem ter seus dados apagados por quem
+// administra o grupo — são pessoas de fora, sem conta nem vínculo com o
+// grupo, então o convite pode ser desfeito a qualquer momento.
+function ProgressPanel({
+  participants, groupId, roundId, canManage, onChange,
+}: {
+  participants: Participant[]; groupId: string; roundId: string; canManage: boolean; onChange: () => void;
+}) {
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [busy, startTransition] = useTransition();
+
+  function removeGuest(guestId: string) {
+    if (!confirm('Excluir os votos desse convidado?')) return;
+    setRemovingId(guestId);
+    startTransition(async () => {
+      await fetch(`/api/groups/${groupId}/votes/${roundId}/guests/${guestId}`, { method: 'DELETE' });
+      setRemovingId(null);
+      onChange();
+    });
+  }
+
   if (participants.length === 0) return null;
   return (
     <div className="flex flex-col gap-1.5 rounded-lg border border-line bg-surface p-3">
@@ -177,6 +197,18 @@ function ProgressPanel({ participants }: { participants: Participant[] }) {
                 />
               </div>
               <span className="w-12 shrink-0 text-right font-mono text-[11px] text-muted">{p.given}/{p.max}</span>
+              {canManage && p.guestId && (
+                <button
+                  type="button"
+                  onClick={() => removeGuest(p.guestId!)}
+                  disabled={busy && removingId === p.guestId}
+                  className="shrink-0 text-faint transition-colors hover:text-red-500 disabled:opacity-40"
+                  title="Excluir dados desse convidado"
+                  aria-label={`Excluir dados de ${p.name ?? 'convidado'}`}
+                >
+                  <IconClose className="h-3 w-3" />
+                </button>
+              )}
             </div>
           );
         })}
@@ -604,7 +636,13 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
           : <span className="shrink-0 rounded-md border border-line px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">Fechada</span>}
       </div>
 
-      <ProgressPanel participants={round.participants} />
+      <ProgressPanel
+        participants={round.participants}
+        groupId={groupId}
+        roundId={round.id}
+        canManage={canManageThis}
+        onChange={onChange}
+      />
 
       {round.candidates.length === 0 ? (
         <p className="rounded-lg border border-dashed border-line py-6 text-center text-xs text-muted">
