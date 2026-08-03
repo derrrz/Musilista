@@ -241,10 +241,11 @@ function InviteModal({ groupId, round, onClose }: { groupId: string; round: Voti
 // depois de votar; "Pular" avança sem votar; "Voltar" só navega, não
 // desfaz voto.
 function SessionCard({
-  candidate, index, total, pending, editing, canBack, onSetLevel, onBack, onSkip,
+  candidate, index, total, pending, editing, canBack, onSetLevel, onBack, onSkip, autoPlay, onPlayingChange,
 }: {
   candidate: Candidate; index: number; total: number; pending: boolean; editing: boolean; canBack: boolean;
   onSetLevel: (level: number) => void; onBack: () => void; onSkip: () => void;
+  autoPlay: boolean; onPlayingChange: (playing: boolean) => void;
 }) {
   const href = cifraHref(candidate);
   return (
@@ -275,7 +276,13 @@ function SessionCard({
             )}
             {candidate.artist && <p className="text-sm text-muted">{candidate.artist}</p>}
           </div>
-          <SongPreviewButton key={candidate.id} title={candidate.title} artist={candidate.artist} />
+          <SongPreviewButton
+            key={candidate.id}
+            title={candidate.title}
+            artist={candidate.artist}
+            autoPlay={autoPlay}
+            onPlayingChange={onPlayingChange}
+          />
         </div>
         {candidate.body ? (
           <details className="mt-2 text-left">
@@ -364,6 +371,10 @@ function VoteSessionModal({ round, groupId, onChange, onClose }: {
   const [mode, setMode] = useState<'voting' | 'review'>(firstUnvoted === -1 ? 'review' : 'voting');
   const [editing, setEditing] = useState(false);
   const [pending, startTransition] = useTransition();
+  // "Modo rádio": liga quando o usuário aperta play manualmente, some
+  // quando pausa manualmente — não é state (não deve causar re-render),
+  // só influencia se a PRÓXIMA música tenta tocar sozinha ao aparecer.
+  const autoplayRef = useRef(false);
 
   const current = list[index];
 
@@ -411,6 +422,8 @@ function VoteSessionModal({ round, groupId, onChange, onClose }: {
           onSetLevel={setLevel}
           onBack={back}
           onSkip={advance}
+          autoPlay={autoplayRef.current}
+          onPlayingChange={(playing) => { autoplayRef.current = playing; }}
         />
       ) : (
         <SessionReview list={list} onEdit={editFrom} onClose={onClose} />

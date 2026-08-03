@@ -38,7 +38,16 @@ function useSongPreview(title: string, artist: string) {
 // ver app/api/song-preview/route.ts). `compact` controla o estado "sem
 // prévia": na sessão de votação (mais espaço, uma música por vez) mostra um
 // aviso por extenso; em listas apertadas (setlist) só um ícone com tooltip.
-export function SongPreviewButton({ title, artist, compact = false }: { title: string; artist: string; compact?: boolean }) {
+// `autoPlay` toca sozinho assim que achar o trecho — usado na sessão de
+// votação pra manter o "modo rádio" (quem estava ouvindo e votou já ouve a
+// próxima, sem precisar clicar de novo); `onPlayingChange` avisa o card pai
+// quando o usuário liga/desliga manualmente, pra saber se deve manter esse
+// modo ligado na música seguinte.
+export function SongPreviewButton({
+  title, artist, compact = false, autoPlay = false, onPlayingChange,
+}: {
+  title: string; artist: string; compact?: boolean; autoPlay?: boolean; onPlayingChange?: (playing: boolean) => void;
+}) {
   const { status, url } = useSongPreview(title, artist);
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -51,16 +60,31 @@ export function SongPreviewButton({ title, artist, compact = false }: { title: s
     if (currentlyPlaying === audioRef.current) currentlyPlaying = null;
   }, []);
 
+  // Autoplay só quando o trecho é encontrado — se essa música não tiver
+  // prévia, fica sem tocar (nada pra tocar mesmo), mas o "modo rádio" segue
+  // ligado pra próxima que achar (quem controla isso é o pai, via a mesma
+  // prop `autoPlay` recalculada a cada música).
+  useEffect(() => {
+    if (status !== 'found' || !autoPlay || !audioRef.current) return;
+    const audio = audioRef.current;
+    if (currentlyPlaying && currentlyPlaying !== audio) currentlyPlaying.pause();
+    currentlyPlaying = audio;
+    audio.play().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
+
   function toggle() {
     const audio = audioRef.current;
     if (!audio) return;
     if (playing) {
       audio.pause();
+      onPlayingChange?.(false);
       return;
     }
     if (currentlyPlaying && currentlyPlaying !== audio) currentlyPlaying.pause();
     currentlyPlaying = audio;
     audio.play().catch(() => {});
+    onPlayingChange?.(true);
   }
 
   if (status === 'loading') {
