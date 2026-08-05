@@ -554,6 +554,17 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
     });
   }
 
+  // Qualquer pessoa pode apagar os próprios votos, completos ou não — igual
+  // ao toggle por música (sempre permitido), só que a rodada inteira de
+  // uma vez. Não precisa administrar o grupo: é o próprio voto de quem pede.
+  function removeMyVotes() {
+    if (!confirm('Excluir todos os seus votos nessa votação?')) return;
+    startTransition(async () => {
+      await fetch(`/api/groups/${groupId}/votes/${round.id}/mine`, { method: 'DELETE' });
+      onChange();
+    });
+  }
+
   // Drag-and-drop de um SetlistCard: soltar abre o seletor, não importa
   // direto — o usuário escolhe quais músicas quer mandar pra votação.
   function handleDragOver(e: React.DragEvent) {
@@ -703,6 +714,11 @@ function RoundCard({ round, groupId, canManage, myUserId, onChange }: {
         )}
         {canManage && round.candidates.some((c) => c.votes > 0) && (
           <Button size="sm" onClick={buildSet} disabled={busy}>Criar set com o resultado</Button>
+        )}
+        {sessionDone > 0 && (
+          <Button size="sm" variant="ghost" onClick={removeMyVotes} disabled={busy} className="text-red-400 hover:text-red-300">
+            Excluir meus votos
+          </Button>
         )}
         {canManageThis && (
           <Button size="sm" variant="ghost" onClick={removeRound} disabled={busy} className="text-red-400 hover:text-red-300">

@@ -9,7 +9,7 @@ import { cn } from '@/components/ui/cn';
 import {
   IconClose, IconCheck, IconEdit, IconChevronUp, IconChevronDown,
   IconGuitar, IconMic, IconScreen, IconGroups, IconPlay, IconHeart,
-  IconDocument, IconPause, IconSettings, IconMenu,
+  IconDocument, IconPause, IconSettings, IconMenu, IconClipboard,
 } from '@/components/ui/icons';
 import { BLOCK_TYPES, blockDef, formatDuration, type BlockType } from '@/app/_lib/setlistBlocks';
 import type { IconProps } from '@/components/ui/icons';
@@ -58,7 +58,24 @@ function parseArtist(notes: string | null): string {
   return m ? m[1].trim() : '';
 }
 
-export function RepertoirePanel({ groupId, canManage }: { groupId: string; canManage: boolean }) {
+// Texto simples pra colar em WhatsApp/e-mail — só as músicas (sem falas,
+// seções etc.), numeradas na ordem do roteiro, mais o link do grupo.
+function buildExportText(repertoire: Repertoire, groupName: string, groupUrl: string): string {
+  const songs = repertoire.songs.filter((s) => (s.itemType ?? 'song') === 'song');
+  const lines = songs.map((s, i) => {
+    const artist = parseArtist(s.notes);
+    return `${i + 1}. ${s.title}${artist ? ` — ${artist}` : ''}`;
+  });
+  return [
+    `${repertoire.name} — ${groupName}`,
+    '',
+    ...(lines.length > 0 ? lines : ['(nenhuma música ainda)']),
+    '',
+    `Acesse o grupo no Musilista: ${groupUrl}`,
+  ].join('\n');
+}
+
+export function RepertoirePanel({ groupId, groupName, canManage }: { groupId: string; groupName: string; canManage: boolean }) {
   const [repertoires, setRepertoires] = useState<Repertoire[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -68,6 +85,7 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
   const [newName, setNewName] = useState('');
   const [renaming, setRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
+  const [exported, setExported] = useState(false);
   const [pending, startTransition] = useTransition();
 
   // adicionar/editar bloco
@@ -149,6 +167,15 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
         setRenaming(false);
       }
     });
+  }
+
+  function exportActiveAsText() {
+    if (!active) return;
+    const groupUrl = `${window.location.origin}/groups/${groupId}`;
+    const text = buildExportText(active, groupName, groupUrl);
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setExported(true);
+    setTimeout(() => setExported(false), 1500);
   }
 
   function handleDeleteRepertoire(id: string) {
@@ -348,6 +375,9 @@ export function RepertoirePanel({ groupId, canManage }: { groupId: string; canMa
                 )}
                 {!renaming && (
                   <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={exportActiveAsText}>
+                      <IconClipboard size={13} /> {exported ? 'Copiado!' : 'Exportar em texto'}
+                    </Button>
                     <Button size="sm" onClick={() => setBlockMenuOpen(true)}>+ Adicionar bloco</Button>
                     {canManage && (
                       <Button variant="outline" size="sm" onClick={() => handleDeleteRepertoire(active.id)}>

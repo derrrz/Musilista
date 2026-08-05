@@ -77,7 +77,7 @@ export function GroupDetail({
 
       <section>
         <SectionHeading id="setlists" title="Setlists" />
-        <RepertoirePanel groupId={group.id} canManage={canManage} />
+        <RepertoirePanel groupId={group.id} groupName={group.name} canManage={canManage} />
       </section>
 
       <section>
